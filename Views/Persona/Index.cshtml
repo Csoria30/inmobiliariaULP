@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Persona>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Hola 2</h1>
+
+    <div class="container">
+        <h2>Lista de personas</h2>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>DNI</th>
+                            <th>Apellido</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var persona in Model)
+                            {
+                                <tr>
+                                    <td>@persona.Dni</td>
+                                    <td>@persona.Apellido</td>
+                                    <td>@persona.Nombre</td>
+                                    <td>@persona.Telefono</td>
+                                    <td>@persona.Email</td>
+                                    <td>
+                                        
+                                    </td>
+                                </tr>
+                            }
+
+                        }else{
+                            <tr>
+                                <td colspan="6">No hay personas para mostrar.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
