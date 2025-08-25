@@ -1,31 +1,188 @@
+:root {
+  --bs-primary: #1A2A80;
+  --bs-primary-rgb: 102,16,242;
+
+  --bs-secondary: #6f42c1;
+  --bs-secondary-rgb: 111,66,193;
+
+  --bs-success: #198754;
+  --bs-success-rgb: 25,135,84;
+
+  --bs-info: #0dcaf0;
+  --bs-info-rgb: 13,202,240;
+
+  --bs-warning: #ffc107;
+  --bs-warning-rgb: 255,193,7;
+
+  --bs-danger: #e83e8c;
+  --bs-danger-rgb: 232,62,140;
+
+  --bs-light: #f8f9fa;
+  --bs-light-rgb: 248,249,250;
+
+  --bs-dark: #212529;
+  --bs-dark-rgb: 33,37,41;
+
+}
+
+/* Sistema de medidas rem */
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    font-size: 62.5%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    font-size: 1.6rem;     /* Texto base: 16px */
+    line-height: 1.6;      /* Altura de línea agradable */
+    margin: 0 0 6rem 0;    /* Respeta espacio al pie */
+    color: #212529;        /* Texto oscuro, buena legibilidad */
+    background-color: var(--bs-dange);
+    font-family: "Segoe UI", Arial, sans-serif;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
+/* ==============================
+   !TITULOS
+   ============================== */
+h1 { font-size: 4rem; font-weight: 700; margin-bottom: 1.6rem; }  /* 40px */
+h2 { font-size: 3.2rem; font-weight: 600; margin-bottom: 1.2rem; }/* 32px */
+h3 { font-size: 2.4rem; font-weight: 600; margin-bottom: 1rem; }  /* 24px */
+h4 { font-size: 2rem; font-weight: 500; margin-bottom: 0.8rem; }  /* 20px */
+p  { font-size: 1.6rem; margin-bottom: 1.6rem; }                  /* 16px */
+
+
+
+/* ==============================
+   !NAVEGACION
+   ============================== */
+nav.bg-primary {
+  background-color: var(--bs-primary) !important;
+  font-size: 1.6rem;  /* coherente con body */
+}
+
+.navbar-brand {
+  font-size: 2rem;   /* más destacada */
+  font-weight: 700;
+}
+
+.nav-link {
+  font-size: 1.6rem;
+  padding: 0.8rem 1.2rem;
+}
+
+
+/* ==============================
+   !BOTONES
+   ============================== */
+.btn {
+  font-size: 1.3rem;       /* Igual que texto base */
+  padding: 0.8rem 1.6rem;  /* Botón accesible */
+  border-radius: 0.8rem;   /* Borde suavizado UX */
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
+
+
+/* ==============================
+   !FORMULARIOS
+   ============================== */
+.form-control,
+.form-select {
+  font-size: 1.6rem;
+  padding: 0.8rem 1.2rem;
+}
+
+.form-floating > .form-control::placeholder {
+  color: var(--bs-secondary);
   text-align: end;
+  font-size: 1.4rem; /* un poco más chico */
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+/* Focus accesible */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem var(--bs-light),
+              0 0 0 0.25rem var(--bs-primary);
+}
+
+/* ===========================
+   !USER DROPDOWN MODERNO
+   =========================== */
+
+/* --- User Dropdown Moderno --- */
+.user-dropdown-toggle {
+    font-size: 2rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.8rem;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 0.1rem solid rgba(255, 255, 255, 0.2);
+}
+
+.user-dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-0.1rem);
+}
+
+.user-dropdown-text {
+    font-weight: 500;
+    font-size: 1.6rem;
+}
+
+.user-dropdown-menu {
+    min-width: 22rem;
+    padding: 1rem 0;
+    border: none;
+    border-radius: 1.2rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+    margin-top: 0.5rem;
+}
+
+.user-dropdown-item.dropdown-item {
+    font-size: 1.6rem;   /* Igual al body para consistencia */
+    padding: 1.2rem 1.8rem;
+    color: #495057;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+}
+
+.user-dropdown-item.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    transform: translateX(0.3rem);
+}
+
+
+.user-dropdown-item i {
+    font-size: 1.8rem;
+    color: #6c757d;
+}
+
+.user-dropdown-item:hover i {
+    color: #0d6efd;
+}
+
+.dropdown-divider {
+    margin: 0.8rem 0;
+    border-color: #e9ecef;
 }

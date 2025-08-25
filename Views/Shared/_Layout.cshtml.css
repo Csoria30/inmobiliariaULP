@@ -7,42 +7,65 @@ a.navbar-brand {
   word-break: break-all;
 }
 
+/* Links usando el color primario */
 a {
-  color: #0077cc;
+  color: var(--bs-primary);
 }
 
+a:hover {
+  color: var(--bs-secondary);
+  text-decoration: none;
+}
+
+
+/* Botón primario adaptado a la paleta */
 .btn-primary {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+.btn-primary:hover {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+
+
+/* Nav pills activos */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
 }
 
+
+/* Bordes usando variables */
 .border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+  border-top: 1px solid var(--bs-border-color, #e5e5e5);
 }
 
+.border-bottom {
+  border-bottom: 1px solid var(--bs-border-color, #e5e5e5);
+}
+
+
+/* Sombra */
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
+/* Botón para aceptar política */
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
 }
 
+/* Footer */
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   white-space: nowrap;
-  line-height: 60px;
+  line-height: 6rem;
 }
