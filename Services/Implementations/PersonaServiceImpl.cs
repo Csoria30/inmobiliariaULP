@@ -38,7 +38,8 @@ public class PersonaServiceImpl : IPersonaService
         {
             var personaRepository = FactoryRepository.CreatePersonaRepository();
             return await personaRepository.AddAsync(persona);
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al crear la nueva persona", ex);
         }

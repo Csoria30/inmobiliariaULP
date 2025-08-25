@@ -103,6 +103,11 @@ nav.bg-primary {
   padding: 0.8rem 1.2rem;
 }
 
+.modal-title i {
+  font-size: 2.4rem;   /* un poco más grande que el texto */
+  vertical-align: middle; /* lo centra verticalmente */
+}
+
 .form-floating > .form-control::placeholder {
   color: var(--bs-secondary);
   text-align: end;
