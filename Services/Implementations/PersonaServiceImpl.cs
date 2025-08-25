@@ -9,22 +9,51 @@ public class PersonaServiceImpl : IPersonaService
 {
     public async Task<int> ActualizarAsync(Persona persona)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var personaRepository = FactoryRepository.CreatePersonaRepository();
+            return await personaRepository.UpdateAsync(persona);
+        }catch (Exception ex)
+        {
+            throw new Exception("Error al actualizar la persona", ex);
+        }
     }
 
     public async Task<int> EliminarAsync(int personaId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var personaRepository = FactoryRepository.CreatePersonaRepository();
+            return await personaRepository.DeleteAsync(personaId);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al eliminar la persona", ex);
+        }
     }
 
     public async Task<int> NuevoAsync(Persona persona)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var personaRepository = FactoryRepository.CreatePersonaRepository();
+            return await personaRepository.AddAsync(persona);
+        }catch (Exception ex)
+        {
+            throw new Exception("Error al crear la nueva persona", ex);
+        }
     }
 
     public async Task<Persona> ObtenerIdAsync(int personaId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var personaRepository = FactoryRepository.CreatePersonaRepository();
+            return await personaRepository.GetByIdAsync(personaId);
+        }catch (Exception ex)
+        {
+            throw new Exception("Error al obtener la persona por ID", ex);
+        }
     }
 
     public async Task<IEnumerable<Persona>> ObtenerTodosAsync()
