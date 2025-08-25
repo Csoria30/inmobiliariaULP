@@ -1,7 +1,11 @@
+using inmobiliariaULP.Repositories.Implementations;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+// Inicializar el factory una sola vez
+FactoryRepository.Initialize(builder.Configuration);
 
 var app = builder.Build();
 
@@ -24,6 +28,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+
 
 
 app.Run();

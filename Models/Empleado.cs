@@ -1,7 +1,7 @@
 namespace inmobiliariaULP.Models;
-    
+
 public class Empleado : Persona
 {
-    public int IdEmpleado { get; set; }
+    public int EmpleadoId { get; set; }
     
 }
