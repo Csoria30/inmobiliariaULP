@@ -9,7 +9,14 @@
         <i class="bi bi-person-plus me-2"></i>Crear Nueva Persona
     </h2>
 
-    <form asp-action="Create" asp-controller="Persona" class="needs-validation" novalidate>
+
+    <form asp-action="@(Model?.PersonaId > 0 ? "Edit" : "Create")" asp-controller="Persona" class="needs-validation" novalidate>
+        
+        @if (Model?.PersonaId > 0)
+        {
+            <input type="hidden" asp-for="PersonaId" />
+        }
+
         <!-- Información Personal -->
         <div class="row mb-4">
             <div class="col-md-6 mb-3">
@@ -43,60 +50,56 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
         </div>
-@*
-        <!-- Rol único -->
+
+        <!-- Rol único (solo Inquilino o Propietario) -->
         <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="form-check border rounded p-3">
-                    <input class="form-check-input" type="radio" asp-for="TipoPersona" value="inquilino" required />
-                    <label class="form-check-label">Inquilino</label>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="form-check border rounded p-3">
-                    <input class="form-check-input" type="radio" asp-for="TipoPersona" value="propietario" required />
-                    <label class="form-check-label">Propietario</label>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="form-check border rounded p-3">
-                    <input class="form-check-input" type="radio" asp-for="TipoPersona" value="empleado" required id="rolEmpleado" />
-                    <label class="form-check-label">Empleado</label>
+            <div class="col-12">
+                <label class="form-label d-block mb-3">Tipo de Persona</label>                
+                <div class="d-flex gap-3 flex-wrap">                    
+                    <!-- Inquilino -->
+                    <div class="card flex-fill text-center tipo-persona-card border-primary p-3" style="cursor:pointer; min-width:12rem;">
+                        <div class="card-body">
+                            <i class="bi bi-house-door-fill display-4 text-primary"></i>
+                            <p class="mt-2 mb-0 fw-semibold">Inquilino</p>
+                            <input 
+                                type="checkbox" 
+                                asp-for="TipoPersona" 
+                                value="inquilino" 
+                                class="form-check-input mt-2" 
+                                style="transform: scale(1.5);" 
+                                checked="@(Model.TipoPersona != null && Model.TipoPersona.Contains("inquilino") ? "checked" : null)"
+                            />
+                        </div>
+                    </div>
+        
+                    <!-- Propietario -->
+                    <div class="card flex-fill text-center tipo-persona-card border-success p-3" style="cursor:pointer; min-width:12rem;">
+                        <div class="card-body">
+                            <i class="bi bi-person-fill display-4 text-success"></i>
+                            <p class="mt-2 mb-0 fw-semibold">Propietario</p>
+                            <input 
+                                type="checkbox" 
+                                asp-for="TipoPersona" 
+                                value="propietario" 
+                                class="form-check-input mt-2" 
+                                style="transform: scale(1.5);" 
+                                checked="@(Model.TipoPersona != null && Model.TipoPersona.Contains("propietario") ? "checked" : null)"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Campos adicionales para Empleado -->
-        <div id="camposEmpleado" class="row mb-4" style="display: none;">
-            <div class="col-md-6 mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" asp-for="EsUsuario" type="checkbox" id="esUsuario" />
-                    <label class="form-check-label" asp-for="EsUsuario">Crear Usuario del Sistema</label>
-                </div>
-            </div>
 
-            <div id="camposUsuario" class="row" style="display: none;">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control" type="password" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="RolUsuario" class="form-label"></label>
-                    <select asp-for="RolUsuario" class="form-select">
-                        <option value="">Seleccionar rol...</option>
-                        <option value="empleado">Empleado</option>
-                        <option value="administrador">Administrador</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-*@
         <button type="submit" class="btn btn-primary">
             <i class="bi bi-check-circle me-2"></i>Crear Persona
         </button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
+
+
+
 </div>
 
 @section Scripts
@@ -109,16 +112,41 @@
 
         document.querySelectorAll('input[name="TipoPersona"]').forEach(r => {
             r.addEventListener('change', () => {
-                camposEmpleado.style.display = r.value === 'empleado' ? 'flex' : 'none';
-                if (r.value !== 'empleado') {
-                    esUsuario.checked = false;
-                    camposUsuario.style.display = 'none';
-                }
+                
+                document.querySelectorAll('input[name="TipoPersona"]').forEach( check => check.classList.remove('selected');
+                r.classList.add('selected');
+                r.querySelector('input[type="checkbox"]').checked = true;
+
             });
         });
 
-        esUsuario.addEventListener('change', function () {
-            camposUsuario.style.display = this.checked ? 'flex' : 'none';
+        
+
+        if (esUsuario) {
+            esUsuario.addEventListener('change', function () {
+                if (camposUsuario) {
+                    camposUsuario.style.display = this.checked ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Selección visual de card - Create
+        const cards = document.querySelectorAll('.tipo-persona-card');
+        cards.forEach(card => {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+
+             // Si al cargar la página el checkbox está marcado, marcar la card
+            if (checkbox.checked) 
+                card.classList.add('selected');
+
+
+            // Cuando se hace click en la card, actualizar selección
+            card.addEventListener('click', () => {
+                cards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                checkbox.checked = true;
+            });
         });
+
     </script>
 }

@@ -1,0 +1,46 @@
+@model inmobiliariaULP.Models.Persona
+
+@{
+    ViewData["Title"] = "Editar Persona";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">
+        <i class="bi bi-person-plus me-2"></i>Editar Persona
+    </h2>
+
+    <form asp-action="Edit" asp-controller="Persona" class="needs-validation" novalidate>
+        <!-- Llama al formulario -->
+        @await Html.PartialAsync("_Form", Model)
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-2"></i>Guardar Cambios
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+</div>
+
+@section Scripts
+{
+    <script>
+        const rolEmpleado = document.getElementById('rolEmpleado');
+        const camposEmpleado = document.getElementById('camposEmpleado');
+        const esUsuario = document.getElementById('esUsuario');
+        const camposUsuario = document.getElementById('camposUsuario');
+
+        document.querySelectorAll('input[name="TipoPersona"]').forEach(r => {
+            r.addEventListener('change', () => {
+                camposEmpleado.style.display = r.value === 'empleado' ? 'flex' : 'none';
+                if (r.value !== 'empleado') {
+                    esUsuario.checked = false;
+                    camposUsuario.style.display = 'none';
+                }
+            });
+        });
+
+        esUsuario.addEventListener('change', function () {
+            camposUsuario.style.display = this.checked ? 'flex' : 'none';
+        });
+    </script>
+}

@@ -21,12 +21,12 @@ public class PropietarioServiceImpl : IPropietarioService
         }
     }
 
-    public async Task<int> NuevoAsync(Propietario propietario)
+    public async Task<int> NuevoAsync(int personaId)
     {
         try
         {
             var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
-            return await propietarioRepository.AddAsync(propietario.PersonaId);
+            return await propietarioRepository.AddAsync(personaId);
         }catch (Exception ex)
         {
             throw new Exception("Error al crear el nuevo propietario: " + ex.Message);

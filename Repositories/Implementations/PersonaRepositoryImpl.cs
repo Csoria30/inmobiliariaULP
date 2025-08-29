@@ -45,19 +45,35 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT dni, apellido, nombre, telefono, email FROM personas";
+        command.CommandText = @"
+            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email,
+                   i.id_inquilino, pr.id_propietario
+            FROM personas p
+            LEFT JOIN inquilinos i ON p.id_persona = i.id_persona
+            LEFT JOIN propietarios pr ON p.id_persona = pr.id_persona;
+        ";
 
         using var reader = await command.ExecuteReaderAsync();
         var personas = new List<Persona>();
+        var tipoPersonas = new List<string>();
+
         while (await reader.ReadAsync())
         {
+            if( !reader.IsDBNull(reader.GetOrdinal("id_inquilino")) )
+                tipoPersonas.Add("inquilino");
+            
+            if( !reader.IsDBNull(reader.GetOrdinal("id_propietario")) )
+                tipoPersonas.Add("propietario");
+
             personas.Add(new Persona
             {
+                PersonaId = reader.GetInt32("id_persona"),
                 Dni = reader.GetString("dni"),
                 Apellido = reader.GetString("apellido"),
                 Nombre = reader.GetString("nombre"),
                 Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email")
+                Email = reader.GetString("email"),
+                TipoPersona = new List<string>(tipoPersonas)
             });
         }
 
@@ -70,22 +86,40 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT dni, apellido, nombre, telefono, email FROM personas WHERE id_persona = @Id";
-        command.Parameters.AddWithValue("@Id", id);
-        using var reader = await command.ExecuteReaderAsync();
-        if (await reader.ReadAsync())
-        {
-            return new Persona
-            {
-                Dni = reader.GetString("dni"),
-                Apellido = reader.GetString("apellido"),
-                Nombre = reader.GetString("nombre"),
-                Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email")
-            };
-        }
+        command.CommandText = @"
+            SELECT p.dni, p.apellido, p.nombre, p.telefono, p.email,
+               i.id_inquilino, pr.id_propietario
 
-        return null;
+            FROM personas p
+            LEFT JOIN inquilinos i ON p.id_persona = i.id_persona
+            LEFT JOIN propietarios pr ON p.id_persona = pr.id_persona
+            WHERE p.id_persona = @Id;
+        ";
+
+        command.Parameters.AddWithValue("@Id", id);
+
+        using var reader = await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync()) return null;
+
+        var tipoPersonas = new List<string>();
+
+        if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
+            tipoPersonas.Add("inquilino");
+            
+        if( !reader.IsDBNull(reader.GetOrdinal("id_propietario")) )
+            tipoPersonas.Add("propietario");
+
+        var persona = new Persona
+        {
+            Dni = reader.GetString("dni"),
+            Apellido = reader.GetString("apellido"),
+            Nombre = reader.GetString("nombre"),
+            Telefono = reader.GetString("telefono"),
+            Email = reader.GetString("email"),
+            TipoPersona = new List<string>(tipoPersonas)
+        };
+
+        return persona;
     }
 
     public async Task<int> UpdateAsync(Persona persona)

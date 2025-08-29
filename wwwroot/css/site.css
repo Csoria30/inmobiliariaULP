@@ -191,3 +191,32 @@ nav.bg-primary {
     margin: 0.8rem 0;
     border-color: #e9ecef;
 }
+
+/* ===========================
+   !Formulari Crear Edit Persona
+   =========================== */
+
+/* Card seleccionada */
+    .tipo-persona-card.selected {
+        border-width: 3px !important;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .tipo-persona-card p {
+        font-size: 1.6rem;
+    }
+
+    .tipo-persona-card i {
+        transition: transform 0.2s ease;
+    }
+
+    .tipo-persona-card.selected i {
+        transform: scale(1.2);
+    }
+
+    .tipo-persona-card.selected {
+    border-width: 0.3rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    transform: translateY(-0.2rem);
+    transition: all 0.2s ease-in-out;
+}

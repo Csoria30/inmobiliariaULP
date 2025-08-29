@@ -7,7 +7,7 @@ public class Propietario : Persona
     public Propietario() : base() { }
 
     // Constructor con parámetros
-    public Propietario(string dni, string apellido, string nombre, string telefono, string email) 
+    public Propietario(string dni, string apellido, string nombre, string telefono, string email, bool estado)
         : base()
     {
         Dni = dni;
@@ -15,6 +15,7 @@ public class Propietario : Persona
         Nombre = nombre;
         Telefono = telefono;
         Email = email;
+        Estado = estado;
     }
 
 }

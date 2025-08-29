@@ -36,6 +36,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `inmobiliariaulp`.`propietarios` (
   `id_propietario` INT NOT NULL AUTO_INCREMENT,
   `id_persona` INT NOT NULL,
+  `estado` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_propietario`),
   INDEX `fk_Propietario_Persona1_idx` (`id_persona` ASC) VISIBLE,
   CONSTRAINT `fk_Propietario_Persona1`
@@ -93,6 +94,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `inmobiliariaulp`.`empleados` (
   `id_empleado` INT NOT NULL AUTO_INCREMENT,
   `id_persona` INT NOT NULL,
+  `estado` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_empleado`),
   INDEX `fk_Empleado_Persona1_idx` (`id_persona` ASC) VISIBLE,
   CONSTRAINT `fk_Empleado_Persona1`
@@ -112,7 +114,6 @@ CREATE TABLE IF NOT EXISTS `inmobiliariaulp`.`usuarios` (
   `password` VARCHAR(45) NOT NULL,
   `rol` ENUM('administrador', 'empleado') NOT NULL,
   `avatar` VARCHAR(45) NULL,
-  `estado` TINYINT NOT NULL,
   PRIMARY KEY (`id_usuario`),
   INDEX `fk_usuarios_empleados1_idx` (`id_empleado` ASC) VISIBLE,
   CONSTRAINT `fk_usuarios_empleados1`
@@ -129,6 +130,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `inmobiliariaulp`.`inquilinos` (
   `id_inquilino` INT NOT NULL AUTO_INCREMENT,
   `id_persona` INT NOT NULL,
+  `estado` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_inquilino`),
   INDEX `fk_inquilinos_personas1_idx` (`id_persona` ASC) VISIBLE,
   CONSTRAINT `fk_inquilinos_personas1`

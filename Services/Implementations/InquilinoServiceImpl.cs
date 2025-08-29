@@ -21,12 +21,12 @@ public class InquilinoServiceImpl : IInquilinoService
         }
     }
 
-    public Task<int> NuevoAsync(Inquilino inquilino)
+    public Task<int> NuevoAsync(int personaId)
     {
         try
         {
             var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
-            return inquilinoRepository.AddAsync(inquilino.InquilinoId);
+            return inquilinoRepository.AddAsync(personaId);
         }
         catch (Exception ex)
         {

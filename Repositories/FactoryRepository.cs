@@ -1,3 +1,5 @@
+using inmobiliariaULP.Models;
+
 namespace inmobiliariaULP.Repositories.Implementations;
 
 public static class FactoryRepository
@@ -13,7 +15,7 @@ public static class FactoryRepository
     {
         if (_configuration == null)
             throw new InvalidOperationException("FactoryRepository no ha sido inicializado");
-        
+
         return new PersonaRepositoryImpl(_configuration);
     }
 
@@ -21,7 +23,7 @@ public static class FactoryRepository
     {
         if (_configuration == null)
             throw new InvalidOperationException("FactoryRepository no ha sido inicializado");
-        
+
         return new InquilinoRepositoryImpl(_configuration);
     }
 
@@ -29,7 +31,9 @@ public static class FactoryRepository
     {
         if (_configuration == null)
             throw new InvalidOperationException("FactoryRepository no ha sido inicializado");
-        
+
         return new PropietarioRepositoryImpl(_configuration);
     }
+    
+    
 }

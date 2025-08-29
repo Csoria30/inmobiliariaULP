@@ -40,7 +40,7 @@
                             <i class="bi bi-telephone me-1"></i>Teléfono
                         </th>
                         <th class="border-0">
-                            <i class="bi bi-envelope me-1"></i>Email
+                            <i class="bi bi-envelope me-1"></i>Tipo
                         </th>
                         <th class="border-0 text-center" style="width: 200px;">
                             <i class="bi bi-gear me-1"></i>Acciones
@@ -59,8 +59,27 @@
                                 <td class="align-middle fw-medium">@persona.Apellido</td>
                                 <td class="align-middle">@persona.Nombre</td>
                                 <td class="align-middle">@persona.Telefono</td>
-                                <td class="align-middle">@persona.Email</td>
+                                
+                                
+                                @* Tipo de usuario *@
+                                @* 
+                                <td class="align-middle">
+                                    @if (persona.TipoPersona == "inquilino")
+                                    {
+                                        <span class="badge bg-success fw-semibold">Inquilino</span>
+                                    }
+                                    else if (persona.TipoPersona == "propietario")
+                                    {
+                                        <span class="badge bg-primary fw-semibold">Propietario</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary fw-semibold">Desconocido</span>
+                                    }
+                                </td>
+                                 *@
 
+                                @* Acciones *@
                                 <td class="align-middle">
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-outline-info" 
@@ -68,11 +87,17 @@
                                                 title="Mas informacion" onclick="">
                                             <i class="bi bi-info-circle"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-warning" 
-                                                data-bs-toggle="tooltip" data-bs-placement="top" 
-                                                title="Editar Persona" onclick="">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                        
+                                        <a asp-controller="Persona" 
+                                            asp-action="Edit" 
+                                            asp-route-id="@persona.PersonaId" 
+                                            class="btn btn-sm btn-outline-warning"
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="Editar Persona">
+                                             <i class="bi bi-pencil"></i>
+                                        </a>
+
                                         <button type="button" class="btn btn-sm btn-outline-danger" 
                                                 data-bs-toggle="tooltip" data-bs-placement="top" 
                                                 title="Eliminar Persona" onclick="">

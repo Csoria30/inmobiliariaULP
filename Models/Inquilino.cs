@@ -8,7 +8,7 @@ public class Inquilino : Persona
     public Inquilino() : base() { }
 
     // Constructor con parámetros
-    public Inquilino(string dni, string apellido, string nombre, string telefono, string email) 
+    public Inquilino(string dni, string apellido, string nombre, string telefono, string email, bool estado)
         : base()
     {
         Dni = dni;
@@ -16,6 +16,7 @@ public class Inquilino : Persona
         Nombre = nombre;
         Telefono = telefono;
         Email = email;
+        Estado = estado;
     }
     
 
