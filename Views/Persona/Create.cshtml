@@ -63,11 +63,11 @@
                             <p class="mt-2 mb-0 fw-semibold">Inquilino</p>
                             <input 
                                 type="checkbox" 
-                                asp-for="TipoPersona" 
+                                name="TipoPersona" 
                                 value="inquilino" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model.TipoPersona != null && Model.TipoPersona.Contains("inquilino") ? "checked" : null)"
+                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("inquilino") ? "checked" : null)"
                             />
                         </div>
                     </div>
@@ -79,11 +79,11 @@
                             <p class="mt-2 mb-0 fw-semibold">Propietario</p>
                             <input 
                                 type="checkbox" 
-                                asp-for="TipoPersona" 
+                                name="TipoPersona" 
                                 value="propietario" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model.TipoPersona != null && Model.TipoPersona.Contains("propietario") ? "checked" : null)"
+                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("propietario") ? "checked" : null)"
                             />
                         </div>
                     </div>

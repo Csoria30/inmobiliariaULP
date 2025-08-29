@@ -44,12 +44,9 @@ public class PersonaController : Controller
     {
         try
         {   
-            var model = new Persona
-            {
-                TipoPersona = new List<string>() // Inicializa la lista para evitar null reference
-            };
+            
 
-            return View(model);
+            return View();
         }
         catch (Exception ex)
         {
