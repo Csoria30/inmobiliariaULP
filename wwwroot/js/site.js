@@ -45,3 +45,17 @@
 		}
 	}
 })();
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toast = document.getElementById('toastNotificacion');
+    if (toast) {
+        setTimeout(() => {
+            toast.classList.remove('animate-toast-in');
+            toast.classList.add('animate-toast-out');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 700); // Duración de la animación de salida
+        }, 5000); // 5 segundos visible
+    }
+});

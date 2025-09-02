@@ -204,6 +204,7 @@ public class PersonaController : Controller
             if (propietario != null)
             {
                 await _propietarioService.ActualizarAsync(propietario.PropietarioId, esPropietario);
+                TempData["Notificacion"] = "Perfil asignado correctamente.";
             }
             else
             {

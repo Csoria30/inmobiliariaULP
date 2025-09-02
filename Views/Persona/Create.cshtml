@@ -1,18 +1,22 @@
 @model inmobiliariaULP.Models.Persona
 
+
+
 @{
-    ViewData["Title"] = "Crear Persona";
+    bool esEdicion = Model?.PersonaId > 0;
+    ViewData["Title"] = esEdicion ? "Editar Persona" : "Crear Persona";
 }
 
 <div class="container mt-4">
     <h2 class="text-primary mb-4">
-        <i class="bi bi-person-plus me-2"></i>Crear Nueva Persona
+        <i class="bi @(esEdicion ? "bi-pencil-square" : "bi-person-plus") me-2"></i>
+        @(esEdicion ? "Edición de Persona" : "Crear Nueva Persona")
     </h2>
 
 
-    <form asp-action="@(Model?.PersonaId > 0 ? "Edit" : "Create")" asp-controller="Persona" class="needs-validation" novalidate>
+    <form asp-action="@(esEdicion ? "Edit" : "Create")" asp-controller="Persona" class="needs-validation" novalidate>
         
-        @if (Model?.PersonaId > 0)
+        @if (esEdicion)
         {
             <input type="hidden" asp-for="PersonaId" />
         }
@@ -51,9 +55,19 @@
             </div>
         </div>
 
-        <!-- Rol único (solo Inquilino o Propietario) -->
+        <!-- Asignación de Perfiles -->
         <div class="row mb-4">
             <div class="col-12">
+
+                <div class="mb-2">
+                    <span class="fw-semibold text-secondary">
+                        <i class="bi bi-person-badge me-1"></i>Asignación de Perfiles
+                    </span>
+                    <div class="form-text mb-2">
+                        Selecciona uno o ambos perfiles para esta persona.
+                    </div>
+                </div>
+
                 <label class="form-label d-block mb-3">Tipo de Persona</label>                
                 <div class="d-flex gap-3 flex-wrap">                    
                     <!-- Inquilino -->
