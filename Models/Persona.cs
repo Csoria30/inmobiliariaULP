@@ -26,11 +26,10 @@ public class Persona
     public bool Estado { get; set; }
 
 
+    // Propiedades no mapeadas para roles
     [NotMapped]
      public List<string> TipoPersona { get; set; }
-
-
-
+    
     //Metodo ToString
     public override string ToString()
     {

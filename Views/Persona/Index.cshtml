@@ -61,23 +61,20 @@
                                 <td class="align-middle">@persona.Telefono</td>
                                 
                                 
-                                @* Tipo de usuario *@
-                                @* 
+                                <!-- Tipo de usuario -->
                                 <td class="align-middle">
-                                    @if (persona.TipoPersona == "inquilino")
-                                    {
-                                        <span class="badge bg-success fw-semibold">Inquilino</span>
-                                    }
-                                    else if (persona.TipoPersona == "propietario")
-                                    {
-                                        <span class="badge bg-primary fw-semibold">Propietario</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary fw-semibold">Desconocido</span>
-                                    }
+                                    <div class="d-flex flex-column gap-1">
+                                        @if (persona.TipoPersona.Contains("inquilino"))
+                                        {
+                                            <span class="badge bg-success">Inquilino</span>
+                                        }
+                                        @if (persona.TipoPersona.Contains("propietario"))
+                                        {
+                                            <span class="badge bg-primary">Propietario</span>
+                                        }
+                                    </div>
                                 </td>
-                                 *@
+
 
                                 @* Acciones *@
                                 <td class="align-middle">
@@ -97,12 +94,14 @@
                                             title="Editar Persona">
                                              <i class="bi bi-pencil"></i>
                                         </a>
-
+                                        @* 
                                         <button type="button" class="btn btn-sm btn-outline-danger" 
                                                 data-bs-toggle="tooltip" data-bs-placement="top" 
                                                 title="Eliminar Persona" onclick="">
                                             <i class="bi bi-trash"></i>
                                         </button>
+                                        *@
+                                        
                                     </div>
                                 </td>
                             </tr>

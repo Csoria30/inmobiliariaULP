@@ -13,9 +13,12 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"INSERT INTO personas (dni, apellido, nombre, telefono, email) 
-                                VALUES (@Dni, @Apellido, @Nombre, @Telefono, @Email);
-                                SELECT LAST_INSERT_ID();";
+        command.CommandText = @"
+            INSERT INTO personas (dni, apellido, nombre, telefono, email) 
+            VALUES (@Dni, @Apellido, @Nombre, @Telefono, @Email);
+            
+            SELECT LAST_INSERT_ID();
+        ";
         
         command.Parameters.AddWithValue("@Dni", persona.Dni);
         command.Parameters.AddWithValue("@Apellido", persona.Apellido);
@@ -33,7 +36,9 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM personas WHERE id_persona = @Id";
+        command.CommandText = @"
+            DELETE FROM personas WHERE id_persona = @Id
+        ";
         command.Parameters.AddWithValue("@Id", id);
 
         return await command.ExecuteNonQueryAsync();
@@ -46,20 +51,25 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email,
-                   i.id_inquilino, pr.id_propietario
+            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, 
+               i.id_inquilino, pr.id_propietario
+        
             FROM personas p
-            LEFT JOIN inquilinos i ON p.id_persona = i.id_persona
-            LEFT JOIN propietarios pr ON p.id_persona = pr.id_persona;
+            LEFT JOIN inquilinos i 
+                ON p.id_persona = i.id_persona AND i.estado = 1
+
+            LEFT JOIN propietarios pr 
+                ON p.id_persona = pr.id_persona AND pr.estado = 1;
         ";
 
         using var reader = await command.ExecuteReaderAsync();
         var personas = new List<Persona>();
-        var tipoPersonas = new List<string>();
 
         while (await reader.ReadAsync())
         {
-            if( !reader.IsDBNull(reader.GetOrdinal("id_inquilino")) )
+            var tipoPersonas = new List<string>();
+
+            if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
                 tipoPersonas.Add("inquilino");
             
             if( !reader.IsDBNull(reader.GetOrdinal("id_propietario")) )
@@ -87,30 +97,38 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT p.dni, p.apellido, p.nombre, p.telefono, p.email,
+            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email,
                i.id_inquilino, pr.id_propietario
 
             FROM personas p
-            LEFT JOIN inquilinos i ON p.id_persona = i.id_persona
-            LEFT JOIN propietarios pr ON p.id_persona = pr.id_persona
+            LEFT JOIN inquilinos i 
+                ON p.id_persona = i.id_persona AND i.estado = 1
+            LEFT JOIN propietarios pr 
+                ON p.id_persona = pr.id_persona AND pr.estado = 1
             WHERE p.id_persona = @Id;
         ";
 
         command.Parameters.AddWithValue("@Id", id);
 
         using var reader = await command.ExecuteReaderAsync();
+
+        // Valida si no se encontraron resultados
         if (!await reader.ReadAsync()) return null;
 
+        // Crea lista de tipos de persona
         var tipoPersonas = new List<string>();
 
+        //Valida si es inquilino o propietario
         if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
             tipoPersonas.Add("inquilino");
             
         if( !reader.IsDBNull(reader.GetOrdinal("id_propietario")) )
             tipoPersonas.Add("propietario");
 
+        // Crea y retorna el objeto Persona
         var persona = new Persona
         {
+            PersonaId = reader.GetInt32("id_persona"),
             Dni = reader.GetString("dni"),
             Apellido = reader.GetString("apellido"),
             Nombre = reader.GetString("nombre"),
@@ -127,9 +145,11 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
         var command = connection.CreateCommand();
-        command.CommandText = @"UPDATE personas 
-                                SET dni = @Dni, apellido = @Apellido, nombre = @Nombre, telefono = @Telefono, email = @Email 
-                                WHERE id_persona = @Id";
+        command.CommandText = @"
+            UPDATE personas 
+            SET dni = @Dni, apellido = @Apellido, nombre = @Nombre, telefono = @Telefono, email = @Email 
+            WHERE id_persona = @Id
+        ";
 
         command.Parameters.AddWithValue("@Dni", persona.Dni);
         command.Parameters.AddWithValue("@Apellido", persona.Apellido);

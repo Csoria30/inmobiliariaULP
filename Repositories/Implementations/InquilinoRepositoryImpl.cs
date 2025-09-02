@@ -12,8 +12,10 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"INSERT INTO inquilinos (id_persona) VALUES (@PersonaId);
-                                SELECT LAST_INSERT_ID();";
+        command.CommandText = @"
+            INSERT INTO inquilinos (id_persona) VALUES (@PersonaId);
+            SELECT LAST_INSERT_ID();
+        ";
 
         command.Parameters.AddWithValue("@PersonaId", personaId);
         var result = await command.ExecuteScalarAsync();
@@ -26,11 +28,15 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM inquilinos WHERE id_propietario = @inquilinoId";
+        command.CommandText = @"
+            DELETE FROM inquilinos 
+            WHERE id_propietario = @inquilinoId
+        ";
 
         command.Parameters.AddWithValue("@inquilinoId", inquilinoId);
         return await command.ExecuteNonQueryAsync();
     }
+
 
     public async Task<IEnumerable<Inquilino>> GetAllAsync()
     {
@@ -38,9 +44,19 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"SELECT in.id_inquilino, in.id_persona, per.dni, per.apellido, per.nombre, per.telefono, per.email
-                                FROM inquilinos in
-                                JOIN personas per ON in.id_persona = per.id_persona";
+        command.CommandText = @"
+            SELECT 	
+	            i.id_inquilino, 	
+	            i.id_persona, 
+	            per.dni, 
+	            per.apellido, 
+	            per.nombre, 
+	            per.telefono, 
+	            per.email
+	
+	            FROM inquilinos i JOIN personas per 
+	            ON i.id_persona = per.id_persona
+        ";
 
         using var reader = await command.ExecuteReaderAsync();
         var inquilinos = new List<Inquilino>();
@@ -64,10 +80,15 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"SELECT p.dni, p.apellido, p.nombre, p.telefono, p.email
-                                FROM inquilinos in
-                                JOIN personas p ON in.id_persona = p.id_persona
-                                WHERE in.id_propietario = @InquilinoId";
+        command.CommandText = @"
+            SELECT 
+                id_inquilino,
+                id_persona, 
+                estado 
+            
+            FROM inquilinos
+            WHERE id_persona = @InquilinoId;
+        ";
 
         command.Parameters.AddWithValue("@InquilinoId", inquilinoId);
         using var reader = await command.ExecuteReaderAsync();
@@ -75,14 +96,31 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         {
             return new Inquilino
             {
-                Dni = reader.GetString("dni"),
-                Apellido = reader.GetString("apellido"),
-                Nombre = reader.GetString("nombre"),
-                Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email")
+                InquilinoId = reader.GetInt32("id_inquilino"),
+                PersonaId = reader.GetInt32("id_persona"),
+                Estado = reader.GetBoolean("estado")
             };
         }
 
         return null;
+    }
+
+    public async Task<int> UpdateAsync(int inquilinoId, bool estado)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE inquilinos 
+            SET estado = @Estado 
+            WHERE id_inquilino = @InquilinoId
+        ";
+
+        // Asignamos los parámetros
+        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
+        command.Parameters.AddWithValue("@InquilinoId", inquilinoId);
+
+        return await command.ExecuteNonQueryAsync();
     }
 }  

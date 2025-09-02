@@ -6,6 +6,6 @@ public interface IPropietarioService
     Task<int> NuevoAsync(int personaId);
     Task<IEnumerable<Propietario>> ObtenerTodosAsync();
     Task<Propietario> ObtenerIdAsync(int propietarioId);
-
     Task<int> EliminarAsync(int propietarioId);
+    Task<int> ActualizarAsync(int personaId, Boolean estado);
 }

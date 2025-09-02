@@ -27,7 +27,8 @@ public class PropietarioServiceImpl : IPropietarioService
         {
             var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
             return await propietarioRepository.AddAsync(personaId);
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al crear el nuevo propietario: " + ex.Message);
         }
@@ -39,7 +40,8 @@ public class PropietarioServiceImpl : IPropietarioService
         {
             var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
             return propietarioRepository.GetByIdAsync(propietarioId);
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al obtener el propietario por ID: " + ex.Message);
         }
@@ -51,9 +53,23 @@ public class PropietarioServiceImpl : IPropietarioService
         {
             var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
             return propietarioRepository.GetAllAsync();
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al obtener todos los propietarios: " + ex.Message);
+        }
+    }
+
+    public async Task<int> ActualizarAsync(int personaId, Boolean estado)
+    {
+        try
+        {
+            var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
+            return await propietarioRepository.UpdateAsync(personaId, estado);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al actualizar el propietario: " + ex.Message);
         }
     }
 }

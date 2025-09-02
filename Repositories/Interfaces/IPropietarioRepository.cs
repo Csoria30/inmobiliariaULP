@@ -7,4 +7,5 @@ public interface IPropietarioRepository
     Task<IEnumerable<Propietario>> GetAllAsync();
     Task<Propietario> GetByIdAsync(int propietarioId);
     Task<int> DeleteAsync(int propietarioId);
+    Task<int> UpdateAsync(int propietarioId, bool estado);
 }

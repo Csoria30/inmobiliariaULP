@@ -62,8 +62,11 @@ public class PersonaServiceImpl : IPersonaService
         try
         {
             var personaRepository = FactoryRepository.CreatePersonaRepository();
-            return await personaRepository.GetAllAsync();   
-        }catch (Exception ex)
+            var personas = await personaRepository.GetAllAsync(); // Obtener las personas
+
+            return personas; // Retornamos la lista de personas 
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al obtener las personas", ex);
         }

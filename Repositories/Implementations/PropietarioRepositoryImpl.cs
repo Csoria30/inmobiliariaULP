@@ -12,8 +12,10 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"INSERT INTO propietarios (id_persona) VALUES (@PersonaId);
-                                SELECT LAST_INSERT_ID();";
+        command.CommandText = @"
+            INSERT INTO propietarios (id_persona) VALUES (@PersonaId);
+            SELECT LAST_INSERT_ID();
+        ";
 
         command.Parameters.AddWithValue("@PersonaId", personaId);
         var result = await command.ExecuteScalarAsync();
@@ -26,7 +28,10 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM propietarios WHERE id_propietario = @PropietarioId";
+        command.CommandText = @"
+            DELETE FROM propietarios 
+            WHERE id_propietario = @PropietarioId
+        ";
 
         command.Parameters.AddWithValue("@PropietarioId", propietarioId);
         return await command.ExecuteNonQueryAsync();
@@ -39,9 +44,19 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"SELECT pr.id_propietario, pr.id_persona, per.dni, per.apellido, per.nombre, per.telefono, per.email
-                                FROM propietarios pr
-                                JOIN personas per ON pr.id_persona = per.id_persona";
+        command.CommandText = @"
+            SELECT 
+	            pr.id_propietario, 
+	            pr.id_persona, 
+	            per.dni, 
+	            per.apellido, 
+	            per.nombre, 
+	            per.telefono, 
+	            per.email
+            
+	            FROM propietarios pr JOIN personas per 
+	            ON pr.id_persona = per.id_persona
+        ";
 
         using var reader = await command.ExecuteReaderAsync();
         var propietarios = new List<Propietario>();
@@ -65,10 +80,15 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"SELECT p.dni, p.apellido, p.nombre, p.telefono, p.email
-                                FROM propietarios pr
-                                JOIN personas p ON pr.id_persona = p.id_persona
-                                WHERE pr.id_propietario = @PropietarioId";
+        command.CommandText = @"
+            SELECT 
+	            id_propietario, 
+	            id_persona, 
+	            estado 
+	
+	        FROM propietarios 
+	        WHERE id_persona = @PropietarioId;
+        ";
 
         command.Parameters.AddWithValue("@PropietarioId", propietarioId);
         using var reader = await command.ExecuteReaderAsync();
@@ -76,16 +96,30 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         {
             return new Propietario
             {
-                Dni = reader.GetString("dni"),
-                Apellido = reader.GetString("apellido"),
-                Nombre = reader.GetString("nombre"),
-                Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email")
+                PropietarioId = reader.GetInt32("id_propietario"),
+                PersonaId = reader.GetInt32("id_persona"),
+                Estado = reader.GetBoolean("estado")
             };
         }
 
         return null;
     }
 
+    public async Task<int> UpdateAsync(int propietarioId, bool estado)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
 
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE propietarios 
+
+            SET estado = @Estado 
+            WHERE id_propietario = @PropietarioId
+        ";
+
+        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
+        command.Parameters.AddWithValue("@PropietarioId", propietarioId);
+        return await command.ExecuteNonQueryAsync();
+    }
 }   

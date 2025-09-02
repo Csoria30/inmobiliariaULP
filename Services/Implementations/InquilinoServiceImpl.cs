@@ -50,7 +50,7 @@ public class InquilinoServiceImpl : IInquilinoService
     public Task<IEnumerable<Inquilino>> ObtenerTodosAsync()
     {
         try
-        { 
+        {
             var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
             return inquilinoRepository.GetAllAsync();
         }
@@ -59,5 +59,19 @@ public class InquilinoServiceImpl : IInquilinoService
             throw new Exception("Error al obtener todos los inquilinos", ex);
         }
     }
+
+    public async Task<int> ActualizarAsync(int personaId, Boolean estado)
+    {
+        try
+        {
+            var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
+            return await inquilinoRepository.UpdateAsync(personaId, estado);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al actualizar el inquilino", ex);
+        }
+    }
+    
 
 }

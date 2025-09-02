@@ -63,7 +63,7 @@
                             <p class="mt-2 mb-0 fw-semibold">Inquilino</p>
                             <input 
                                 type="checkbox" 
-                                name="TipoPersona" 
+                                name="TipoPersona"
                                 value="inquilino" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
@@ -79,7 +79,7 @@
                             <p class="mt-2 mb-0 fw-semibold">Propietario</p>
                             <input 
                                 type="checkbox" 
-                                name="TipoPersona" 
+                                name="TipoPersona"
                                 value="propietario" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
@@ -105,48 +105,42 @@
 @section Scripts
 {
     <script>
-        const rolEmpleado = document.getElementById('rolEmpleado');
-        const camposEmpleado = document.getElementById('camposEmpleado');
-        const esUsuario = document.getElementById('esUsuario');
-        const camposUsuario = document.getElementById('camposUsuario');
+        document.addEventListener("DOMContentLoaded", function () {
+            const cards = document.querySelectorAll('.tipo-persona-card');
 
-        document.querySelectorAll('input[name="TipoPersona"]').forEach(r => {
-            r.addEventListener('change', () => {
-                
-                document.querySelectorAll('input[name="TipoPersona"]').forEach( check => check.classList.remove('selected');
-                r.classList.add('selected');
-                r.querySelector('input[type="checkbox"]').checked = true;
+            cards.forEach(card => {
+                const checkbox = card.querySelector('input[type="checkbox"]');
 
-            });
-        });
-
-        
-
-        if (esUsuario) {
-            esUsuario.addEventListener('change', function () {
-                if (camposUsuario) {
-                    camposUsuario.style.display = this.checked ? 'flex' : 'none';
+                // Si al cargar la página el checkbox está marcado, resaltar la card
+                if (checkbox.checked) {
+                    card.classList.add('selected');
                 }
-            });
-        }
 
-        // Selección visual de card - Create
-        const cards = document.querySelectorAll('.tipo-persona-card');
-        cards.forEach(card => {
-            const checkbox = card.querySelector('input[type="checkbox"]');
+                // Al hacer clic en la card
+                card.addEventListener('click', (e) => {
+                    // Evitamos que al hacer clic justo sobre el checkbox se ejecute dos veces
+                    if (e.target.tagName.toLowerCase() === 'input') return;
 
-             // Si al cargar la página el checkbox está marcado, marcar la card
-            if (checkbox.checked) 
-                card.classList.add('selected');
+                    // Cambiamos el estado del checkbox (toggle)
+                    checkbox.checked = !checkbox.checked;
 
+                    // Estilo visual
+                    if (checkbox.checked) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
 
-            // Cuando se hace click en la card, actualizar selección
-            card.addEventListener('click', () => {
-                cards.forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                checkbox.checked = true;
+                // Si el usuario clickea directamente el checkbox, mantenemos el estilo sincronizado
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
             });
         });
-
     </script>
 }

@@ -3,19 +3,11 @@ namespace inmobiliariaULP.Models;
 public class Propietario : Persona
 {
     public int PropietarioId { get; set; }
+    public int PersonaId { get; set; }
+    public bool Estado { get; set; }
     // Constructor por defecto
     public Propietario() : base() { }
 
-    // Constructor con parámetros
-    public Propietario(string dni, string apellido, string nombre, string telefono, string email, bool estado)
-        : base()
-    {
-        Dni = dni;
-        Apellido = apellido;
-        Nombre = nombre;
-        Telefono = telefono;
-        Email = email;
-        Estado = estado;
-    }
+    
 
 }
