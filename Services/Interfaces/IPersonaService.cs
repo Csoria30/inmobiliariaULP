@@ -7,5 +7,5 @@ public interface IPersonaService
     Task<IEnumerable<Persona>> ObtenerTodosAsync();
     Task<Persona> ObtenerIdAsync(int personaId);
     Task<int> ActualizarAsync(Persona persona);
-    Task<int> EliminarAsync(int personaId);
+    Task<int> EliminarAsync(int personaId, bool estado);
 }

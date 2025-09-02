@@ -19,12 +19,12 @@ public class PersonaServiceImpl : IPersonaService
         }
     }
 
-    public async Task<int> EliminarAsync(int personaId)
+    public async Task<int> EliminarAsync(int personaId, bool estado)
     {
         try
         {
             var personaRepository = FactoryRepository.CreatePersonaRepository();
-            return await personaRepository.DeleteAsync(personaId);
+            return await personaRepository.DeleteAsync(personaId, estado);
         }
         catch (Exception ex)
         {

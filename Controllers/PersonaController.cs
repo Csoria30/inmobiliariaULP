@@ -70,9 +70,9 @@ public class PersonaController : Controller
                 var personaId = await _personaService.NuevoAsync(persona);
 
                 // Obntiene el tipo de persona desde el formulario
-                if (persona.TipoPersona == null || persona.TipoPersona.Count == 0)
+                if (persona.TipoPersona == null || persona.TipoPersona.Count == 0 || !persona.TipoPersona.Any())
                 {
-                    ModelState.AddModelError("TipoPersona", "Debe seleccionar al menos un tipo de persona.");
+                    ModelState.AddModelError("", "Debe seleccionar al menos un perfil (Inquilino y/o Propietario).");
                     return View(persona);
                 }
 
@@ -243,7 +243,7 @@ public class PersonaController : Controller
 
             ViewBag.SoloLectura = true; // Flag para la vista
             return View("Create", persona); // Reutilizamos la vista Create
-            
+
         }
         catch (Exception ex)
         {
@@ -252,4 +252,37 @@ public class PersonaController : Controller
             return View("Error");
         }
     }
+
+    //! POST: PersonasController/Delete
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                var personaActual = await _personaService.ObtenerIdAsync(id);
+
+                // Si está activa, la damos de baja. Si está de baja, la rehabilitamos.
+                bool nuevoEstado = !personaActual.Estado;
+                await _personaService.EliminarAsync(id, nuevoEstado);
+
+                TempData["Notificacion"] = nuevoEstado
+                        ? "Persona habilitada correctamente."
+                        : "Persona deshabilitada correctamente.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            // Si ModelState no es válido, redirige igual o muestra error
+            TempData["Error"] = "Error al eliminar la persona.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar persona {PersonaId}", id);
+            TempData["Error"] = "Error al eliminar la persona.";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+    
 }

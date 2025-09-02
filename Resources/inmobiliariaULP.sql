@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `inmobiliariaulp`.`personas` (
   `nombre` VARCHAR(45) NOT NULL,
   `telefono` VARCHAR(45) NOT NULL,
   `email` VARCHAR(45) NOT NULL,
+  `estado` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_persona`),
   UNIQUE INDEX `dni_UNIQUE` (`dni` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)

@@ -150,7 +150,12 @@
                             />
                         </div>
                     </div>
+
                 </div>
+                <div id="checkboxError" class="text-danger fw-semibold mb-2" style="display:none;">
+                    Debe seleccionar al menos un perfil (Inquilino y/o Propietario).
+                </div>
+                
             </div>
         </div>
 
@@ -179,26 +184,37 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const cards = document.querySelectorAll('.tipo-persona-card');
-
+            const form = document.querySelector('form');
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][name="TipoPersona"]');
+            
+            // Validación visual de selección de card
             cards.forEach(card => {
                 const checkbox = card.querySelector('input[type="checkbox"]');
-
+                
+                //Si el checkbox ya está marcado al cargar la página, se le agrega la clase selected
                 if (checkbox.checked) {
                     card.classList.add('selected');
                 }
-
+                
+                //Click sobre la tarjeta
                 card.addEventListener('click', (e) => {
-                    // Si el checkbox está deshabilitado, no hacer nada
+                    //// No hacer nada si el checkbox está deshabilitado
                     if (checkbox.disabled) return;
                     if (e.target.tagName.toLowerCase() === 'input') return;
+
+                    // Cambia manualmente el estado del checkbox
                     checkbox.checked = !checkbox.checked;
+
+                    // Agrega o quita la clase 'selected'
                     if (checkbox.checked) {
                         card.classList.add('selected');
                     } else {
                         card.classList.remove('selected');
                     }
+
                 });
 
+                // Escucha cambios direcntos en los checkboxs
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         card.classList.add('selected');
@@ -207,6 +223,35 @@
                     }
                 });
             });
+
+            // Validación de al menos un checkbox seleccionado
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    // Solo validar si NO es solo lectura
+                    if (@(soloLectura.ToString().ToLower())) return;
+
+                    // Comprobar si hay algún checkbox seleccionado
+                    let algunoSeleccionado = false;
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) algunoSeleccionado = true;
+                    });
+
+                    //Manejo de error - Al menos uno selecionado
+                    const errorDiv = document.getElementById('checkboxError');
+                    if (!algunoSeleccionado) {
+                        e.preventDefault();
+                        if (errorDiv) {
+                            errorDiv.style.display = 'block';
+                        }
+                        // Scroll al error
+                        errorDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+                    } else {
+                        if (errorDiv) {
+                            errorDiv.style.display = 'none';
+                        }
+                    }
+                });
+            }
         });
     </script>
 }

@@ -30,19 +30,26 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return Convert.ToInt32(result);
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<int> DeleteAsync(int personaId, bool estado)
     {
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            DELETE FROM personas WHERE id_persona = @Id
+            UPDATE personas
+            SET estado = @Estado 
+            WHERE id_persona = @PersonaId
         ";
-        command.Parameters.AddWithValue("@Id", id);
+        
+        // Asignamos los parámetros
+        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
+        command.Parameters.AddWithValue("@PersonaId", personaId);
 
         return await command.ExecuteNonQueryAsync();
     }
+    
+    
 
     public async Task<IEnumerable<Persona>> GetAllAsync()
     {
@@ -51,7 +58,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, 
+            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
                i.id_inquilino, pr.id_propietario
         
             FROM personas p
@@ -71,8 +78,8 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
             if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
                 tipoPersonas.Add("inquilino");
-            
-            if( !reader.IsDBNull(reader.GetOrdinal("id_propietario")) )
+
+            if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
                 tipoPersonas.Add("propietario");
 
             personas.Add(new Persona
@@ -83,6 +90,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
                 Nombre = reader.GetString("nombre"),
                 Telefono = reader.GetString("telefono"),
                 Email = reader.GetString("email"),
+                Estado = reader.GetBoolean("estado"),
                 TipoPersona = new List<string>(tipoPersonas)
             });
         }
@@ -97,7 +105,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email,
+            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
                i.id_inquilino, pr.id_propietario
 
             FROM personas p
@@ -134,6 +142,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
             Nombre = reader.GetString("nombre"),
             Telefono = reader.GetString("telefono"),
             Email = reader.GetString("email"),
+            Estado = reader.GetBoolean("estado"),
             TipoPersona = new List<string>(tipoPersonas)
         };
 
