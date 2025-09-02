@@ -197,24 +197,33 @@ public class PersonaController : Controller
 
             
 
-            // PROPIETARIO
+            //- PROPIETARIO
             var propietario = await _propietarioService.ObtenerIdAsync(persona.PersonaId);
+            bool esPropietario = persona.TipoPersona != null && persona.TipoPersona.Contains("propietario");
+
             if (propietario != null)
             {
-                bool activarPropietario = persona.TipoPersona != null && persona.TipoPersona.Contains("propietario");
-                await _propietarioService.ActualizarAsync(propietario.PropietarioId, activarPropietario);
-
-                Console.WriteLine("Por aca Propietario;");
+                await _propietarioService.ActualizarAsync(propietario.PropietarioId, esPropietario);
+            }
+            else
+            {
+                // No existe como propietario, lo creamos si fue seleccionado
+                await _propietarioService.NuevoAsync(persona.PersonaId);
             }
 
-            // INQUILINO
+
+            //- INQUILINO
             var inquilino = await _inquilinoService.ObtenerIdAsync(persona.PersonaId);
+            bool esInquilino = persona.TipoPersona != null && persona.TipoPersona.Contains("inquilino");
+
             if (inquilino != null)
             {
-                bool activarInquilino = persona.TipoPersona != null && persona.TipoPersona.Contains("inquilino");
-                await _inquilinoService.ActualizarAsync(inquilino.InquilinoId, activarInquilino);
-
-                Console.WriteLine("Por aca Inquilino;");
+                await _inquilinoService.ActualizarAsync(inquilino.InquilinoId, esInquilino);
+            }
+            else
+            {
+                // No existe como inquilino, lo creamos si fue seleccionado
+                await _inquilinoService.NuevoAsync(persona.PersonaId);
             }
 
             
