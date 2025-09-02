@@ -65,43 +65,34 @@ public class PersonaController : Controller
         {
             if (ModelState.IsValid)
             {
-                if (persona.PersonaId > 0)
+
+                // Crea la persona y obtiene el ID generado
+                var personaId = await _personaService.NuevoAsync(persona);
+
+                // Obntiene el tipo de persona desde el formulario
+                if (persona.TipoPersona == null || persona.TipoPersona.Count == 0)
                 {
-                    
-                    
-
+                    ModelState.AddModelError("TipoPersona", "Debe seleccionar al menos un tipo de persona.");
+                    return View(persona);
                 }
-                else
+
+                foreach (var tipo in persona.TipoPersona)
                 {
-                    // Crea la persona y obtiene el ID generado
-                    var personaId = await _personaService.NuevoAsync(persona);
-
-                    // Obntiene el tipo de persona desde el formulario
-                    if (persona.TipoPersona == null || persona.TipoPersona.Count == 0)
+                    switch (tipo)
                     {
-                        ModelState.AddModelError("TipoPersona", "Debe seleccionar al menos un tipo de persona.");
-                        return View(persona);
+                        case "inquilino":
+                            await _inquilinoService.NuevoAsync(personaId);
+                            break;
+                        case "propietario":
+                            await _propietarioService.NuevoAsync(personaId);
+                            break;
+                        default:
+                            throw new ValidationException("Tipo de persona inválido.");
                     }
-
-                    foreach (var tipo in persona.TipoPersona)
-                    {
-                        switch (tipo)
-                        {
-                            case "inquilino":
-                                await _inquilinoService.NuevoAsync(personaId);
-                                break;
-                            case "propietario":
-                                await _propietarioService.NuevoAsync(personaId);
-                                break;
-                            default:
-                                throw new ValidationException("Tipo de persona inválido.");
-                        }
-                    }
-
                 }
-                
 
 
+                TempData["Notificacion"] = "Persona creada correctamente.";
                 return RedirectToAction("Index");
             }
             else
@@ -146,7 +137,7 @@ public class PersonaController : Controller
                 persona.TipoPersona = new List<string>();
 
             return View("Create", persona);
-            
+
         }
         catch (Exception ex)
         {
@@ -159,13 +150,8 @@ public class PersonaController : Controller
     //! POST: PersonasController/Edit    
     [HttpPost]
     [ValidateAntiForgeryToken]
-
     public async Task<IActionResult> Edit(Persona persona)
     {
-
-        // Mensaje inicial para saber que entró al método
-        Console.WriteLine($"Entrando al método Edit para PersonaId: {persona.PersonaId}");
-
         // Validar el modelo
         if (!ModelState.IsValid)
         {
@@ -190,12 +176,12 @@ public class PersonaController : Controller
 
         try
         {
-            
+
             //* Guardamos los cambios en la base de datos - Tabla personas
             await _personaService.ActualizarAsync(personaExistente);
             Console.WriteLine($"Persona {persona.PersonaId} actualizada.");
 
-            
+
 
             //- PROPIETARIO
             var propietario = await _propietarioService.ObtenerIdAsync(persona.PersonaId);
@@ -204,12 +190,13 @@ public class PersonaController : Controller
             if (propietario != null)
             {
                 await _propietarioService.ActualizarAsync(propietario.PropietarioId, esPropietario);
-                TempData["Notificacion"] = "Perfil asignado correctamente.";
+                TempData["Notificacion"] = "Perfil Propietario asignado correctamente.";
             }
             else
             {
                 // No existe como propietario, lo creamos si fue seleccionado
                 await _propietarioService.NuevoAsync(persona.PersonaId);
+                TempData["Notificacion"] = "Perfil Propietario asignado correctamente.";
             }
 
 
@@ -220,19 +207,16 @@ public class PersonaController : Controller
             if (inquilino != null)
             {
                 await _inquilinoService.ActualizarAsync(inquilino.InquilinoId, esInquilino);
+                TempData["Notificacion"] = "Perfil Inquilino asignado correctamente.";
             }
             else
             {
                 // No existe como inquilino, lo creamos si fue seleccionado
                 await _inquilinoService.NuevoAsync(persona.PersonaId);
+                TempData["Notificacion"] = "Perfil Inquilino asignado correctamente.";
             }
 
-            
-            // ✅ Al terminar exitosamente, redirigimos al Index
-            TempData["Exito"] = "Persona actualizada correctamente.";
             return RedirectToAction(nameof(Index));
-
-                        
         }
         catch (Exception ex)
         {
@@ -240,7 +224,32 @@ public class PersonaController : Controller
             TempData["Error"] = "Error al guardar los cambios.";
             return View("Create", persona);
         }
-        
+
     }
 
+
+    //* GET: PersonasController/Details
+    public async Task<IActionResult> Details(int id)
+    {
+        try
+        {
+            var persona = await _personaService.ObtenerIdAsync(id);
+
+            if (persona == null)
+            {
+                TempData["Error"] = "La persona no existe.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.SoloLectura = true; // Flag para la vista
+            return View("Create", persona); // Reutilizamos la vista Create
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener personas");
+            TempData["Error"] = "Error al cargar las personas: " + ex.Message;
+            return View("Error");
+        }
+    }
 }

@@ -1,16 +1,25 @@
 @model inmobiliariaULP.Models.Persona
 
-
-
 @{
     bool esEdicion = Model?.PersonaId > 0;
-    ViewData["Title"] = esEdicion ? "Editar Persona" : "Crear Persona";
+    bool soloLectura = ViewBag.SoloLectura == true;
+
+    if (soloLectura)
+    {
+        ViewData["Title"] = "Información completa";
+    }
+    else
+    {
+        ViewData["Title"] = esEdicion ? "Editar Persona" : "Crear Persona";
+    }
 }
 
 <div class="container mt-4">
     <h2 class="text-primary mb-4">
-        <i class="bi @(esEdicion ? "bi-pencil-square" : "bi-person-plus") me-2"></i>
-        @(esEdicion ? "Edición de Persona" : "Crear Nueva Persona")
+        <i class="bi 
+            @(soloLectura ? "bi-eye" : (esEdicion ? "bi-pencil-square" : "bi-person-plus")) me-2">
+        </i>
+        @(soloLectura ? "Información completa" : (esEdicion ? "Edición de Persona" : "Crear Nueva Persona"))
     </h2>
 
 
@@ -25,32 +34,66 @@
         <div class="row mb-4">
             <div class="col-md-6 mb-3">
                 <label asp-for="Dni" class="form-label"></label>
-                <input asp-for="Dni" class="form-control" maxlength="8" />
+                @if (soloLectura)
+                {
+                    <input asp-for="Dni" class="form-control" maxlength="8" readonly="readonly" />
+                }
+                else
+                {
+                    <input asp-for="Dni" class="form-control" maxlength="8" />
+                }
                 <span asp-validation-for="Dni" class="text-danger"></span>
                 <div class="form-text">8 dígitos numéricos</div>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label asp-for="Apellido" class="form-label"></label>
-                <input asp-for="Apellido" class="form-control" />
+                @if (soloLectura)
+                {
+                    <input asp-for="Apellido" class="form-control" readonly="readonly"/>
+                }else
+                {
+                    <input asp-for="Apellido" class="form-control" />
+                }
                 <span asp-validation-for="Apellido" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label asp-for="Nombre" class="form-label"></label>
-                <input asp-for="Nombre" class="form-control" />
+                @if (soloLectura)
+                {
+                    <input asp-for="Nombre" class="form-control" readonly="readonly"/>
+                }
+                else
+                {
+                    <input asp-for="Nombre" class="form-control" />
+                }
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label asp-for="Telefono" class="form-label"></label>
-                <input asp-for="Telefono" class="form-control" />
+                @if (soloLectura)
+                {
+                    <input asp-for="Telefono" class="form-control" readonly="readonly"/>
+                }
+                else
+                {
+                    <input asp-for="Telefono" class="form-control" />
+                }
                 <span asp-validation-for="Telefono" class="text-danger"></span>
             </div>
 
             <div class="col-12 mb-3">
                 <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" />
+                @if (soloLectura)
+                {
+                    <input asp-for="Email" class="form-control" readonly="readonly"/>
+                }
+                else
+                {
+                    <input asp-for="Email" class="form-control" />
+                }
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
         </div>
@@ -70,7 +113,11 @@
 
                 <label class="form-label d-block mb-3">Tipo de Persona</label>                
                 <div class="d-flex gap-3 flex-wrap">                    
+                    
                     <!-- Inquilino -->
+                    @{
+                        var disabledAttr = soloLectura ? "disabled=\"disabled\"" : "";
+                    }
                     <div class="card flex-fill text-center tipo-persona-card border-primary p-3" style="cursor:pointer; min-width:12rem;">
                         <div class="card-body">
                             <i class="bi bi-house-door-fill display-4 text-primary"></i>
@@ -82,6 +129,7 @@
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
                                 checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("inquilino") ? "checked" : null)"
+                                @disabledAttr
                             />
                         </div>
                     </div>
@@ -98,6 +146,7 @@
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
                                 checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("propietario") ? "checked" : null)"
+                                @disabledAttr
                             />
                         </div>
                     </div>
@@ -105,11 +154,20 @@
             </div>
         </div>
 
+        
+        @if (!soloLectura)
+        {
+            <button type="submit" class="btn btn-primary">
+                <i class="bi @(esEdicion ? "bi-pencil-square" : "bi-check-circle") me-2"></i>
+                @(esEdicion ? "Guardar Cambios" : "Crear Persona")
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        }else{
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left-circle me-2"></i>Volver
+            </a>
+        }
 
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-check-circle me-2"></i>Crear Persona
-        </button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 
 
@@ -125,20 +183,15 @@
             cards.forEach(card => {
                 const checkbox = card.querySelector('input[type="checkbox"]');
 
-                // Si al cargar la página el checkbox está marcado, resaltar la card
                 if (checkbox.checked) {
                     card.classList.add('selected');
                 }
 
-                // Al hacer clic en la card
                 card.addEventListener('click', (e) => {
-                    // Evitamos que al hacer clic justo sobre el checkbox se ejecute dos veces
+                    // Si el checkbox está deshabilitado, no hacer nada
+                    if (checkbox.disabled) return;
                     if (e.target.tagName.toLowerCase() === 'input') return;
-
-                    // Cambiamos el estado del checkbox (toggle)
                     checkbox.checked = !checkbox.checked;
-
-                    // Estilo visual
                     if (checkbox.checked) {
                         card.classList.add('selected');
                     } else {
@@ -146,7 +199,6 @@
                     }
                 });
 
-                // Si el usuario clickea directamente el checkbox, mantenemos el estilo sincronizado
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         card.classList.add('selected');
