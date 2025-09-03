@@ -13,11 +13,20 @@
     
 </head>
 <body>
-
+    @{
+        var tipo = TempData["NotificacionTipo"] as string ?? "primary";
+        @* 
+            "success" → verde
+            "danger" → rojo
+            "warning" → amarillo
+            "info" → azul claro
+            "primary" → azul (por defecto)
+        *@
+    }
     @if (TempData["Notificacion"] != null)
     {
         <div aria-live="polite" aria-atomic="true" class="position-fixed end-0 p-3" style="z-index: 1080; top: 70px; right: 10px; min-width: 300px;">
-            <div id="toastNotificacion" class="toast show align-items-center text-bg-primary border-0 animate-toast-in" role="alert">
+            <div id="toastNotificacion" class="toast show align-items-center text-bg-@tipo border-0 animate-toast-in" role="alert">
                 <div class="d-flex">
                     <div class="toast-body fs-4">
                         @TempData["Notificacion"]
