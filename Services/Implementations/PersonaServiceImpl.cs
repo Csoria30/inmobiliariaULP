@@ -19,7 +19,7 @@ public class PersonaServiceImpl : IPersonaService
         }
     }
 
-    public async Task<int> EliminarAsync(int personaId, bool estado)
+     public async Task<int> EliminarAsync(int personaId, bool estado)
     {
         try
         {
@@ -30,6 +30,21 @@ public class PersonaServiceImpl : IPersonaService
         {
             throw new Exception("Error al eliminar la persona", ex);
         }
+    }
+
+    public async Task<(bool exito, string mensaje, string tipo)> CambiarEstadoAsync(int personaId)
+    {
+        var personaActual = await ObtenerIdAsync(personaId);
+        if (personaActual == null)
+            return (false, "La persona no existe.", "danger");
+    
+        bool nuevoEstado = !personaActual.Estado;
+        await EliminarAsync(personaId, nuevoEstado);
+    
+        if (nuevoEstado)
+            return (true, "Persona habilitada correctamente", "success");
+        else
+            return (true, "Persona deshabilitada correctamente", "danger");
     }
 
     public async Task<int> NuevoAsync(Persona persona)

@@ -307,32 +307,9 @@ public class PersonaController : Controller
     {
         try
         {
-            if (ModelState.IsValid)
-            {
-                var personaActual = await _personaService.ObtenerIdAsync(id);
-
-                // Si está activa, la damos de baja. Si está de baja, la rehabilitamos.
-                bool nuevoEstado = !personaActual.Estado;
-                
-                if (personaActual.Estado == true)
-                {
-                    await _personaService.EliminarAsync(id, nuevoEstado);
-                    TempData["Notificacion"] = "Persona deshabilitada correctamente";
-                    TempData["NotificacionTipo"] = "danger";
-                }
-                else
-                {
-                    await _personaService.EliminarAsync(id, nuevoEstado);
-                    TempData["Notificacion"] = "Persona habilitada correctamente";
-                    TempData["NotificacionTipo"] = "success";
-                }
-
-
-                return RedirectToAction(nameof(Index));
-            }
-            // Si ModelState no es válido, redirige igual o muestra error
-            TempData["Notificacion"] = "Error al eliminar la persona.";
-            TempData["NotificacionTipo"] = "danger";
+            var (exito, mensaje, tipo) = await _personaService.CambiarEstadoAsync(id);
+            TempData["Notificacion"] = mensaje;
+            TempData["NotificacionTipo"] = tipo;
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
