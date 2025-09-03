@@ -281,7 +281,7 @@ public class PersonaController : Controller
     {
         try
         {
-            var persona = await _personaService.ObtenerIdAsync(id);
+            var (persona, mensaje, tipo) = await _personaService.ObtenerDetalleAsync(id);
 
             if (persona == null)
             {

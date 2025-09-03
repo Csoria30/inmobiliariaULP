@@ -13,13 +13,14 @@ public class PersonaServiceImpl : IPersonaService
         {
             var personaRepository = FactoryRepository.CreatePersonaRepository();
             return await personaRepository.UpdateAsync(persona);
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al actualizar la persona", ex);
         }
     }
 
-     public async Task<int> EliminarAsync(int personaId, bool estado)
+    public async Task<int> EliminarAsync(int personaId, bool estado)
     {
         try
         {
@@ -37,10 +38,10 @@ public class PersonaServiceImpl : IPersonaService
         var personaActual = await ObtenerIdAsync(personaId);
         if (personaActual == null)
             return (false, "La persona no existe.", "danger");
-    
+
         bool nuevoEstado = !personaActual.Estado;
         await EliminarAsync(personaId, nuevoEstado);
-    
+
         if (nuevoEstado)
             return (true, "Persona habilitada correctamente", "success");
         else
@@ -66,7 +67,8 @@ public class PersonaServiceImpl : IPersonaService
         {
             var personaRepository = FactoryRepository.CreatePersonaRepository();
             return await personaRepository.GetByIdAsync(personaId);
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al obtener la persona por ID", ex);
         }
@@ -86,4 +88,21 @@ public class PersonaServiceImpl : IPersonaService
             throw new Exception("Error al obtener las personas", ex);
         }
     }
+
+    public async Task<(Persona persona, string mensaje, string tipo)> ObtenerDetalleAsync(int id)
+    {
+        try
+        {
+            var persona = await ObtenerIdAsync(id);
+            if (persona == null)
+                return (null, "La persona no existe.", "danger");
+
+            return (persona, null, null);
+        }
+        catch (Exception ex)
+        {
+            return (null, "Error al cargar las personas: " + ex.Message, "danger");
+        }
+    }
+
 }
