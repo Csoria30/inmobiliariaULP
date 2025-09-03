@@ -45,8 +45,6 @@ public class PersonaController : Controller
     {
         try
         {
-
-
             return View();
         }
         catch (Exception ex)
@@ -66,49 +64,18 @@ public class PersonaController : Controller
         {
             if (ModelState.IsValid)
             {
+                var (exito, mensaje, tipo) = await _personaService.CrearAsync(persona);
+                TempData["Notificacion"] = mensaje;
+                TempData["NotificacionTipo"] = tipo;
 
-                // Crea la persona y obtiene el ID generado
-                var personaId = await _personaService.NuevoAsync(persona);
-
-                // Obntiene el tipo de persona desde el formulario
-                if (persona.TipoPersona == null || persona.TipoPersona.Count == 0 || !persona.TipoPersona.Any())
-                {
-                    ModelState.AddModelError("", "Debe seleccionar al menos un perfil (Inquilino y/o Propietario).");
-                    return View(persona);
-                }
-
-                foreach (var tipo in persona.TipoPersona)
-                {
-                    switch (tipo)
-                    {
-                        case "inquilino":
-                            await _inquilinoService.NuevoAsync(personaId);
-                            break;
-                        case "propietario":
-                            await _propietarioService.NuevoAsync(personaId);
-                            break;
-                        default:
-                            throw new ValidationException("Tipo de persona inválido.");
-                    }
-                }
-
-
-                TempData["Notificacion"] = "Persona creada correctamente.";
-                return RedirectToAction("Index");
+                if (exito)
+                    return RedirectToAction(nameof(Index));
+                else
+                    return View("Create", persona); // Volver al formulario con datos
             }
-            else
-            {
-                Console.WriteLine("ModelState NO es válido"); // <-- Esto indica que falla validación
-                foreach (var key in ModelState.Keys)
-                {
-                    var state = ModelState[key];
-                    foreach (var error in state.Errors)
-                    {
-                        Console.WriteLine($"Error en {key}: {error.ErrorMessage}");
-                    }
-                }
-                return View(persona);
-            }
+
+            // Si ModelState no es válido, retornar a la vista con los datos ingresados
+            return View("Create", persona);
         }
         catch (Exception ex)
         {
@@ -153,7 +120,7 @@ public class PersonaController : Controller
     //! POST: PersonasController/Edit    
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Persona persona)
+   public async Task<IActionResult> Edit(Persona persona)
     {
         try
         {
@@ -274,6 +241,7 @@ public class PersonaController : Controller
         }
 
     }
+
 
 
     //* GET: PersonasController/Details

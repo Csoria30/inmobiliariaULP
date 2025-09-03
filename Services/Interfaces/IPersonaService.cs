@@ -11,4 +11,5 @@ public interface IPersonaService
 
     Task<(bool exito, string mensaje, string tipo)> CambiarEstadoAsync(int personaId);
     Task<(Persona persona, string mensaje, string tipo)> ObtenerDetalleAsync(int id);
+    Task<(bool exito, string mensaje, string tipo)> CrearAsync(Persona persona);
 }
