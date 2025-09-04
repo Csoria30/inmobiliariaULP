@@ -1,0 +1,20 @@
+/* ================================
+   !Botones
+   ================================ */
+.btn {
+  font-size: 1.3rem;       /* Igual que texto base */
+  padding: 0.8rem 1.6rem;  /* Botón accesible */
+  border-radius: 0.8rem;   /* Borde suavizado UX */
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: var(--bs-dark-btn);
+  border-color: var(--bs-dark2-btn);
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-dark-btn-hover);
+  border-color: var(--bs-dark-btn-hover);
+}

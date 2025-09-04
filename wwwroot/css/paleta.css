@@ -1,0 +1,60 @@
+/* ================================
+   VARIABLES DE COLOR Y SISTEMA REM
+   ================================ */
+:root {
+  --bs-primary: #0dcaf0;                /* Azul oscuro principal (branding, botones, navbar) */
+  --bs-primary-rgb: 102,16,242;         /* RGB del azul principal */
+
+  --bs-secondary: #00CAFF;              /* Celeste secundario (hover, detalles) */
+  --bs-secondary-rgb: 111,66,193;       /* RGB del secundario */
+
+  --bs-success: #198754;                /* Verde éxito (mensajes, validaciones) */
+  --bs-success-rgb: 25,135,84;          /* RGB del verde éxito */
+
+  --bs-info: #0dcaf0;                   /* Celeste info (avisos, badges) */
+  --bs-info-rgb: 13,202,240;            /* RGB del info */
+
+  --bs-warning: #ffc107;                /* Amarillo advertencia (alertas, warnings) */
+  --bs-warning-rgb: 255,193,7;          /* RGB del warning */
+
+  --bs-danger: #e83e8c;                 /* Rosa/rojo error (errores, alertas) */
+  --bs-danger-rgb: 232,62,140;          /* RGB del danger */
+
+  --bs-light: #f8f9fa;                  /* Fondo claro general (backgrounds, tarjetas) */
+  --bs-light-rgb: 248,249,250;          /* RGB del light */
+  
+  --bs-dark: #212529;                   /* Fondo oscuro general (textos, backgrounds) */
+  --bs-dark-rgb: 33,37,41;              /* RGB del dark */
+  
+  --bs-dark-btn: #31363F;               /* Botón dark principal */
+  --bs-dark2-btn: #212529;              /* Botón dark secundario */
+  --bs-dark-btn-hover: #464d53;         /* Hover botón dark */
+
+  --sidebar-bg: #343a40;                /* Fondo sidebar (oscuro, neutro) */
+  --sidebar-border: #343a40;            /* Borde sidebar (oscuro, igual que fondo) */
+  --sidebar-header-bg: #343a40;         /* Fondo header del sidebar */
+  --sidebar-header-border: #343a40;     /* Borde header del sidebar */
+  --sidebar-scroll-track: #23272f;      /* Track del scroll en sidebar */
+  --sidebar-scroll-thumb: #444950;      /* Thumb del scroll en sidebar */
+  --sidebar-scroll-thumb-hover: #5a5f67;/* Thumb hover del scroll en sidebar */
+
+  --content-bg: #e9ecef;                /* Fondo principal del contenido (gris claro) */
+  --content-scroll-track: #23272f;      /* Track del scroll en contenido */
+  --content-scroll-thumb: #444950;      /* Thumb del scroll en contenido */
+  --content-scroll-thumb-hover: #5a5f67;/* Thumb hover del scroll en contenido */
+
+  --accordion-bg: #31363F;              /* Fondo del acordeón (sidebar) */
+  --accordion-color: #e5ebec;           /* Color de texto del acordeón */
+  --submenu-hover-bg: #2c313a;          /* Fondo hover de submenú */
+  --accordion-bg-active: #2c313a;       /* Fondo activo del acordeón */
+  --accordion-color-active: #00CAFF;    /* Color de texto activo del acordeón */
+  --accordion-shadow-active: rgba(78, 168, 255, 0.08); /* Sombra acordeón activo */
+  --accordion-focus-shadow: rgba(78, 168, 255, 0.18);  /* Sombra foco acordeón */
+
+  --link-color: #bfc4ca;                /* Color de links en sidebar */
+  --link-hover-color: #ffffff;          /* Color de links hover en sidebar */
+  --link-active-bg: #232e3c;            /* Fondo de link activo en sidebar */
+  --link-active-color: #4ea8ff;         /* Color de link activo en sidebar */
+  --submenu-active-bg: #2c313a;         /* Fondo de submenú activo */
+  --submenu-active-border: #4ea8ff;     /* Borde izquierdo de submenú activo */
+}
