@@ -55,6 +55,7 @@ public class PersonaController : Controller
         }
     }
 
+
     //! POST: PersonasController/Create
     [HttpPost]
     [ValidateAntiForgeryToken] // Buena práctica para prevenir ataques CSRF
@@ -117,6 +118,7 @@ public class PersonaController : Controller
         }
     }
 
+
     //! POST: PersonasController/Edit    
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -126,110 +128,12 @@ public class PersonaController : Controller
         {
             if (ModelState.IsValid)
             {
-                var personaActual = await _personaService.ObtenerIdAsync(persona.PersonaId);
-
-                if (personaActual != null)
-                {
-                    // Lista de propiedades
-                    var camposPersonales = new[] { "Nombre", "Apellido", "Dni", "Telefono", "Email" };
-                    bool datosPersonalesCambiaron = false;
-
-                    foreach (var campo in camposPersonales)
-                    {
-                        var valorOriginal = personaActual.GetType().GetProperty(campo)?.GetValue(personaActual)?.ToString();
-                        var valorNuevo = persona.GetType().GetProperty(campo)?.GetValue(persona)?.ToString();
-
-                        if (valorOriginal != valorNuevo)
-                        {
-                            datosPersonalesCambiaron = true;
-                            break;
-                        }
-                    }
-
-                    if (datosPersonalesCambiaron)
-                    {
-                        // Obtenemos los datos de las personas
-                        personaActual.Nombre = persona.Nombre;
-                        personaActual.Apellido = persona.Apellido;
-                        personaActual.Dni = persona.Dni;
-                        personaActual.Telefono = persona.Telefono;
-                        personaActual.Email = persona.Email;
-
-                        // Guardamos los cambios en la base de datos - Tabla personas
-                        await _personaService.ActualizarAsync(personaActual);
-
-                        TempData["Notificacion"] = "Datos personales actualizados correctamente";
-                        TempData["NotificacionTipo"] = "success";
-                    }
-
-                    
-
-                    
-
-                    //- PROPIETARIO
-                    var propietario = await _propietarioService.ObtenerIdAsync(personaActual.PersonaId);
-                    bool esPropietario = persona.TipoPersona.Contains("propietario");
-
-                    if (esPropietario)
-                    {
-                        if (propietario == null)
-                        {
-                            await _propietarioService.NuevoAsync(personaActual.PersonaId);
-                            TempData["Notificacion"] = "Perfil propietario asignado correctamente";
-                            TempData["NotificacionTipo"] = "success";
-                        }
-                        else if (!propietario.Estado)
-                        {
-                            // Habilitar solo si estaba deshabilitado
-                            await _propietarioService.ActualizarAsync(propietario.PropietarioId, true);
-                            TempData["Notificacion"] = "Perfil propietario habilitado correctamente";
-                            TempData["NotificacionTipo"] = "success";
-                        }
-                        // Si ya está habilitado, no hagas nada
-                    }
-                    else if (propietario != null && propietario.Estado)
-                    {
-                        // Deshabilitar solo si estaba habilitado
-                        await _propietarioService.ActualizarAsync(propietario.PropietarioId, false); 
-                        TempData["Notificacion"] = "Perfil propietario deshabilitado correctamente";
-                        TempData["NotificacionTipo"] = "danger";
-                    }
-
-                    //- INQUILINO
-                    var inquilino = await _inquilinoService.ObtenerIdAsync(personaActual.PersonaId);
-                    bool esInquilino = persona.TipoPersona.Contains("inquilino");
-
-                    if (esInquilino)
-                    {
-                        if (inquilino == null)
-                        {
-                            await _inquilinoService.NuevoAsync(personaActual.PersonaId);
-                            TempData["Notificacion"] = "Perfil inquilino asignado correctamente";
-                            TempData["NotificacionTipo"] = "success";
-                        }
-                        else if (!inquilino.Estado)
-                        {
-                            // Habilitar solo si estaba deshabilitado
-                            await _inquilinoService.ActualizarAsync(inquilino.InquilinoId, true);
-                            TempData["Notificacion"] = "Perfil inquilino habilitado correctamente";
-                            TempData["NotificacionTipo"] = "success";
-                        }
-                        // Si ya está habilitado, no hagas nada
-                    }
-                    else if (inquilino != null && inquilino.Estado)
-                    {
-                        // Deshabilitar solo si estaba habilitado
-                        await _inquilinoService.ActualizarAsync(inquilino.InquilinoId, false);
-                        TempData["Notificacion"] = "Perfil inquilino deshabilitado correctamente";
-                        TempData["NotificacionTipo"] = "danger";
-                    }
-
-                    return RedirectToAction(nameof(Index));
-                }//. Persona null
+                var (exito, mensaje, tipo) = await _personaService.EditarAsync(persona);
+                TempData["Notificacion"] = mensaje;
+                TempData["NotificacionTipo"] = tipo;
+                return RedirectToAction(nameof(Index));
             }
-            
-            // Si ModelState no es válido, redirige igual o muestra error
-            TempData["Notificacion"] = "Error al eliminar la persona.";
+            TempData["Notificacion"] = "Error al editar la persona.";
             TempData["NotificacionTipo"] = "danger";
             return RedirectToAction(nameof(Index));
         }
@@ -241,7 +145,6 @@ public class PersonaController : Controller
         }
 
     }
-
 
 
     //* GET: PersonasController/Details
