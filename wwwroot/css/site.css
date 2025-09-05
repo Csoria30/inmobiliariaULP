@@ -176,7 +176,7 @@ body {
 
 /* Colores secciones */
 .admin-submenu .list-group-item > .admin-link {
-    color: var(--bs-dark); /* Amarillo, puedes usar otra variable o color */
+    color: var(--bs-primary); /* Amarillo, puedes usar otra variable o color */
     font-weight: 600;         /* Opcional: lo hace más destacado */
 }
 

@@ -1,7 +1,12 @@
 ﻿@model IEnumerable<Persona>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Personas";
+
+    var page = ViewBag.Page ?? 1;
+    var pageSize = ViewBag.PageSize ?? 10;
+    var total = ViewBag.Total ?? 0;
+    var totalPages = (int)Math.Ceiling((double)total / pageSize);
 }
 
 <div class="container-fluid px-4 py-5">
@@ -14,201 +19,116 @@
             <p class="text-muted mb-0">Administra la información de todas las personas</p>
         </div>
         <div class="col-auto">
-		    <a class="btn btn-primary" asp-controller="Persona" asp-action="Create">
+            <a class="btn btn-primary" asp-controller="Persona" asp-action="Create">
                 <i class="bi bi-plus-circle me-2"></i> Nueva Persona
             </a>
 
-	    </div>
+        </div>
     </div>
 
     <!-- Tabla Personas -->
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0" id="personasTable">
-                <thead class="table-light">
-                    <tr>
-                        <th class="border-0">
-                            <i class="bi bi-card-text me-1"></i>DNI
-                        </th>
-                        <th class="border-0">
-                            <i class="bi bi-person me-1"></i>Apellido
-                        </th>
-                        <th class="border-0">
-                            <i class="bi bi-person me-1"></i>Nombre
-                        </th>
-                        <th class="border-0">
-                            <i class="bi bi-telephone me-1"></i>Teléfono
-                        </th>
-                        <th class="border-0">
-                            <i class="bi bi-person-circle"></i> Perfil
-                        </th>
-                        <th class="border-0">
-                            <i class="bi bi-person-circle"></i> Estado
-                        </th>
-                        
-                        <th class="border-0 text-center" style="width: 200px;">
-                            <i class="bi bi-gear me-1"></i>Acciones
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var persona in Model)
-                        {
-                            <tr>
-                                <td class="align-middle">
-                                    <span class="badge bg-light text-dark fw-normal">@persona.Dni</span>
-                                </td>
-                                <td class="align-middle fw-medium">@persona.Apellido</td>
-                                <td class="align-middle">@persona.Nombre</td>
-                                <td class="align-middle">@persona.Telefono</td>
-                                
-                                
-                                <!-- Tipo de usuario -->
-                                <td class="align-middle">
-                                    <div class="d-flex flex-column gap-1">
-                                        @if (persona.TipoPersona.Contains("inquilino"))
-                                        {
-                                            <span class="badge bg-primary">Inquilino</span>
-                                        }
-                                        @if (persona.TipoPersona.Contains("propietario"))
-                                        {
-                                            <span class="badge bg-success">Propietario</span>
-                                        }
-                                    </div>
-                                </td>
 
-                                <!-- Estados -->
-                                <td class="align-middle">
-                                    <div class="d-flex flex-column gap-1">
-                                        @if(persona.Estado == true){
-                                            <span class="badge bg-success">Habilitado</span>
-                                        }else{
-                                            <span class="badge bg-danger">Deshabilitado</span>
-                                        }
-                                    </div>
-                                </td>
+        <table class="table table-striped table-bordered" id="personasTable">
+            <thead class="table-light">
+                <tr>
+                    <th class="border-0">
+                        <i class="bi bi-card-text me-1"></i>DNI
+                    </th>
+                    <th class="border-0">
+                        <i class="bi bi-person me-1"></i>Apellido
+                    </th>
+                    <th class="border-0">
+                        <i class="bi bi-person me-1"></i>Nombre
+                    </th>
+                    <th class="border-0">
+                        <i class="bi bi-telephone me-1"></i>Teléfono
+                    </th>
+                    <th class="border-0">
+                        <i class="bi bi-person-circle"></i> Perfil
+                    </th>
+                    <th class="border-0">
+                        <i class="bi bi-person-circle"></i> Estado
+                    </th>
 
+                    <th class="border-0 text-center" style="width: 200px;">
+                        <i class="bi bi-gear me-1"></i>Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            
+            </tbody>
+        </table>
 
-                                @* Acciones *@
-                                <td class="align-middle">
-                                    <div class="btn-group" role="group">
-                                        
-                                        <a asp-controller="Persona"
-                                            asp-action="Details"
-                                            asp-route-id="@persona.PersonaId" 
-                                            class="btn btn-sm btn-outline-info"
-                                            data-bs-toggle="tooltip" 
-                                            data-bs-placement="top" 
-                                            title="Mas informacion">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        
-                                        <a asp-controller="Persona" 
-                                            asp-action="Edit" 
-                                            asp-route-id="@persona.PersonaId" 
-                                            class="btn btn-sm btn-outline-warning"
-                                            data-bs-toggle="tooltip" 
-                                            data-bs-placement="top" 
-                                            title="Editar Persona">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                        <a asp-controller="Persona" 
-                                            asp-action="Delete" 
-                                            asp-route-id="@persona.PersonaId" 
-                                            class="btn btn-sm @(persona.Estado ? "btn-outline-danger" : "btn-outline-success")"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalEliminarPersona"
-                                            data-personaid="@persona.PersonaId"
-                                            data-personanombre="@($"{persona.Apellido}, {persona.Nombre}")"
-                                            data-bs-placement="top"
-                                            title="@(persona.Estado ? "Deshabilitar" : "Habilitar")">
-                                            <i class="bi @(persona.Estado ? "bi-trash3" : "bi-arrow-repeat")"></i>
-                                           
-                                        </a>
-                                        
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6">No hay personas para mostrar.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div><!-- Tabla Personas -->
-
-</div>
+    </div>
 
 @* Modal de eliminacion de Persona *@
-<div class="modal fade" id="modalEliminarPersona" tabindex="-1" aria-labelledby="modalEliminarPersonaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div id="modalHeaderEstado" class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="modalEliminarPersonaLabel">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <span id="modalTituloEstado">Confirmar acción</span>
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <p id="modalMensajeEstado">
-            ¿Está seguro que desea <span id="accionPersonaEstado">deshabilitar</span> a <span class="fw-bold" id="nombrePersonaEliminar"></span>?
-        </p>
-      </div>
-      <div class="modal-footer">
-        <form id="formEliminarPersona" method="post">
-            <input type="hidden" name="id" id="personaIdEliminar" />
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" id="btnConfirmarEstado" class="btn btn-danger">Deshabilitar</button>
-        </form>
-      </div>
+    <div class="modal fade" id="modalEliminarPersona" tabindex="-1" aria-labelledby="modalEliminarPersonaLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div id="modalHeaderEstado" class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalEliminarPersonaLabel">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <span id="modalTituloEstado">Confirmar acción</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalMensajeEstado">
+                        ¿Está seguro que desea <span id="accionPersonaEstado">deshabilitar</span> a <span
+                            class="fw-bold" id="nombrePersonaEliminar"></span>?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <form id="formEliminarPersona" method="post">
+                        <input type="hidden" name="id" id="personaIdEliminar" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnConfirmarEstado" class="btn btn-danger">Deshabilitar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
 @section Scripts
 {
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    var modal = document.getElementById('modalEliminarPersona');
-    if (modal) {
-        modal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var personaId = button.getAttribute('data-personaid');
-            var personaNombre = button.getAttribute('data-personanombre');
-            var personaEstado = button.classList.contains('btn-outline-danger'); // true = habilitado, false = deshabilitado
 
-            document.getElementById('personaIdEliminar').value = personaId;
-            document.getElementById('nombrePersonaEliminar').textContent = personaNombre;
+        <!-- Script para manejar el modal de eliminar/habilitar persona -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var modal = document.getElementById('modalEliminarPersona');
+                if (modal) {
+                    modal.addEventListener('show.bs.modal', function (event) {
+                        var button = event.relatedTarget;
+                        var personaId = button.getAttribute('data-personaid');
+                        var personaNombre = button.getAttribute('data-personanombre');
+                        var personaEstado = button.classList.contains('btn-outline-danger'); // true = habilitado, false = deshabilitado
 
-            // Cambia la acción del form para que apunte al método Delete del controlador
-            document.getElementById('formEliminarPersona').action = '/Persona/Delete/' + personaId;
+                        document.getElementById('personaIdEliminar').value = personaId;
+                        document.getElementById('nombrePersonaEliminar').textContent = personaNombre;
 
-            // Cambia el mensaje, color y botón según el estado
-            var accion = personaEstado ? "deshabilitar" : "habilitar";
-            var color = personaEstado ? "danger" : "success";
-            var icono = personaEstado ? "bi-exclamation-triangle" : "bi-arrow-repeat";
+                        // Cambia la acción del form para que apunte al método Delete del controlador
+                        document.getElementById('formEliminarPersona').action = '/Persona/Delete/' + personaId;
 
-            document.getElementById('accionPersonaEstado').textContent = accion;
-            document.getElementById('modalTituloEstado').textContent = personaEstado ? "Confirmar deshabilitación" : "Confirmar habilitación";
-            document.getElementById('btnConfirmarEstado').textContent = personaEstado ? "Deshabilitar" : "Habilitar";
-            document.getElementById('btnConfirmarEstado').className = "btn btn-" + color;
+                        // Cambia el mensaje, color y botón según el estado
+                        var accion = personaEstado ? "deshabilitar" : "habilitar";
+                        var color = personaEstado ? "danger" : "success";
+                        var icono = personaEstado ? "bi-exclamation-triangle" : "bi-arrow-repeat";
 
-            // Cambia el color del header y el icono
-            var header = document.getElementById('modalHeaderEstado');
-            header.className = "modal-header bg-" + color + " text-white";
-            header.querySelector('i').className = "bi " + icono + " me-2";
-        });
-    }
-});
-    </script>
+                        document.getElementById('accionPersonaEstado').textContent = accion;
+                        document.getElementById('modalTituloEstado').textContent = personaEstado ? "Confirmar deshabilitación" : "Confirmar habilitación";
+                        document.getElementById('btnConfirmarEstado').textContent = personaEstado ? "Deshabilitar" : "Habilitar";
+                        document.getElementById('btnConfirmarEstado').className = "btn btn-" + color;
+
+                        // Cambia el color del header y el icono
+                        var header = document.getElementById('modalHeaderEstado');
+                        header.className = "modal-header bg-" + color + " text-white";
+                        header.querySelector('i').className = "bi " + icono + " me-2";
+                    });
+                }
+            });
+        </script>
 }

@@ -28,8 +28,7 @@ public class PersonaController : Controller
     {
         try
         {
-            var personas = await _personaService.ObtenerTodosAsync();
-            return View(personas);
+            return View();
         }
         catch (Exception ex)
         {
@@ -38,7 +37,7 @@ public class PersonaController : Controller
             return View(new List<Persona>()); // Vista vacía con error
         }
     }
-
+ 
     //* GET: PersonasController/Create
     [HttpGet]
     public IActionResult Create()
@@ -95,7 +94,8 @@ public class PersonaController : Controller
         {
             var persona = await _personaService.ObtenerIdAsync(id);
 
-            if (persona != null){
+            if (persona != null)
+            {
                 if (persona.Estado == false)
                 {
                     TempData["Notificacion"] = "No se puede editar una persona deshabilitada.";
@@ -117,12 +117,12 @@ public class PersonaController : Controller
             return View("Error");
         }
     }
-
+ 
 
     //! POST: PersonasController/Edit    
     [HttpPost]
     [ValidateAntiForgeryToken]
-   public async Task<IActionResult> Edit(Persona persona)
+    public async Task<IActionResult> Edit(Persona persona)
     {
         try
         {
@@ -191,5 +191,102 @@ public class PersonaController : Controller
             return RedirectToAction(nameof(Index));
         }
     }
-    
+
+
+    [HttpPost]
+    public async Task<IActionResult> ObtenerDataTable()
+    {
+        try
+        {
+            // Recibe parámetros de DataTables
+            var draw = Request.Form["draw"].FirstOrDefault();
+            // Es un número que envía DataTables en cada petición AJAX para identificar la respuesta y sincronizar el frontend.
+
+            var start = Convert.ToInt32(Request.Form["start"].FirstOrDefault());
+            //  Es el índice del primer registro que DataTables quiere mostrar (para paginación).
+
+            var length = Convert.ToInt32(Request.Form["length"].FirstOrDefault());
+            //  Es la cantidad de registros que DataTables quiere mostrar por página (tamaño de página).
+
+            var searchValue = Request.Form["search[value]"].FirstOrDefault();
+            //  Es el valor de búsqueda que el usuario ha ingresado en el cuadro de búsqueda de DataTables.
+
+            int page = (start / length) + 1;
+            //  Es el número de página actual que DataTables está solicitando.
+
+            int pageSize = length;
+            //  Es la cantidad de registros por página que DataTables está solicitando.
+
+            // Llama a tu servicio para obtener datos paginados y filtrados
+            var (personas, total) = await _personaService.ObtenerTodosAsync(page, pageSize, searchValue);
+
+            // Arma los datos para DataTables
+            var data = personas.Select(persona => new {
+                dni = persona.Dni,
+                apellido = persona.Apellido,
+                nombre = persona.Nombre,
+                telefono = persona.Telefono,
+                perfil = string.Join(" ", persona.TipoPersona.Select(tipo =>
+                    tipo == "inquilino"
+                        ? "<span class='badge bg-primary me-1'>Inquilino</span>"
+                    
+                    : tipo == "propietario"
+                            ? "<span class='badge bg-warning text-dark me-1'>Propietario</span>"
+
+                    : $"<span class='badge bg-secondary me-1'>{tipo}</span>"
+                )),
+
+                estado = persona.Estado
+                    ? "<span class='badge bg-success'>Habilitado</span>"
+                    : "<span class='badge bg-danger'>Deshabilitado</span>",
+
+                acciones = $@"
+                <div class='btn-group' role='group'>
+                    
+                    <a 
+                        href='/Persona/Details/{persona.PersonaId}' 
+                        class='btn btn-sm btn-outline-info' 
+                        data-bs-toggle='tooltip' 
+                        data-bs-placement='top' 
+                        title='Más información'>
+                        <i class='bi bi-eye'></i>
+                    </a>
+                
+                    <a 
+                        href='/Persona/Edit/{persona.PersonaId}' 
+                        class='btn btn-sm btn-outline-warning' 
+                        data-bs-toggle='tooltip' 
+                        data-bs-placement='top' 
+                        title='Editar Persona'>
+                        <i class='bi bi-pencil'></i>
+                    </a>
+                
+                    <a 
+                        href='/Persona/Delete/{persona.PersonaId}' 
+                        class='btn btn-sm {(persona.Estado ? "btn-outline-danger" :   "btn-outline-success")}'
+                        data-bs-toggle='modal'
+                        data-bs-target='#modalEliminarPersona'
+                        data-personaid='{persona.PersonaId}'
+                        data-personanombre='{persona.Apellido}, {persona.Nombre}'
+                        data-bs-placement='top'
+                        title='{(persona.Estado ? "Deshabilitar" : "Habilitar")}'>
+                        <i class='bi {(persona.Estado ? "bi-trash3" : "bi-arrow-repeat")}'></i>
+                    </a>
+
+                </div>"
+            });
+
+            return Json(new
+            {
+                draw = draw,
+                recordsTotal = total,
+                recordsFiltered = total, // Si implementas búsqueda, cambia este valor
+                data = data
+            });
+        }catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener datos para DataTable");
+            return StatusCode(500, "Error al procesar la solicitud.");
+        }
+    }
 }

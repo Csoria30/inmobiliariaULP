@@ -8,11 +8,16 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+    
     <link rel="stylesheet" href="~/inmobiliariaULP.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/paleta.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/botones.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/formularios.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/datatable.css" asp-append-version="true" />
+
 </head>
 
 <body>
@@ -216,9 +221,16 @@
             &copy; 2025 - inmobiliariaULP - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-light">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Bootstrap 5 JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/personas-datatable.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

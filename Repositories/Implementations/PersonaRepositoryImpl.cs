@@ -48,54 +48,82 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         return await command.ExecuteNonQueryAsync();
     }
-    
-    
 
-    public async Task<IEnumerable<Persona>> GetAllAsync()
+    public async Task<(IEnumerable<Persona> Personas, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
     {
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
 
-        var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
-               i.id_inquilino, pr.id_propietario
-        
-            FROM personas p
-            LEFT JOIN inquilinos i 
-                ON p.id_persona = i.id_persona AND i.estado = 1
-
-            LEFT JOIN propietarios pr 
-                ON p.id_persona = pr.id_persona AND pr.estado = 1;
-        ";
-
-        using var reader = await command.ExecuteReaderAsync();
-        var personas = new List<Persona>();
-
-        while (await reader.ReadAsync())
+        // 1. Armar el WHERE si hay búsqueda
+        string where = "";
+        if (!string.IsNullOrEmpty(search))
         {
-            var tipoPersonas = new List<string>();
-
-            if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
-                tipoPersonas.Add("inquilino");
-
-            if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
-                tipoPersonas.Add("propietario");
-
-            personas.Add(new Persona
-            {
-                PersonaId = reader.GetInt32("id_persona"),
-                Dni = reader.GetString("dni"),
-                Apellido = reader.GetString("apellido"),
-                Nombre = reader.GetString("nombre"),
-                Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email"),
-                Estado = reader.GetBoolean("estado"),
-                TipoPersona = new List<string>(tipoPersonas)
-            });
+            where = @"
+                WHERE p.dni LIKE @search OR 
+                      p.apellido LIKE @search OR 
+                      p.nombre LIKE @search";
         }
 
-        return personas;
+        // 2. Obtener el total de registros (filtrado si hay búsqueda)
+        int total;
+        using (var countCommand = connection.CreateCommand())
+        {
+            countCommand.CommandText = $@"SELECT COUNT(*) FROM personas p {where}";
+
+            if (!string.IsNullOrEmpty(search))
+                countCommand.Parameters.AddWithValue("@search", $"%{search}%");
+
+            total = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+        }
+
+        // 3. Consulta paginada y filtrada
+        var personas = new List<Persona>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = $@"
+                SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
+                    i.id_inquilino, pr.id_propietario
+
+                FROM personas p
+
+                LEFT JOIN inquilinos i ON p.id_persona = i.id_persona AND i.estado = 1
+                LEFT JOIN propietarios pr ON p.id_persona = pr.id_persona AND pr.estado = 1
+
+                {where}
+                LIMIT @limit OFFSET @offset;
+            ";
+
+            if (!string.IsNullOrEmpty(search))
+                command.Parameters.AddWithValue("@search", $"%{search}%");
+
+            command.Parameters.AddWithValue("@limit", pageSize);
+            command.Parameters.AddWithValue("@offset", (page - 1) * pageSize);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var tipoPersonas = new List<string>();
+                if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
+                    tipoPersonas.Add("inquilino");
+                if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
+                    tipoPersonas.Add("propietario");
+
+                personas.Add(new Persona
+                {
+                    PersonaId = reader.GetInt32("id_persona"),
+                    Dni = reader.GetString("dni"),
+                    Apellido = reader.GetString("apellido"),
+                    Nombre = reader.GetString("nombre"),
+                    Telefono = reader.GetString("telefono"),
+                    Email = reader.GetString("email"),
+                    Estado = reader.GetBoolean("estado"),
+                    TipoPersona = new List<string>(tipoPersonas)
+                });
+            }
+        }
+
+        return (personas, total);
+
     }
 
     public async Task<Persona?> GetByIdAsync(int id)

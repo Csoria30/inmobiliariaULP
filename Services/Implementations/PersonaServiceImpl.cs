@@ -127,20 +127,20 @@ public class PersonaServiceImpl : IPersonaService
         }
     }
 
-    public async Task<IEnumerable<Persona>> ObtenerTodosAsync()
+    public async Task<(IEnumerable<Persona> Personas, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         try
         {
             var personaRepository = GetPersonaRepository();
-            var personas = await personaRepository.GetAllAsync(); // Obtener las personas
-
-            return personas; // Retornamos la lista de personas 
+            return await personaRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
             throw new Exception("Error al obtener las personas", ex);
         }
     }
+
+
 
     public async Task<(Persona persona, string mensaje, string tipo)> ObtenerDetalleAsync(int id)
     {
