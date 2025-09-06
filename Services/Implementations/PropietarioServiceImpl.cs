@@ -8,11 +8,26 @@ namespace inmobiliariaULP.Services.Implementations;
 public class PropietarioServiceImpl : IPropietarioService
 {
 
+    private PersonaRepositoryImpl GetPersonaRepository()
+    {
+        return FactoryRepository.CreatePersonaRepository();
+    }
+
+    private InquilinoRepositoryImpl GetInquilinoRepository()
+    {
+        return FactoryRepository.CreateInquilinoRepository();
+    }
+
+    private PropietarioRepositoryImpl GetPropietarioRepository()
+    {
+        return FactoryRepository.CreatePropietarioRepository();
+    }
+
     public async Task<int> EliminarAsync(int propietarioId)
     {
         try
         {
-            var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
+            var propietarioRepository = GetPropietarioRepository();
             return await propietarioRepository.DeleteAsync(propietarioId);
         }
         catch (Exception ex)
@@ -25,7 +40,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
+            var propietarioRepository = GetPropietarioRepository();
             return await propietarioRepository.AddAsync(personaId);
         }
         catch (Exception ex)
@@ -38,7 +53,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
+            var propietarioRepository = GetPropietarioRepository();
             return propietarioRepository.GetByIdAsync(propietarioId);
         }
         catch (Exception ex)
@@ -47,12 +62,12 @@ public class PropietarioServiceImpl : IPropietarioService
         }
     }
 
-    public Task<IEnumerable<Propietario>> ObtenerTodosAsync()
+    public Task<(IEnumerable<Propietario> Propietarios, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         try
         {
-            var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
-            return propietarioRepository.GetAllAsync();
+            var propietarioRepository = GetPropietarioRepository();
+            return propietarioRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
@@ -64,7 +79,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = FactoryRepository.CreatePropietarioRepository();
+            var propietarioRepository = GetPropietarioRepository();
             return await propietarioRepository.UpdateAsync(personaId, estado);
         }
         catch (Exception ex)

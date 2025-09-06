@@ -168,9 +168,10 @@
             </button>
             <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
         }else{
-            <a asp-action="Index" class="btn btn-secondary">
+            @* <a asp-action="Index" class="btn btn-secondary">
                 <i class="bi bi-arrow-left-circle me-2"></i>Volver
-            </a>
+            </a> *@
+            <a href="@ViewBag.ReturnUrl" class="btn btn-secondary">Volver</a>
         }
 
     </form>

@@ -38,40 +38,77 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
 
     }
 
-    public async Task<IEnumerable<Propietario>> GetAllAsync()
+    public async Task<(IEnumerable<Propietario> Personas, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
     {
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
 
-        var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 
-	            pr.id_propietario, 
-	            pr.id_persona, 
-	            per.dni, 
-	            per.apellido, 
-	            per.nombre, 
-	            per.telefono, 
-	            per.email
-            
-	            FROM propietarios pr JOIN personas per 
-	            ON pr.id_persona = per.id_persona
-        ";
-
-        using var reader = await command.ExecuteReaderAsync();
-        var propietarios = new List<Propietario>();
-        while (await reader.ReadAsync())
+        // 1. Armar el WHERE si hay búsqueda
+        string where = "";
+        if (!string.IsNullOrEmpty(search))
         {
-            propietarios.Add(new Propietario
-            {
-                Dni = reader.GetString("dni"),
-                Apellido = reader.GetString("apellido"),
-                Nombre = reader.GetString("nombre"),
-                Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email")
-            });
+            where = @"
+                WHERE p.dni LIKE @search OR
+                        p.apellido LIKE @search OR
+                        p.nombre LIKE @search";
         }
-        return propietarios;
+
+        // 2. Obtener el total de registros (filtrado si hay búsqueda)
+        int total;
+        using (var countCommand = connection.CreateCommand())
+        {
+            countCommand.CommandText = $@"
+                SELECT COUNT(*) 
+                FROM personas p
+                INNER JOIN propietarios pr ON p.id_persona = pr.id_persona
+                {where}
+            ";
+
+            if (!string.IsNullOrEmpty(search))
+                countCommand.Parameters.AddWithValue("@search", $"%{search}%");
+
+            total = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+        }
+
+        // 3. Consulta paginada y filtrada
+        var propietarios = new List<Propietario>();
+        
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = $@"
+                Select pr.id_propietario, pr.id_persona, pr.estado AS EstadoPropietario, p.dni, p.nombre, p.apellido, p.telefono, p.email
+                
+                from propietarios pr
+                Join personas p 
+                On p.id_persona = pr.id_persona
+                {where}
+                LIMIT @Offset, @PageSize
+            ";
+
+            if (!string.IsNullOrEmpty(search))
+                command.Parameters.AddWithValue("@search", $"%{search}%");
+
+            command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                propietarios.Add(new Propietario
+                {
+                    PropietarioId = reader.GetInt32("id_propietario"),
+                    PersonaId = reader.GetInt32("id_persona"),
+                    Dni = reader.GetString("dni"),
+                    Apellido = reader.GetString("apellido"),
+                    Nombre = reader.GetString("nombre"),
+                    Telefono = reader.GetString("telefono"),
+                    Email = reader.GetString("email"),
+                    Estado = reader.GetBoolean("EstadoPropietario"),
+                });
+            }
+        }
+
+        return (propietarios, total);
     }
 
     public async Task<Propietario?> GetByIdAsync(int propietarioId)

@@ -148,7 +148,7 @@ public class PersonaController : Controller
 
 
     //* GET: PersonasController/Details
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int id, string? returnUrl = null)
     {
         try
         {
@@ -161,7 +161,9 @@ public class PersonaController : Controller
             }
 
             ViewBag.SoloLectura = true; // Flag para la vista
-            return View("Create", persona); // Reutilizamos la vista Create
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Persona"); //Identificar de donde se llamo
+
+            return View("Create", persona);
 
         }
         catch (Exception ex)

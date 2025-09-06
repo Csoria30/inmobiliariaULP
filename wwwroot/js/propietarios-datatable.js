@@ -1,24 +1,22 @@
-// wwwroot/js/personas-datatable.js
+// wwwroot/js/propietarios-datatable.js
 $(document).ready(function () {
-    if (!$.fn.DataTable.isDataTable('#personasTable')) {
-        $('#personasTable').DataTable({
+    if (!$.fn.DataTable.isDataTable('#propietariosTable')) {
+        $('#propietariosTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/Persona/ObtenerDataTable',
+                url: '/Propietario/ObtenerDataTable',
                 type: 'POST'
             },
             columnDefs:[
                 { targets: 0, className: 'text-center'}, // Centra la primera columna (DNI)
-                { targets: 5, className: 'text-center'}, // Centra la primera columna (Estados)
-                { targets: 6, className: 'text-center'} // Centra la primera columna (Acciones)
+                
             ],
             columns: [
                 { data: 'dni' },
                 { data: 'apellido' },
                 { data: 'nombre' },
                 { data: 'telefono' },
-                { data: 'perfil' },
                 { data: 'estado' },
                 { data: 'acciones', orderable: false, searchable: false }
             ],

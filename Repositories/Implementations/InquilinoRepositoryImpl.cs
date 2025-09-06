@@ -38,40 +38,76 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
     }
 
 
-    public async Task<IEnumerable<Inquilino>> GetAllAsync()
+    public async Task<(IEnumerable<Inquilino> Personas, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
     {
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
 
-        var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 	
-	            i.id_inquilino, 	
-	            i.id_persona, 
-	            per.dni, 
-	            per.apellido, 
-	            per.nombre, 
-	            per.telefono, 
-	            per.email
-	
-	            FROM inquilinos i JOIN personas per 
-	            ON i.id_persona = per.id_persona
-        ";
-
-        using var reader = await command.ExecuteReaderAsync();
-        var inquilinos = new List<Inquilino>();
-        while (await reader.ReadAsync())
+        // 1. Armar el WHERE si hay búsqueda
+        string where = "";
+        if (!string.IsNullOrEmpty(search))
         {
-            inquilinos.Add(new Inquilino
-            {
-                Dni = reader.GetString("dni"),
-                Apellido = reader.GetString("apellido"),
-                Nombre = reader.GetString("nombre"),
-                Telefono = reader.GetString("telefono"),
-                Email = reader.GetString("email")
-            });
+            where = @"
+                WHERE p.dni LIKE @search OR
+                        p.apellido LIKE @search OR
+                        p.nombre LIKE @search";
         }
-        return inquilinos;
+
+        // 2. Obtener el total de registros (filtrado si hay búsqueda)
+        int total;
+        using (var countCommand = connection.CreateCommand())
+        {
+            countCommand.CommandText = $@"
+                SELECT COUNT(*) 
+                FROM personas p
+                INNER JOIN inquilinos i ON p.id_persona = i.id_persona
+                {where}
+            ";
+
+            if (!string.IsNullOrEmpty(search))
+                countCommand.Parameters.AddWithValue("@search", $"%{search}%");
+
+            total = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+        }
+
+        // 3. Consulta paginada y filtrada
+        var inquilinos = new List<Inquilino>();
+
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = $@"
+                Select i.id_persona, i.id_inquilino , i.estado AS EstadoInquilino, p.dni, p.nombre, p.apellido, p.telefono, p.email
+
+                from inquilinos i 
+                Join personas p 
+                On p.id_persona = i.id_persona
+                {where}
+                LIMIT @Offset, @PageSize
+            ";
+
+            if (!string.IsNullOrEmpty(search))
+                command.Parameters.AddWithValue("@search", $"%{search}%");
+
+            command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                inquilinos.Add(new Inquilino
+                {
+                    InquilinoId = reader.GetInt32("id_inquilino"),
+                    PersonaId = reader.GetInt32("id_persona"),
+                    Dni = reader.GetString("dni"),
+                    Apellido = reader.GetString("apellido"),
+                    Nombre = reader.GetString("nombre"),
+                    Telefono = reader.GetString("telefono"),
+                    Email = reader.GetString("email"),
+                    Estado = reader.GetBoolean("EstadoInquilino"),
+                });
+            }
+        }
+         return (inquilinos, total);
     }
 
     public async Task<Inquilino?> GetByIdAsync(int inquilinoId)

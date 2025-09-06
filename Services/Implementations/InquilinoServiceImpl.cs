@@ -7,12 +7,26 @@ namespace inmobiliariaULP.Services.Implementations;
 
 public class InquilinoServiceImpl : IInquilinoService
 {
+    private PersonaRepositoryImpl GetPersonaRepository()
+    {
+        return FactoryRepository.CreatePersonaRepository();
+    }
+
+    private InquilinoRepositoryImpl GetInquilinoRepository()
+    {
+        return FactoryRepository.CreateInquilinoRepository();
+    }
+
+    private PropietarioRepositoryImpl GetPropietarioRepository()
+    {
+        return FactoryRepository.CreatePropietarioRepository();
+    }
 
     public Task<int> EliminarAsync(int inquilinoId)
     {
         try
         {
-            var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
+            var inquilinoRepository = GetInquilinoRepository();
             return inquilinoRepository.DeleteAsync(inquilinoId);
         }
         catch (Exception ex)
@@ -25,7 +39,7 @@ public class InquilinoServiceImpl : IInquilinoService
     {
         try
         {
-            var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
+            var inquilinoRepository = GetInquilinoRepository();
             return inquilinoRepository.AddAsync(personaId);
         }
         catch (Exception ex)
@@ -47,12 +61,12 @@ public class InquilinoServiceImpl : IInquilinoService
         }
     }
 
-    public Task<IEnumerable<Inquilino>> ObtenerTodosAsync()
+    public Task<(IEnumerable<Inquilino> Inquilinos, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         try
         {
-            var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
-            return inquilinoRepository.GetAllAsync();
+            var inquilinoRepository = GetInquilinoRepository();
+            return inquilinoRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
@@ -64,7 +78,7 @@ public class InquilinoServiceImpl : IInquilinoService
     {
         try
         {
-            var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
+            var inquilinoRepository = GetInquilinoRepository();
             return await inquilinoRepository.UpdateAsync(personaId, estado);
         }
         catch (Exception ex)

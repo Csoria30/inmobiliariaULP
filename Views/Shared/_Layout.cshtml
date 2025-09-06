@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <!-- DataTables Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
-    
+
     <link rel="stylesheet" href="~/inmobiliariaULP.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/paleta.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -41,186 +41,219 @@
         </div>
     }
 
-<header>
-        <nav class="navbar navbar-expand-sm navbar-dark sticky-top" 
-         style="background-color: var(--sidebar-bg); border-bottom: 1px solid var(--sidebar-border);">
+    <header class="main-header">
+        <nav class="navbar navbar-expand-sm navbar-dark sticky-top"
+            style="background-color: var(--sidebar-bg); border-bottom: 1px solid var(--sidebar-border);">
 
-        <div class="container-fluid">
-            <a class="navbar-brand text-light" asp-area="" asp-controller="Home"
-                asp-action="Index">inmobiliariaULP</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
+            <div class="container-fluid">
+                <i class="bi bi-house-door-fill"></i>
+                <a class="navbar-brand text-light" asp-area="" asp-controller="Home"
+                    asp-action="Index">inmobiliariaULP</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
 
-                </ul>
+                    </ul>
 
-                <div class="d-flex align-items-center me-3">
-                    <div class="dropdown">
-                        <a href="#"
-                            class="d-flex align-items-center link-light text-decoration-none dropdown-toggle"
-                            id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="~/images/avatar.jpg" alt="Perfil" width="36" height="36"
-                                class="rounded-circle object-fit-cover me-2 border border-secondary">
-                            <span class="d-none d-sm-inline text-light">Mi cuenta</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
-                            <li><a class="dropdown-item" asp-area="" asp-controller="Persona"
-                                    asp-action="Edit">Editar perfil</a></li>
-                            <li><a class="dropdown-item" href="#">Configuración</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
-                        </ul>
+                    <div class="d-flex align-items-center me-3">
+                        <div class="dropdown">
+                            <a href="#"
+                                class="d-flex align-items-center link-light text-decoration-none dropdown-toggle"
+                                id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="~/images/avatar.jpg" alt="Perfil" width="36" height="36"
+                                    class="rounded-circle object-fit-cover me-2 border border-secondary">
+                                <span class="d-none d-sm-inline text-light">Mi cuenta</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Persona"
+                                        asp-action="Edit">Editar perfil</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="bi bi-gear"></i>  Configuración</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="bi bi-box-arrow-left"></i>  Cerrar sesión</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
 
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-fill">
+        <!-- Contenedor principal con scrolls independientes -->
+        <div class="admin-layout-container">
+            <div class="admin-layout-wrapper">
+                <!-- Sidebar con scroll propio -->
+                <aside class="admin-sidebar">
+                    <div class="admin-sidebar-header">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-speedometer2 me-2 text-primary"></i>
+                            <span class="fw-semibold text-light">Panel de administración</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-sidebar-content">
+                        <div class="accordion accordion-flush" id="adminAccordion">
+                            <!-- Módulo: Usuarios -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingUsers">
+                                    <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapseUsers"
+                                        aria-expanded="false"
+                                        aria-controls="collapseUsers">
+                                        <i class="bi bi-people me-2 text-primary"></i> Usuarios
+                                    </button>
+                                </h2>
+
+                                @* - Seccion -> Personas *@
+                                <div id="collapseUsers" class="accordion-collapse collapse"
+                                    aria-labelledby="headingUsers" data-bs-parent="#adminAccordion">
+                                    <div class="accordion-body p-0">
+
+                                        <ul class="list-group list-group-flush admin-submenu">
+                                            <li class="list-group-item">
+                                                <a class="nav-link admin-link" asp-area="" asp-controller="Persona"
+                                                    asp-action="Index">Lista Personas</a>
+                                            </li>
+                                        </ul>
+                                        <ul class="list-group list-group-flush admin-submenu">
+                                            <li class="list-group-item">
+                                                <a class="nav-link admin-link" asp-area="" asp-controller="Inquilino"
+                                                    asp-action="Index">Lista Inquilinos</a>
+                                            </li>
+                                        </ul>
+                                        <ul class="list-group list-group-flush admin-submenu">
+                                            <li class="list-group-item">
+                                                <a class="nav-link admin-link" asp-area="" asp-controller="Propietario"
+                                                    asp-action="Index">Lista Propietarios</a>
+                                            </li>
+                                        </ul>
+                                        
+                                    </div>
+                                </div>
+                            </div><!-- Módulo: Usuarios -->
+
+@* 
+                            <!-- Módulo: Propiedades -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingProps">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseProps" aria-expanded="false"
+                                        aria-controls="collapseProps">
+                                        <i class="bi bi-house-door me-2 text-primary"></i> Propiedades
+                                    </button>
+                                </h2>
+
+                                <div id="collapseProps" class="accordion-collapse collapse"
+                                    aria-labelledby="headingProps" data-bs-parent="#adminAccordion">
+                                    <div class="accordion-body p-0">
+                                        <ul class="list-group list-group-flush admin-submenu">
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Propiedades" class="admin-link">Listado</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Propiedades/Crear" class="admin-link">Crear</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Propiedades/Tipos" class="admin-link">Tipos</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div><!-- Módulo: Propiedades -->
+
+                            <!-- Módulo: Contratos -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingContracts">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseContracts" aria-expanded="false"
+                                        aria-controls="collapseContracts">
+                                        <i class="bi bi-file-earmark-text me-2 text-primary"></i> Contratos
+                                    </button>
+                                </h2>
+
+                                <div id="collapseContracts" class="accordion-collapse collapse"
+                                    aria-labelledby="headingContracts" data-bs-parent="#adminAccordion">
+                                    <div class="accordion-body p-0">
+                                        <ul class="list-group list-group-flush admin-submenu">
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Contratos" class="admin-link">Listado</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Contratos/Crear" class="admin-link">Crear</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Contratos/Vencimientos"
+                                                    class="admin-link">Vencimientos</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div><!-- Módulo: Contratos -->
+
+                            <!-- Módulo: Reportes -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingReports">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseReports" aria-expanded="false"
+                                        aria-controls="collapseReports">
+                                        <i class="bi bi-graph-up me-2 text-primary"></i> Reportes
+                                    </button>
+                                </h2>
+
+                                <div id="collapseReports" class="accordion-collapse collapse"
+                                    aria-labelledby="headingReports" data-bs-parent="#adminAccordion">
+                                    <div class="accordion-body p-0">
+                                        <ul class="list-group list-group-flush admin-submenu">
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Reportes/Ventas" class="admin-link">Ventas</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Reportes/Alquileres" class="admin-link">Alquileres</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <a href="/Admin/Reportes/Financiero" class="admin-link">Financiero</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div><!-- Módulo: Reportes -->
+
+ *@
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Contenido principal con scroll propio -->
+                <div class="admin-content">
+                    <main role="main" class="admin-main-content">
+                        @RenderBody()
+                    </main>
+                </div>
             </div>
         </div>
-    </nav>
-</header>
+    </main>
 
-    <!-- Contenedor principal con scrolls independientes -->
-    <div class="admin-layout-container">
-        <div class="admin-layout-wrapper">
-            <!-- Sidebar con scroll propio -->
-            <aside class="admin-sidebar">
-                <div class="admin-sidebar-header">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-speedometer2 me-2 text-primary"></i>
-                        <span class="fw-semibold text-light">Panel de administración</span>
-                    </div>
-                </div>
-
-                <div class="admin-sidebar-content">
-                    <div class="accordion accordion-flush" id="adminAccordion">
-                        <!-- Módulo: Usuarios -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingUsers">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
-                                    <i class="bi bi-people me-2 text-primary"></i> Usuarios
-                                </button>
-                            </h2>
-
-                            @* - Seccion -> Personas *@
-                            <div id="collapseUsers" class="accordion-collapse collapse" aria-labelledby="headingUsers"
-                                data-bs-parent="#adminAccordion">
-                                <div class="accordion-body p-0">
-                                    <ul class="list-group list-group-flush admin-submenu">
-                                        <li class="list-group-item">
-                                            <a class="nav-link admin-link" asp-area="" asp-controller="Persona"
-                                                asp-action="Index">Personas</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div><!-- Módulo: Usuarios -->
-
-                        <!-- Módulo: Propiedades -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingProps">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseProps" aria-expanded="false" aria-controls="collapseProps">
-                                    <i class="bi bi-house-door me-2 text-primary"></i> Propiedades
-                                </button>
-                            </h2>
-
-                            <div id="collapseProps" class="accordion-collapse collapse" aria-labelledby="headingProps"
-                                data-bs-parent="#adminAccordion">
-                                <div class="accordion-body p-0">
-                                    <ul class="list-group list-group-flush admin-submenu">
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Propiedades" class="admin-link">Listado</a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Propiedades/Crear" class="admin-link">Crear</a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Propiedades/Tipos" class="admin-link">Tipos</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div><!-- Módulo: Propiedades -->
-
-                        <!-- Módulo: Contratos -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingContracts">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseContracts" aria-expanded="false"
-                                    aria-controls="collapseContracts">
-                                    <i class="bi bi-file-earmark-text me-2 text-primary"></i> Contratos
-                                </button>
-                            </h2>
-
-                            <div id="collapseContracts" class="accordion-collapse collapse"
-                                aria-labelledby="headingContracts" data-bs-parent="#adminAccordion">
-                                <div class="accordion-body p-0">
-                                    <ul class="list-group list-group-flush admin-submenu">
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Contratos" class="admin-link">Listado</a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Contratos/Crear" class="admin-link">Crear</a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Contratos/Vencimientos" class="admin-link">Vencimientos</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div><!-- Módulo: Contratos -->
-
-                        <!-- Módulo: Reportes -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingReports">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseReports" aria-expanded="false"
-                                    aria-controls="collapseReports">
-                                    <i class="bi bi-graph-up me-2 text-primary"></i> Reportes
-                                </button>
-                            </h2>
-
-                            <div id="collapseReports" class="accordion-collapse collapse"
-                                aria-labelledby="headingReports" data-bs-parent="#adminAccordion">
-                                <div class="accordion-body p-0">
-                                    <ul class="list-group list-group-flush admin-submenu">
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Reportes/Ventas" class="admin-link">Ventas</a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Reportes/Alquileres" class="admin-link">Alquileres</a>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <a href="/Admin/Reportes/Financiero" class="admin-link">Financiero</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div><!-- Módulo: Reportes -->
-
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Contenido principal con scroll propio -->
-            <div class="admin-content">
-                <main role="main" class="admin-main-content">
-                    @RenderBody()
-                </main>
+    <div class="contenedor-footer">
+        <footer class="footer text-light"
+            style="background-color: var(--sidebar-bg); border-top: 1px solid var(--sidebar-border);">
+            <div class="container">
+                &copy; 2025 - inmobiliariaULP - <a asp-area="" asp-controller="Home" asp-action="Privacy"
+                    class="text-light">Privacy</a>
             </div>
-        </div>
+        </footer>
     </div>
-
-    <footer class="border-top footer text-light" style="background-color: var(--sidebar-bg); border-top: 1px solid var(--sidebar-border);">
-        <div class="container">
-            &copy; 2025 - inmobiliariaULP - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-light">Privacy</a>
-        </div>
-    </footer>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -230,7 +263,10 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
     <script src="~/js/personas-datatable.js"></script>
+    <script src="~/js/inquilinos-datatable.js"></script>
+    <script src="~/js/propietarios-datatable.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
