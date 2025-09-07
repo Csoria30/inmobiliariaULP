@@ -5,6 +5,9 @@ namespace inmobiliariaULP.Models;
 
 public class Persona
 {
+
+    [Key]
+    [Column("id_persona")]
     public int PersonaId { get; set; }
 
     [Required(ErrorMessage = "El DNI es obligatorio.")]

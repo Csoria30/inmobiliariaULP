@@ -1,0 +1,76 @@
+﻿@model inmobiliariaULP.Models.Persona
+
+@{
+    var tipoPersona = "Perfil";
+    ViewData["Title"] = $"{tipoPersona}";
+}
+
+<div class="container-fluid px-4 py-5">
+
+    <!-- Header con título -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 fw-bold text-primary mb-0">
+                <i class="bi bi-people-fill me-2"></i>Gestión de @tipoPersona
+            </h1>
+            <p class="text-muted mb-0">Administra la información de los @tipoPersona</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit" asp-controller="Perfil" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                        <div class="row">
+                            <!-- Columna izquierda: Formulario -->
+                            <div class="col-md-7 border-end">
+                                <div class="mb-3">
+                                    <label asp-for="Apellido" class="form-label"></label>
+                                    <input asp-for="Apellido" class="form-control" required />
+                                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Nombre" class="form-label"></label>
+                                    <input asp-for="Nombre" class="form-control" required />
+                                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Telefono" class="form-label"></label>
+                                    <input asp-for="Telefono" class="form-control" required />
+                                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <input asp-for="Email" class="form-control" type="email" required />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <!-- Columna derecha: Imagen de perfil -->
+                            <div class="col-md-5 d-flex flex-column align-items-center justify-content-center">
+                                <div class="mb-3 text-center">
+                                    <img src="/img/default-avatar.png" alt="Avatar" class="rounded-circle mb-3" style="width: 140px; height: 140px; object-fit: cover; border: 2px solid #ccc;">
+                                    <div>
+                                        <label for="avatar" class="form-label">Actualizar imagen de perfil</label>
+                                        <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Botones alineados a la derecha -->
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="bi bi-save me-1"></i> Guardar Cambios
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
