@@ -8,4 +8,5 @@ public interface IPropietarioService
     Task<Propietario> ObtenerIdAsync(int propietarioId);
     Task<int> EliminarAsync(int propietarioId);
     Task<int> ActualizarAsync(int personaId, Boolean estado);
+    Task<IEnumerable<Propietario>> ListarActivosAsync(string term);
 }

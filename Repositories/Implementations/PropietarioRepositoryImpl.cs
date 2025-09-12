@@ -72,7 +72,7 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
 
         // 3. Consulta paginada y filtrada
         var propietarios = new List<Propietario>();
-        
+
         using (var command = connection.CreateCommand())
         {
             command.CommandText = $@"
@@ -158,5 +158,43 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
         command.Parameters.AddWithValue("@PropietarioId", propietarioId);
         return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<IEnumerable<Propietario>> ListActiveAsync(string term)
+    {
+        var propietarios = new List<Propietario>();
+
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+                p.id_persona, 
+                p.apellido, 
+                p.nombre
+            FROM personas p
+
+            INNER JOIN propietarios pr 
+                ON p.id_persona = pr.id_persona
+
+            WHERE pr.estado = 1 AND (p.apellido LIKE @Term OR p.nombre LIKE @Term)
+            LIMIT 10;
+        ";
+
+        command.Parameters.AddWithValue("@Term", $"%{term}%");
+
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            propietarios.Add(new Propietario
+            {
+                PersonaId = reader.GetInt32("id_persona"),
+                Apellido = reader.GetString("apellido"),
+                Nombre = reader.GetString("nombre")
+            });
+        }
+
+        return propietarios;
     }
 }   

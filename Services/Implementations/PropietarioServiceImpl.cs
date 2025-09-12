@@ -75,6 +75,19 @@ public class PropietarioServiceImpl : IPropietarioService
         }
     }
 
+    public Task<IEnumerable<Propietario>> ListarActivosAsync(string term)
+    {
+        try
+        {
+            var propietarioRepository = GetPropietarioRepository();
+            return propietarioRepository.ListActiveAsync(term);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al buscar propietarios activos: " + ex.Message);
+        }
+    }
+
     public async Task<int> ActualizarAsync(int personaId, Boolean estado)
     {
         try

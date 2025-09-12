@@ -35,7 +35,7 @@ public class PropietarioController : Controller
             return View(new List<Propietario>()); // Vista vacía con error
         }
     }
-    
+
     public async Task<IActionResult> ObtenerDataTable()
     {
         try
@@ -76,7 +76,7 @@ public class PropietarioController : Controller
                 estado = persona.Estado
                     ? "<span class='badge bg-success'>Habilitado</span>"
                     : "<span class='badge bg-danger'>Deshabilitado</span>",
-                
+
                 acciones = $@"
                 <div class='btn-group' role='group'>
                     
@@ -102,7 +102,7 @@ public class PropietarioController : Controller
 
                 </div>"
 
-                
+
             });
 
             return Json(new
@@ -112,11 +112,27 @@ public class PropietarioController : Controller
                 recordsFiltered = total, // Si implementas búsqueda, cambia este valor
                 data = data
             });
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener datos para DataTable");
             return StatusCode(500, "Error al procesar la solicitud.");
         }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Buscar(string term)
+    {
+        var propietarios = await _propietarioService.ListarActivosAsync(term);
+
+        // _logger.LogInformation("Propietarios encontrados: {@Propietarios}", propietarios);
+
+        var resultado = propietarios.Select(p => new {
+            id = p.PropietarioId, // o PersonaId según tu modelo
+            text = $"{p.Apellido}, {p.Nombre}"
+        });
+
+        return Json(resultado);
     }
 
 }

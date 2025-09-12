@@ -19,7 +19,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
             
             SELECT LAST_INSERT_ID();
         ";
-        
+
         command.Parameters.AddWithValue("@Dni", persona.Dni);
         command.Parameters.AddWithValue("@Apellido", persona.Apellido);
         command.Parameters.AddWithValue("@Nombre", persona.Nombre);
@@ -41,7 +41,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
             SET estado = @Estado 
             WHERE id_persona = @PersonaId
         ";
-        
+
         // Asignamos los parámetros
         command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
         command.Parameters.AddWithValue("@PersonaId", personaId);
@@ -157,8 +157,8 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         //Valida si es inquilino o propietario
         if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
             tipoPersonas.Add("inquilino");
-            
-        if( !reader.IsDBNull(reader.GetOrdinal("id_propietario")) )
+
+        if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
             tipoPersonas.Add("propietario");
 
         // Crea y retorna el objeto Persona
@@ -197,5 +197,6 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         return await command.ExecuteNonQueryAsync();
     }
+
 
 }   
