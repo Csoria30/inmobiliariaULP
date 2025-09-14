@@ -7,6 +7,8 @@ namespace inmobiliariaULP.Services.Implementations;
 
 public class InmuebleServiceImpl : IInmuebleService
 {
+
+    
     // Getters Fabrica
     private InmuebleRepositoryImpl GetInmuebleRepository()
     {
@@ -14,25 +16,23 @@ public class InmuebleServiceImpl : IInmuebleService
     }
 
 
-    public async Task<Inmueble> NuevoAsync(Inmueble inmueble)
-    {
-        try
-        {
-            var inmuebleRepository = GetInmuebleRepository();
-            return await inmuebleRepository.AddAsync(inmueble);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Error al crear el inmueble", ex);
-        }
-    }
-
     public async Task<(bool exito, string mensaje, string tipo)> CrearAsync(Inmueble inmueble)
     {
         try
         {
-         return (true, "Inmueble creado con éxito.", "success");   
-        }catch (Exception ex)
+            // Validación de negocio
+            if (inmueble.TipoId == 0)
+                return (false, "Debe seleccionar un tipo de inmueble.", "warning");
+            
+            if (inmueble.PropietarioId == null || inmueble.PropietarioId == 0)
+                return (false, "Debe seleccionar un propietario.", "warning");
+    
+            var inmuebleRepository = GetInmuebleRepository();
+            await inmuebleRepository.AddAsync(inmueble);
+    
+            return (true, "Inmueble creado con éxito.", "success");
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al crear el inmueble", ex);
         }

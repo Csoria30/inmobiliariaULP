@@ -13,5 +13,10 @@ namespace inmobiliariaULP.Models
         [StringLength(45)]
         [Column("descripcion")]
         public string Descripcion { get; set; }
+
+        public override string ToString()
+        {
+            return Descripcion;
+        }
     }
 }

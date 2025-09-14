@@ -2,6 +2,7 @@
 
 @{
     var tipo = "Inmueble";
+    var ListaTipos =  ViewBag.Tipos;
     bool esEdicion = Model?.InmuebleId > 0;
     bool soloLectura = ViewBag.SoloLectura == true;
 
@@ -87,7 +88,7 @@
                 <span asp-validation-for="Ambientes" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6 mb-3">
+            <div class="col-md-3 mb-3">
                 <label asp-for="PrecioBase" class="form-label"></label>
                 @if (soloLectura)
                 {
@@ -99,8 +100,27 @@
                 <span asp-validation-for="PrecioBase" class="text-danger"></span>
             </div>
 
+            <div class="col-md-3 mb-3">
+                <label asp-for="TipoId" class="form-label"></label>
+                @if (soloLectura)
+                {
+                    <input asp-for="TipoId" class="form-control" readonly="readonly"/>
+                }
+                else
+                {
+                    <select asp-for="TipoId" class="form-select">
+                        <option value="">Seleccione un tipo</option>
+                        @foreach (var tipo in ListaTipos)
+                        {
+                            <option value="@tipo.TipoId">@tipo.Descripcion</option>
+                        }
+                    </select>
+                }
+                <span asp-validation-for="TipoId" class="text-danger"></span>
+            </div>
+
             <div class="col-md-6 mb-3">
-                <label asp-for="PropietarioId" class="form-label"></label>
+                <label asp-for="PropietarioId" class="form-label">Bucar Propietario Activo</label>
                 @if (soloLectura)
                 {
                     <input asp-for="PropietarioId" class="form-control" readonly="readonly"/>
@@ -120,7 +140,7 @@
             {
                 <button type="submit" class="btn btn-primary">
                     <i class="bi @(esEdicion ? "bi-pencil-square" : "bi-check-circle") me-2"></i>
-                    @(esEdicion ? "Guardar Cambios" : "Crear Persona")
+                    @(esEdicion ? "Guardar Cambios" : "Crear Inmueble")
                 </button>
                 <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
             }else{

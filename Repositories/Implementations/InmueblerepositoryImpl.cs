@@ -13,10 +13,10 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            INSERT INTO inmobiliariaulp.inmuebles
-            (direccion, uso, ambientes, coordenadas, precio_base, estado, id_propietario, id_tipo)
+            INSERT INTO inmuebles
+            (direccion, uso, ambientes, coordenadas, precio_base,  id_propietario, id_tipo)
             VALUES
-            (@Direccion, @Uso, @Ambientes, @Coordenadas, @PrecioBase, @Estado, @IdPropietario, @IdTipo);
+            (@Direccion, @Uso, @Ambientes, @Coordenadas, @PrecioBase,  @IdPropietario, @IdTipo);
         ";
 
         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
@@ -24,7 +24,6 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
         command.Parameters.AddWithValue("@Ambientes", inmueble.Ambientes);
         command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
         command.Parameters.AddWithValue("@PrecioBase", inmueble.PrecioBase);
-        command.Parameters.AddWithValue("@Estado", inmueble.Estado);
         command.Parameters.AddWithValue("@IdPropietario", inmueble.PropietarioId);
         command.Parameters.AddWithValue("@IdTipo", inmueble.TipoId);
 

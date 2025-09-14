@@ -43,5 +43,12 @@ public static class FactoryRepository
         return new InmuebleRepositoryImpl(_configuration);
     }
     
+    public static TipoRepositoryImpl CreateTipoRepository()
+    {
+        if (_configuration == null)
+            throw new InvalidOperationException("FactoryRepository no ha sido inicializado");
+
+        return new TipoRepositoryImpl(_configuration);
+    }
     
 }

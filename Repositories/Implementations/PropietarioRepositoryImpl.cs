@@ -169,7 +169,8 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT 
+            SELECT
+                pr.id_propietario, 
                 p.id_persona, 
                 p.apellido, 
                 p.nombre
@@ -189,6 +190,7 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         {
             propietarios.Add(new Propietario
             {
+                PropietarioId = reader.GetInt32("id_propietario"),
                 PersonaId = reader.GetInt32("id_persona"),
                 Apellido = reader.GetString("apellido"),
                 Nombre = reader.GetString("nombre")

@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `inmobiliariaulp`.`inmuebles` (
   `ambientes` INT NOT NULL,
   `coordenadas` VARCHAR(150) NOT NULL,
   `precio_base` DECIMAL NOT NULL,
-  `estado` TINYINT NOT NULL,
+  `estado` TINYINT NOT NULL DEFAULT 1,
   `id_propietario` INT NOT NULL,
   `id_tipo` INT NOT NULL,
   PRIMARY KEY (`id_inmueble`),
