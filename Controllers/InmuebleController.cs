@@ -71,7 +71,7 @@ public class InmuebleController : Controller
             var tipos = await _tipoService.ObtenerTodosAsync();
             ViewBag.Tipos = tipos;
             return View("Create", inmueble);
-            
+
         }
         catch (Exception ex)
         {
@@ -80,4 +80,92 @@ public class InmuebleController : Controller
             return View("Error");
         }
     }
+
+    //! POST: InmuebleController/Listar
+    [HttpPost]
+    public async Task<IActionResult> ObtenerDataTable()
+    {
+        try
+        {
+            // Leer parámetros de DataTables
+            var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
+            var start = Convert.ToInt32(HttpContext.Request.Form["start"].FirstOrDefault());
+            var length = Convert.ToInt32(HttpContext.Request.Form["length"].FirstOrDefault());
+            var searchValue = HttpContext.Request.Form["search[value]"].FirstOrDefault();
+
+            // Calcular página actual
+            var pageSize = length > 0 ? length : 10;
+            var page = (start / pageSize) + 1;
+
+            // Obtener datos paginados y filtrados
+            var (inmuebles, total) = await _inmuebleService.ObtenerTodosAsync(page, pageSize, searchValue);
+
+            foreach (var inmueble in inmuebles)
+            {
+                Console.WriteLine($" Direccion: {inmueble.Direccion}, Uso: {inmueble.Uso}, Ambientes: {inmueble.Ambientes}, PropietarioId: {inmueble.PropietarioId}, TipoId: {inmueble.TipoId}, " +
+                    $"TipoDescripcion: {inmueble.TipoDescripcion}");
+            }
+
+            var data = inmuebles.Select(inmueble => new
+            {
+                direccion = inmueble.Direccion,
+                uso = inmueble.Uso,
+                ambientes = inmueble.Ambientes,
+                coordenadas = inmueble.Coordenadas,
+                precioBase = inmueble.PrecioBase,
+                descripcion = inmueble.TipoDescripcion,
+
+                estado = inmueble.Estado == 1
+                    ? "<span class='badge bg-success'>Habilitado</span>"
+                    : "<span class='badge bg-danger'>Deshabilitado</span>",
+
+                propietarioId = inmueble.PropietarioId,
+
+                acciones = $@"
+                <div class='btn-group' role='group'>
+                    
+                    <a 
+                        href='/Inmueble/Details/{inmueble.InmuebleId}' 
+                        class='btn btn-sm btn-outline-info' 
+                        data-bs-toggle='tooltip' 
+                        data-bs-placement='top' 
+                        title='Más información'>
+                        <i class='bi bi-eye'></i>
+                    </a>
+                
+                    <a 
+                        href='/Inmueble/Edit/{inmueble.InmuebleId}' 
+                        class='btn btn-sm btn-outline-warning' 
+                        data-bs-toggle='tooltip' 
+                        data-bs-placement='top' 
+                        title='Editar Inmueble'>
+                        <i class='bi bi-pencil'></i>
+                    </a>
+                
+
+
+                </div>"
+
+
+            });
+
+            var response = new
+            {
+                draw = draw,
+                recordsTotal = total,
+                recordsFiltered = total,
+                data = data
+            };
+
+            return Json(response);
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener los inmuebles para DataTable");
+            return StatusCode(500, "Error al procesar la solicitud");
+        }
+    }
+    
+
 }

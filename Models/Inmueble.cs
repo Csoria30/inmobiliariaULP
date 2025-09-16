@@ -32,7 +32,7 @@ namespace inmobiliariaULP.Models
         [Column("precio_base")]
         public decimal? PrecioBase { get; set; }
 
-        
+
         [Column("estado")]
         public byte? Estado { get; set; }
 
@@ -40,12 +40,14 @@ namespace inmobiliariaULP.Models
         [ForeignKey("Propietario")]
         [Column("id_propietario")]
         public int? PropietarioId { get; set; }
-        
+
 
         [Required(ErrorMessage = "Debe seleccionar un tipo de inmueble")]
         [ForeignKey("Tipo")]
         [Column("id_tipo")]
         public int? TipoId { get; set; }
+        
+        public string TipoDescripcion { get; set; }
         
     }
 }
