@@ -119,4 +119,62 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             throw new Exception("Error al obtener los inmuebles", ex);
         }
     }
+
+    public async Task<Inmueble> GetByIdAsync(int inmuebleId)
+    {
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT 	
+                    i.id_inmueble, i.direccion, i.uso, i.ambientes, 
+                    i.coordenadas, i.precio_base, i.estado, 
+                    i.id_propietario, p.nombre,p.apellido,
+                    i.id_tipo, t.descripcion
+
+                FROM inmuebles i
+
+                JOIN propietarios pr
+                	ON pr.id_propietario = i.id_propietario
+                JOIN personas p
+                	ON p.id_persona = pr.id_persona
+                JOIN tipos t
+                	ON i.id_tipo = t.id_tipo
+
+                WHERE i.id_inmueble = @InmuebleId;
+            ";
+
+            command.Parameters.AddWithValue("@InmuebleId", inmuebleId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return new Inmueble
+                {
+                    InmuebleId = reader.GetInt32("id_inmueble"),
+                    Direccion = reader.GetString("direccion"),
+                    Uso = reader.GetString("uso"),
+                    Ambientes = reader.GetInt32("ambientes"),
+                    Coordenadas = reader.GetString("coordenadas"),
+                    PrecioBase = reader.GetDecimal("precio_base"),
+                    Estado = reader.GetByte("estado"),
+                    PropietarioId = reader.GetInt32("id_propietario"),
+                    TipoId = reader.GetInt32("id_tipo"),
+                    TipoDescripcion = reader.GetString("descripcion"),
+                    PropietarioNombre = reader.GetString("apellido") + ", " + reader.GetString("nombre")
+                };
+            }
+            else
+            {
+                throw new Exception("Inmueble no encontrado");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener el inmueble por ID", ex);
+        }
+    }
 }

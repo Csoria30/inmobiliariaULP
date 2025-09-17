@@ -37,15 +37,34 @@ public class InmuebleServiceImpl : IInmuebleService
         }
     }
 
-    public Task<(IEnumerable<Inmueble> Inmuebles, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
+    public async Task<(IEnumerable<Inmueble> Inmuebles, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         try
         {
             var inmuebleRepository = GetInmuebleRepository();
-            return inmuebleRepository.GetAllAsync(page, pageSize, search);
-        }catch (Exception ex)
+            return await inmuebleRepository.GetAllAsync(page, pageSize, search);
+        }
+        catch (Exception ex)
         {
             throw new Exception("Error al obtener los inmuebles", ex);
+        }
+    }
+
+    public async Task<(Inmueble inmueble, string mensaje, string tipo)> ObtenerIdAsync(int inmuebleId)
+    {
+        try
+        {
+            var inmuebleRepository = GetInmuebleRepository();
+            var inmueble = await inmuebleRepository.GetByIdAsync(inmuebleId);
+
+            if(inmueble == null)
+                return (null, "Inmueble no encontrado.", "warning");
+            
+            return (inmueble, "Inmueble obtenido con éxito.", "success");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener el inmueble por ID", ex);
         }
     }
 }

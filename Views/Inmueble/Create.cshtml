@@ -64,7 +64,11 @@
                 <label asp-for="Uso" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Uso" class="form-control" readonly="readonly"/>
+                    <input asp-for="Uso" 
+                        class="form-control" 
+                        readonly="readonly"
+                        value="@(char.ToUpper(Model.Uso[0]) + Model.Uso.Substring(1))"
+                    />
                 }else
                 {
                     <select asp-for="Uso" class="form-select">
@@ -104,7 +108,7 @@
                 <label asp-for="TipoId" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="TipoId" class="form-control" readonly="readonly"/>
+                    <input asp-for="TipoDescripcion" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
@@ -120,12 +124,13 @@
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="PropietarioId" class="form-label">Bucar Propietario Activo</label>
                 @if (soloLectura)
                 {
-                    <input asp-for="PropietarioId" class="form-control" readonly="readonly"/>
+                    <label class="form-label">Propietario</label>
+                    <input asp-for="PropietarioNombre" class="form-control" readonly="readonly" />
                 }else
                 {
+                    <label asp-for="PropietarioId" class="form-label">Bucar Propietario </label>
                     <select id="PropietarioId" name="PropietarioId" class="form-select"></select>
                 }
                 <span asp-validation-for="PropietarioId" class="text-danger"></span>

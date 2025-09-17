@@ -10,6 +10,7 @@ namespace inmobiliariaULP.Models
         [Column("id_inmueble")]
         public int InmuebleId { get; set; }
 
+        [Display(Name = "Dirección")]
         [Required(ErrorMessage = "La Direccion es obligatoria.")]
         [StringLength(200)]
         [Column("direccion")]
@@ -23,11 +24,13 @@ namespace inmobiliariaULP.Models
         [Column("ambientes")]
         public int? Ambientes { get; set; }
 
+        [Display(Name = "Coordenadas")]
         [Required(ErrorMessage = "Las coordenadas son obligatorias.")]
         [StringLength(150)]
         [Column("coordenadas")]
         public string Coordenadas { get; set; }
 
+        [Display(Name = "Precio base")]
         [Required(ErrorMessage = "El precio base es obligatorio.")]
         [Column("precio_base")]
         public decimal? PrecioBase { get; set; }
@@ -36,12 +39,17 @@ namespace inmobiliariaULP.Models
         [Column("estado")]
         public byte? Estado { get; set; }
 
+        
         [Required(ErrorMessage = "Debe seleccionar un propietario")]
         [ForeignKey("Propietario")]
         [Column("id_propietario")]
         public int? PropietarioId { get; set; }
+        
+        [NotMapped]
+        public string PropietarioNombre { get; set; }
 
 
+        [Display(Name = "Tipo de inmueble")]
         [Required(ErrorMessage = "Debe seleccionar un tipo de inmueble")]
         [ForeignKey("Tipo")]
         [Column("id_tipo")]

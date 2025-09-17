@@ -100,12 +100,6 @@ public class InmuebleController : Controller
             // Obtener datos paginados y filtrados
             var (inmuebles, total) = await _inmuebleService.ObtenerTodosAsync(page, pageSize, searchValue);
 
-            foreach (var inmueble in inmuebles)
-            {
-                Console.WriteLine($" Direccion: {inmueble.Direccion}, Uso: {inmueble.Uso}, Ambientes: {inmueble.Ambientes}, PropietarioId: {inmueble.PropietarioId}, TipoId: {inmueble.TipoId}, " +
-                    $"TipoDescripcion: {inmueble.TipoDescripcion}");
-            }
-
             var data = inmuebles.Select(inmueble => new
             {
                 direccion = inmueble.Direccion,
@@ -158,7 +152,7 @@ public class InmuebleController : Controller
             };
 
             return Json(response);
-            
+
         }
         catch (Exception ex)
         {
@@ -166,6 +160,33 @@ public class InmuebleController : Controller
             return StatusCode(500, "Error al procesar la solicitud");
         }
     }
-    
+
+    //* GET: InmuebleController/Details
+    public async Task<IActionResult> Details(int id, string? returnUrl = null)
+    {
+        try
+        {
+            var (inmueble, mensaje, tipo) = await _inmuebleService.ObtenerIdAsync(id);
+
+            if (inmueble == null)
+            {
+                TempData["Error"] = "El inmueble no existe.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Inmueble");
+            ViewBag.SoloLectura = true; // Flag para la vista
+
+            return View("Create", inmueble);
+
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener los detalles del inmueble");
+            TempData["Error"] = "Error al obtener los detalles del inmueble: " + ex.Message;
+            return View("Error");
+        }
+    }
 
 }
