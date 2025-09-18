@@ -177,4 +177,44 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             throw new Exception("Error al obtener el inmueble por ID", ex);
         }
     }
+
+    public async Task<int> UpdateAsync(Inmueble inmueble, bool estado)
+    {
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE inmuebles
+                SET 
+                    direccion = @Direccion,
+                    uso = @Uso,
+                    ambientes = @Ambientes,
+                    coordenadas = @Coordenadas,
+                    precio_base = @PrecioBase,
+                    estado = @Estado,
+                    id_propietario = @IdPropietario,
+                    id_tipo = @IdTipo
+                WHERE id_inmueble = @InmuebleId;
+            ";
+
+            command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
+            command.Parameters.AddWithValue("@Uso", inmueble.Uso);
+            command.Parameters.AddWithValue("@Ambientes", inmueble.Ambientes);
+            command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
+            command.Parameters.AddWithValue("@PrecioBase", inmueble.PrecioBase);
+            command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
+            command.Parameters.AddWithValue("@IdPropietario", inmueble.PropietarioId);
+            command.Parameters.AddWithValue("@IdTipo", inmueble.TipoId);
+            command.Parameters.AddWithValue("@InmuebleId", inmueble.InmuebleId);
+
+            return await command.ExecuteNonQueryAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al actualizar el inmueble", ex);
+        }
+    }
 }

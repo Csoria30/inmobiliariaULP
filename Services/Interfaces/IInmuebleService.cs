@@ -7,4 +7,5 @@ public interface IInmuebleService
     Task<(IEnumerable<Inmueble> Inmuebles, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null);
 
     Task<(Inmueble inmueble, string mensaje, string tipo)> ObtenerIdAsync(int inmuebleId);
+    Task<(bool exito, string mensaje, string tipo)> EditarAsync(Inmueble inmueble);
 }

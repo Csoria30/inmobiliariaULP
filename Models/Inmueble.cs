@@ -45,9 +45,6 @@ namespace inmobiliariaULP.Models
         [Column("id_propietario")]
         public int? PropietarioId { get; set; }
         
-        [NotMapped]
-        public string PropietarioNombre { get; set; }
-
 
         [Display(Name = "Tipo de inmueble")]
         [Required(ErrorMessage = "Debe seleccionar un tipo de inmueble")]
@@ -55,7 +52,11 @@ namespace inmobiliariaULP.Models
         [Column("id_tipo")]
         public int? TipoId { get; set; }
         
-        public string TipoDescripcion { get; set; }
+
+        [NotMapped]
+        public string? PropietarioNombre { get; set; }
+        [NotMapped]
+        public string? TipoDescripcion { get; set; }
         
     }
 }

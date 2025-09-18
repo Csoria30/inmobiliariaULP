@@ -202,11 +202,11 @@ public class InmuebleController : Controller
                 TempData["Error"] = "El inmueble no existe.";
                 return RedirectToAction(nameof(Index));
             }
-            
+
             //Si el modelo no es valido, retornar los tipos y la vista
             var tipos = await _tipoService.ObtenerTodosAsync();
             ViewBag.Tipos = tipos;
-            
+
             return View("Create", inmueble);
 
         }
@@ -214,6 +214,47 @@ public class InmuebleController : Controller
         {
             TempData["Error"] = "Error al obtener los detalles del inmueble.";
             return RedirectToAction(nameof(Index));
+        }
+    }
+    //! POST: InmuebleController/Edit
+    [HttpPost]
+    public async Task<IActionResult> Edit(Inmueble inmueble)
+    {
+        try
+        {
+            
+            if (ModelState.IsValid)
+            {
+                var (exito, mensaje, tipo) = await _inmuebleService.EditarAsync(inmueble);
+                TempData["Mensaje"] = mensaje;
+                TempData["Tipo"] = tipo;
+
+                if (exito)
+                    return RedirectToAction(nameof(Index));
+            }
+
+            foreach (var key in ModelState.Keys)
+            {
+                var errors = ModelState[key].Errors;
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Error en {key}: {error.ErrorMessage}");
+                }
+            }
+
+            //Si el modelo no es valido, retornar los tipos y la vista
+            var tipos = await _tipoService.ObtenerTodosAsync();
+            ViewBag.Tipos = tipos;
+
+
+            return View("Create", inmueble);
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar el inmueble");
+            TempData["Error"] = "Error al actualizar el inmueble: " + ex.Message;
+            return View("Error");
         }
     }
 }
