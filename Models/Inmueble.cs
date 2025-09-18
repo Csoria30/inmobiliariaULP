@@ -37,7 +37,7 @@ namespace inmobiliariaULP.Models
 
 
         [Column("estado")]
-        public byte? Estado { get; set; }
+        public bool? Estado { get; set; }
 
         
         [Required(ErrorMessage = "Debe seleccionar un propietario")]

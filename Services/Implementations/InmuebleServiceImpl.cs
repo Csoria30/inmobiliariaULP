@@ -86,8 +86,8 @@ public class InmuebleServiceImpl : IInmuebleService
 
             foreach (var campo in campos)
             {
-                var valorActual = inmuebleActual.GetType().GetProperty(campo)?.GetValue(inmuebleActual);
-                var valorNuevo = inmueble.GetType().GetProperty(campo)?.GetValue(inmueble);
+                var valorActual = inmuebleActual.GetType().GetProperty(campo)?.GetValue(inmuebleActual)?.ToString();
+                var valorNuevo = inmueble.GetType().GetProperty(campo)?.GetValue(inmueble)?.ToString();
 
                 if (!Equals(valorActual, valorNuevo))
                 {
@@ -105,13 +105,13 @@ public class InmuebleServiceImpl : IInmuebleService
                 inmuebleActual.Ambientes = inmueble.Ambientes;
                 inmuebleActual.Coordenadas = inmueble.Coordenadas;
                 inmuebleActual.PrecioBase = inmueble.PrecioBase;
-                inmuebleActual.Estado = inmueble.Estado ?? 1; // Por defecto activo
                 inmuebleActual.PropietarioId = inmueble.PropietarioId;
+                inmuebleActual.Estado = inmueble.Estado; 
                 inmuebleActual.TipoId = inmueble.TipoId;
 
                 await inmuebleRepository.UpdateAsync(
                     inmuebleActual,
-                    inmuebleActual.Estado == 1
+                    inmuebleActual.Estado == true
                 );
 
                 notificaciones.Add("Datos actualizados correctamente");
@@ -126,6 +126,31 @@ public class InmuebleServiceImpl : IInmuebleService
         catch (Exception ex)
         {
             throw new Exception("Error al actualizar el inmueble", ex);
+        }
+    }
+
+    public async Task<(bool exito, string mensaje, string tipo)> CambiarEstadoAsync(int inmuebleId)
+    {
+        try
+        {
+            var inmuebleActual = await GetInmuebleRepository().GetByIdAsync(inmuebleId);
+            if (inmuebleActual == null)
+                return (false, "El inmueble no existe.", "warning");
+
+            bool nuevoEstado = !(inmuebleActual.Estado ?? false);
+            inmuebleActual.Estado = nuevoEstado;
+
+            await GetInmuebleRepository().DeleteAsync(inmuebleActual.InmuebleId, nuevoEstado);
+
+
+            string mensaje = nuevoEstado ? "Inmueble habilitado correctamente." : "Inmueble deshabilitado correctamente.";
+            string tipo = nuevoEstado ? "success" : "danger";
+
+            return (true, mensaje, tipo);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al eliminar el inmueble", ex);
         }
     }
 }

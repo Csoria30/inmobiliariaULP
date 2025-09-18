@@ -7,4 +7,5 @@ public interface IInmuebleRepository
     Task<(IEnumerable<Inmueble> Inmuebles, int Total)> GetAllAsync(int page, int pageSize, string? search = null);
     Task<Inmueble> GetByIdAsync(int inmuebleId);
     Task<int> UpdateAsync(Inmueble inmueble, bool estado);
+    Task<int> DeleteAsync(int inmuebleId, bool estado);
 }

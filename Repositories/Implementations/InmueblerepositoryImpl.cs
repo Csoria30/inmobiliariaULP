@@ -103,7 +103,7 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
                         Ambientes = reader.GetInt32("ambientes"),
                         Coordenadas = reader.GetString("coordenadas"),
                         PrecioBase = reader.GetDecimal("precio_base"),
-                        Estado = reader.GetByte("estado"),
+                        Estado = reader.GetBoolean("estado"),
                         PropietarioId = reader.GetInt32("id_propietario"),
                         TipoId = reader.GetInt32("id_tipo"),
                         TipoDescripcion = reader.GetString("descripcion")
@@ -160,7 +160,7 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
                     Ambientes = reader.GetInt32("ambientes"),
                     Coordenadas = reader.GetString("coordenadas"),
                     PrecioBase = reader.GetDecimal("precio_base"),
-                    Estado = reader.GetByte("estado"),
+                    Estado = reader.GetBoolean("estado"),
                     PropietarioId = reader.GetInt32("id_propietario"),
                     TipoId = reader.GetInt32("id_tipo"),
                     TipoDescripcion = reader.GetString("descripcion"),
@@ -205,7 +205,6 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             command.Parameters.AddWithValue("@Ambientes", inmueble.Ambientes);
             command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
             command.Parameters.AddWithValue("@PrecioBase", inmueble.PrecioBase);
-            command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
             command.Parameters.AddWithValue("@IdPropietario", inmueble.PropietarioId);
             command.Parameters.AddWithValue("@IdTipo", inmueble.TipoId);
             command.Parameters.AddWithValue("@InmuebleId", inmueble.InmuebleId);
@@ -217,4 +216,22 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             throw new Exception("Error al actualizar el inmueble", ex);
         }
     }
+
+    public async Task<int> DeleteAsync(int inmuebleId, bool estado)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE inmuebles
+            SET estado = @Estado
+            WHERE id_inmueble = @InmuebleId;";
+
+        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
+        command.Parameters.AddWithValue("@InmuebleId", inmuebleId);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
 }

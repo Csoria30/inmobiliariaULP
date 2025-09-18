@@ -52,3 +52,36 @@
 
 </div>
 
+@* Modal de eliminacion de Inmueble *@
+    <div class="modal fade" id="modalEliminarInmueble" tabindex="-1" aria-labelledby="modalEliminarInmuebleLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div id="modalHeaderEstado" class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalEliminarInmuebleLabel">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <span id="modalTituloEstado">Confirmar acción</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalMensajeEstado">
+                        ¿Está seguro que desea <span id="accionPersonaEstado">deshabilitar</span> a <span
+                            class="fw-bold" id="nombrePersonaEliminar"></span>?
+                    </p>
+                </div>
+                <div class="modal-footer">
+
+                    <form id="formEliminarInmueble" method="post" >
+                        <input type="hidden" name="id" id="inmuebleIdEliminar" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnConfirmarEstado" class="btn btn-danger">Deshabilitar</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="~/js/modal-EliminarInmueble.js"></script>

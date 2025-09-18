@@ -109,7 +109,7 @@ public class InmuebleController : Controller
                 precioBase = inmueble.PrecioBase,
                 descripcion = inmueble.TipoDescripcion,
 
-                estado = inmueble.Estado == 1
+                estado = inmueble.Estado.HasValue && inmueble.Estado.Value
                     ? "<span class='badge bg-success'>Habilitado</span>"
                     : "<span class='badge bg-danger'>Deshabilitado</span>",
 
@@ -134,6 +134,19 @@ public class InmuebleController : Controller
                         data-bs-placement='top' 
                         title='Editar Inmueble'>
                         <i class='bi bi-pencil'></i>
+                    </a>
+
+                    <a 
+                        href='#' 
+                        class='btn btn-sm {(inmueble.Estado == true ? "btn-outline-danger" : "btn-outline-success")}'
+                        data-bs-toggle='modal'
+                        data-bs-target='#modalEliminarInmueble'
+                        data-inmuebledid='{inmueble.InmuebleId}'
+                        data-inmueblednombre='{inmueble.Direccion}'
+                        data-inmuebleestado='{inmueble.Estado}'
+                        data-bs-placement='top'
+                        title='{(inmueble.Estado == true ? "Deshabilitar" : "Habilitar")}'>
+                        <i class='bi {(inmueble.Estado == true ? "bi-trash3" : "bi-arrow-repeat")}'></i>
                     </a>
                 
 
@@ -222,7 +235,7 @@ public class InmuebleController : Controller
     {
         try
         {
-            
+
             if (ModelState.IsValid)
             {
                 var (exito, mensaje, tipo) = await _inmuebleService.EditarAsync(inmueble);
@@ -257,4 +270,25 @@ public class InmuebleController : Controller
             return View("Error");
         }
     }
+
+    //! POST: InmuebleController/Delete
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var (exito, mensaje, tipo) = await _inmuebleService.CambiarEstadoAsync(id);
+            TempData["Mensaje"] = mensaje;
+            TempData["Tipo"] = tipo;
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar el inmueble");
+            TempData["Error"] = "Error al eliminar el inmueble: " + ex.Message + $" (ID: {id})";
+            return View("Error");
+        }
+    }
+
 }

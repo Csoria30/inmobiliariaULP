@@ -32,7 +32,7 @@
             <input type="hidden" asp-for="InmuebleId" />
         }
         //Validando estado
-        <input type="hidden" asp-for="Estado" value="@(Model.Estado ?? 1)" />
+        <input type="hidden" asp-for="Estado" value="@(Model.Estado ?? true)" />
 
         <!-- Información Personal -->
         <div class="row mb-4">
