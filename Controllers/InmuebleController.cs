@@ -59,8 +59,8 @@ public class InmuebleController : Controller
             if (ModelState.IsValid)
             {
                 var (exito, mensaje, tipo) = await _inmuebleService.CrearAsync(inmueble);
-                TempData["Mensaje"] = mensaje;
-                TempData["Tipo"] = tipo;
+                TempData["Notificacion"] = mensaje;
+                TempData["NotificacionTipo"] = tipo;
 
                 if (exito)
                     return RedirectToAction(nameof(Index));
@@ -239,8 +239,8 @@ public class InmuebleController : Controller
             if (ModelState.IsValid)
             {
                 var (exito, mensaje, tipo) = await _inmuebleService.EditarAsync(inmueble);
-                TempData["Mensaje"] = mensaje;
-                TempData["Tipo"] = tipo;
+                TempData["Notificacion"] = mensaje;
+                TempData["NotificacionTipo"] = tipo;
 
                 if (exito)
                     return RedirectToAction(nameof(Index));
@@ -278,8 +278,8 @@ public class InmuebleController : Controller
         try
         {
             var (exito, mensaje, tipo) = await _inmuebleService.CambiarEstadoAsync(id);
-            TempData["Mensaje"] = mensaje;
-            TempData["Tipo"] = tipo;
+            TempData["Notificacion"] = mensaje;
+            TempData["NotificacionTipo"] = tipo;
 
             return RedirectToAction(nameof(Index));
         }

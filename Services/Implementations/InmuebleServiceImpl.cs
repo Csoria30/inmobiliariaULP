@@ -80,7 +80,7 @@ public class InmuebleServiceImpl : IInmuebleService
                 return (false, "El inmueble no existe.", "warning");
 
             // Validacion de cambios
-            var campos = new[] { "Direccion", "Uso", "Ambientes", "Coordenadas", "PrecioBase", "Estado", "PropietarioId", "TipoId" };
+            var campos = new[] { "Direccion", "Uso", "Ambientes", "Coordenadas", "PrecioBase", "PropietarioId", "TipoId" };
 
             bool hayCambios = false;
 
@@ -106,12 +106,10 @@ public class InmuebleServiceImpl : IInmuebleService
                 inmuebleActual.Coordenadas = inmueble.Coordenadas;
                 inmuebleActual.PrecioBase = inmueble.PrecioBase;
                 inmuebleActual.PropietarioId = inmueble.PropietarioId;
-                inmuebleActual.Estado = inmueble.Estado; 
                 inmuebleActual.TipoId = inmueble.TipoId;
 
                 await inmuebleRepository.UpdateAsync(
-                    inmuebleActual,
-                    inmuebleActual.Estado == true
+                    inmuebleActual
                 );
 
                 notificaciones.Add("Datos actualizados correctamente");

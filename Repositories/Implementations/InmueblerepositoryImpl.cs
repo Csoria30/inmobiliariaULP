@@ -178,7 +178,7 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
         }
     }
 
-    public async Task<int> UpdateAsync(Inmueble inmueble, bool estado)
+    public async Task<int> UpdateAsync(Inmueble inmueble)
     {
         try
         {
@@ -194,7 +194,6 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
                     ambientes = @Ambientes,
                     coordenadas = @Coordenadas,
                     precio_base = @PrecioBase,
-                    estado = @Estado,
                     id_propietario = @IdPropietario,
                     id_tipo = @IdTipo
                 WHERE id_inmueble = @InmuebleId;
