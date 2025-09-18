@@ -5,6 +5,7 @@
     var ListaTipos =  ViewBag.Tipos;
     bool esEdicion = Model?.InmuebleId > 0;
     bool soloLectura = ViewBag.SoloLectura == true;
+    bool eliminacion = ViewBag.eliminacion == true;
 
     if (soloLectura)
     {
@@ -27,12 +28,13 @@
 
     <form asp-action="@(esEdicion ? "Edit" : "Create")" asp-controller="Inmueble" class="needs-validation" novalidate>
         
-        @if (esEdicion)
-        {
+        @if (esEdicion){
             <input type="hidden" asp-for="InmuebleId" />
         }
-        //Validando estado
-        <input type="hidden" asp-for="Estado" value="@(Model.Estado ?? true)" />
+        @if(eliminacion){
+            <input type="hidden" asp-for="Estado" value="@(Model.Estado ?? true)" />
+        }
+        
 
         <!-- Información Personal -->
         <div class="row mb-4">
@@ -137,11 +139,12 @@
                 {
                     <label asp-for="PropietarioId" class="form-label">Bucar Propietario </label>
                     <select id="PropietarioId" name="PropietarioId" class="form-select">
+                    <option value="">Seleccione un propietario</option>
                     @* Verificar si existe un propietario *@
                     @if(Model.PropietarioId != null && Model.PropietarioId > 0)
                     {
                         <option value="@Model.PropietarioId" selected>
-                            @Model.PropietarioNombre
+                            @(Model.PropietarioNombre ?? "");
                         </option>
                     }
                     

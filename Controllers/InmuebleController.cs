@@ -38,7 +38,7 @@ public class InmuebleController : Controller
         {
             var tipos = await _tipoService.ObtenerTodosAsync();
             ViewBag.Tipos = tipos;
-            return View();
+            return View(new Inmueble());
         }
         catch (Exception ex)
         {
@@ -280,6 +280,8 @@ public class InmuebleController : Controller
             var (exito, mensaje, tipo) = await _inmuebleService.CambiarEstadoAsync(id);
             TempData["Notificacion"] = mensaje;
             TempData["NotificacionTipo"] = tipo;
+
+            ViewBag.eliminacion = true;
 
             return RedirectToAction(nameof(Index));
         }
