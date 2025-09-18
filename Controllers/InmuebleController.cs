@@ -179,7 +179,7 @@ public class InmuebleController : Controller
 
             return View("Create", inmueble);
 
-            
+
         }
         catch (Exception ex)
         {
@@ -189,4 +189,31 @@ public class InmuebleController : Controller
         }
     }
 
+    //* GET: InmuebleController/Edit
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        try
+        {
+            var (inmueble, mensaje, tipo) = await _inmuebleService.ObtenerIdAsync(id);
+
+            if (inmueble == null)
+            {
+                TempData["Error"] = "El inmueble no existe.";
+                return RedirectToAction(nameof(Index));
+            }
+            
+            //Si el modelo no es valido, retornar los tipos y la vista
+            var tipos = await _tipoService.ObtenerTodosAsync();
+            ViewBag.Tipos = tipos;
+            
+            return View("Create", inmueble);
+
+        }
+        catch
+        {
+            TempData["Error"] = "Error al obtener los detalles del inmueble.";
+            return RedirectToAction(nameof(Index));
+        }
+    }
 }

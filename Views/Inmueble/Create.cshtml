@@ -114,9 +114,12 @@
                 {
                     <select asp-for="TipoId" class="form-select">
                         <option value="">Seleccione un tipo</option>
-                        @foreach (var tipo in ListaTipos)
+                        @if (ListaTipos != null)
                         {
-                            <option value="@tipo.TipoId">@tipo.Descripcion</option>
+                            foreach (dynamic tipo in ListaTipos)
+                            {
+                                <option value="@tipo.TipoId">@tipo.Descripcion</option>
+                            }
                         }
                     </select>
                 }
@@ -131,7 +134,16 @@
                 }else
                 {
                     <label asp-for="PropietarioId" class="form-label">Bucar Propietario </label>
-                    <select id="PropietarioId" name="PropietarioId" class="form-select"></select>
+                    <select id="PropietarioId" name="PropietarioId" class="form-select">
+                    @* Verificar si existe un propietario *@
+                    @if(Model.PropietarioId != null && Model.PropietarioId > 0)
+                    {
+                        <option value="@Model.PropietarioId" selected>
+                            @Model.PropietarioNombre
+                        </option>
+                    }
+                    
+                    </select>
                 }
                 <span asp-validation-for="PropietarioId" class="text-danger"></span>
             </div>
