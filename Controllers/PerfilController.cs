@@ -12,12 +12,17 @@ public class PerfilController : Controller
     private readonly IInquilinoService _inquilinoService;
     private readonly IPropietarioService _propietarioService;
 
-    public PerfilController(ILogger<PerfilController> logger)
+    public PerfilController(
+        ILogger<PerfilController> logger,
+        IPersonaService personaService,
+        IInquilinoService inquilinoService,
+        IPropietarioService propietarioService
+    )
     {
         _logger = logger;
-        _personaService = new PersonaServiceImpl();
-        _inquilinoService = new InquilinoServiceImpl();
-        _propietarioService = new PropietarioServiceImpl();
+        _personaService = personaService;
+        _inquilinoService = inquilinoService    ;
+        _propietarioService = propietarioService;
     }
 
     // Ejemplo de acción Index

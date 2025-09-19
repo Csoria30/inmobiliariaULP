@@ -1,7 +1,3 @@
-
-console.log('Select2 cargado');
-console.log($('#PropietarioId').val());
-
 $('#PropietarioId').select2({
     placeholder: 'Buscar propietario...',
     minimumInputLength: 2,

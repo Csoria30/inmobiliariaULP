@@ -1,23 +1,25 @@
 using System.Data;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
-using inmobiliariaULP.Repositories.Implementations;
+using inmobiliariaULP.Repositories.Interfaces;
 
 namespace inmobiliariaULP.Services.Implementations;
 
 public class TipoServiceImpl : ITipoService
 {
-    private TipoRepositoryImpl GetTipoRepository()
+    private readonly ITipoRepository _tipoRepository;
+
+    public TipoServiceImpl(ITipoRepository tipoRepository)
     {
-        return FactoryRepository.CreateTipoRepository();
+        _tipoRepository = tipoRepository;
     }
+
 
     public async Task<IEnumerable<Tipo>> ObtenerTodosAsync()
     {
         try
         {
-            var tipoRepository = GetTipoRepository();
-            return await tipoRepository.GetAllAsync();
+            return await _tipoRepository.GetAllAsync();
             
         }
         catch (Exception ex)

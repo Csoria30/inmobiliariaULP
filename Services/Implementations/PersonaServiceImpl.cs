@@ -1,36 +1,34 @@
 using System.Data;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
-using inmobiliariaULP.Repositories.Implementations;
+using inmobiliariaULP.Repositories.Interfaces;
 
 namespace inmobiliariaULP.Services.Implementations;
 
 public class PersonaServiceImpl : IPersonaService
 {
-    // Getters Fabrica
-    private PersonaRepositoryImpl GetPersonaRepository()
-    {
-        return FactoryRepository.CreatePersonaRepository();
-    }
+    private readonly IPersonaRepository _personaRepository;
+    private readonly IInquilinoRepository _inquilinoRepository;
+    private readonly IPropietarioRepository _propietarioRepository;
 
-    private InquilinoRepositoryImpl GetInquilinoRepository()
+    public PersonaServiceImpl(
+        IPersonaRepository personaRepository
+        , IInquilinoRepository inquilinoRepository
+        , IPropietarioRepository propietarioRepository
+    )
     {
-        return FactoryRepository.CreateInquilinoRepository();
+        _personaRepository = personaRepository;
+        _inquilinoRepository = inquilinoRepository;
+        _propietarioRepository = propietarioRepository;
     }
-
-    private PropietarioRepositoryImpl GetPropietarioRepository()
-    {
-        return FactoryRepository.CreatePropietarioRepository();
-    }
-
+    
 
 
     public async Task<int> ActualizarAsync(Persona persona)
     {
         try
         {
-            var personaRepository = GetPersonaRepository();
-            return await personaRepository.UpdateAsync(persona);
+            return await _personaRepository.UpdateAsync(persona);
         }
         catch (Exception ex)
         {
@@ -42,8 +40,7 @@ public class PersonaServiceImpl : IPersonaService
     {
         try
         {
-            var personaRepository = GetPersonaRepository();
-            return await personaRepository.DeleteAsync(personaId, estado);
+            return await _personaRepository.DeleteAsync(personaId, estado);
         }
         catch (Exception ex)
         {
@@ -70,8 +67,7 @@ public class PersonaServiceImpl : IPersonaService
     {
         try
         {
-            var personaRepository = GetPersonaRepository();
-            return await personaRepository.AddAsync(persona);
+            return await _personaRepository.AddAsync(persona);
         }
         catch (Exception ex)
         {
@@ -96,10 +92,10 @@ public class PersonaServiceImpl : IPersonaService
                 switch (tipo)
                 {
                     case "inquilino":
-                        await GetInquilinoRepository().AddAsync(personaId);
+                        await _inquilinoRepository.AddAsync(personaId);
                         break;
                     case "propietario":
-                        await GetPropietarioRepository().AddAsync(personaId);
+                        await _propietarioRepository.AddAsync(personaId);
                         break;
                     default:
                         return (false, "Tipo de persona inválido.", "danger");
@@ -118,8 +114,7 @@ public class PersonaServiceImpl : IPersonaService
     {
         try
         {
-            var personaRepository = GetPersonaRepository();
-            return await personaRepository.GetByIdAsync(personaId);
+            return await _personaRepository.GetByIdAsync(personaId);
         }
         catch (Exception ex)
         {
@@ -131,8 +126,7 @@ public class PersonaServiceImpl : IPersonaService
     {
         try
         {
-            var personaRepository = GetPersonaRepository();
-            return await personaRepository.GetAllAsync(page, pageSize, search);
+            return await _personaRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
@@ -160,7 +154,7 @@ public class PersonaServiceImpl : IPersonaService
 
     public async Task<(bool exito, string mensaje, string tipo)> EditarAsync(Persona persona)
     {
-        var personaActual = await ObtenerIdAsync(persona.PersonaId);
+         var personaActual = await ObtenerIdAsync(persona.PersonaId);
 
         if (personaActual == null)
             return (false, "La persona no existe.", "danger");
@@ -195,47 +189,47 @@ public class PersonaServiceImpl : IPersonaService
         }
 
         //- PROPIETARIO
-        var propietario = await GetPropietarioRepository().GetByIdAsync(personaActual.PersonaId);
+        var propietario = await _propietarioRepository.GetByIdAsync(personaActual.PersonaId);
         bool esPropietario = persona.TipoPersona.Contains("propietario");
         if (esPropietario)
         {
             if (propietario == null)
             {
-                await GetPropietarioRepository().AddAsync(personaActual.PersonaId);
+                await _propietarioRepository.AddAsync(personaActual.PersonaId);
                 notificaciones.Add("Perfil propietario asignado correctamente");
             }
             else if (!propietario.Estado)
             {
-                await GetPropietarioRepository().UpdateAsync(propietario.PropietarioId, true);
+                await _propietarioRepository.UpdateAsync(propietario.PropietarioId, true);
                 notificaciones.Add("Perfil propietario habilitado correctamente");
             }
         }
         else if (propietario != null && propietario.Estado)
         {
-            await GetPropietarioRepository().UpdateAsync(propietario.PropietarioId, false);
+            await _propietarioRepository.UpdateAsync(propietario.PropietarioId, false);
             notificaciones.Add("Perfil propietario deshabilitado correctamente");
         }
 
 
         //- INQUILINO
-        var inquilino = await GetInquilinoRepository().GetByIdAsync(personaActual.PersonaId);
+        var inquilino = await _inquilinoRepository.GetByIdAsync(personaActual.PersonaId);
         bool esInquilino = persona.TipoPersona.Contains("inquilino");
         if (esInquilino)
         {
             if (inquilino == null)
             {
-                await GetInquilinoRepository().AddAsync(personaActual.PersonaId);
+                await _inquilinoRepository.AddAsync(personaActual.PersonaId);
                 notificaciones.Add("Perfil inquilino asignado correctamente");
             }
             else if (!inquilino.Estado)
             {
-                await GetInquilinoRepository().UpdateAsync(inquilino.InquilinoId, true);
+                await _inquilinoRepository.UpdateAsync(inquilino.InquilinoId, true);
                 notificaciones.Add("Perfil inquilino habilitado correctamente");
             }
         }
         else if (inquilino != null && inquilino.Estado)
         {
-            await GetInquilinoRepository().UpdateAsync(inquilino.InquilinoId, false);
+            await _inquilinoRepository.UpdateAsync(inquilino.InquilinoId, false);
             notificaciones.Add("Perfil inquilino deshabilitado correctamente");
         }
 

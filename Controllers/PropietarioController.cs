@@ -14,12 +14,17 @@ public class PropietarioController : Controller
     private readonly IInquilinoService _inquilinoService;
     private readonly IPropietarioService _propietarioService;
 
-    public PropietarioController(ILogger<PersonaController> logger)
+    public PropietarioController(
+        ILogger<PersonaController> logger,
+        IPersonaService personaService,
+        IInquilinoService inquilinoService,
+        IPropietarioService propietarioService
+    )
     {
         _logger = logger;
-        _personaService = new PersonaServiceImpl();
-        _inquilinoService = new InquilinoServiceImpl();
-        _propietarioService = new PropietarioServiceImpl();
+        _personaService = personaService;
+        _inquilinoService = inquilinoService;
+        _propietarioService = propietarioService;
     }
 
     public async Task<IActionResult> Index()

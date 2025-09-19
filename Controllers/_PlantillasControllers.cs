@@ -15,9 +15,6 @@ public class NuevoController : Controller
     public NuevoController(ILogger<NuevoController> logger)
     {
         _logger = logger;
-        _personaService = new PersonaServiceImpl();
-        _inquilinoService = new InquilinoServiceImpl();
-        _propietarioService = new PropietarioServiceImpl();
     }
 
     // Ejemplo de acción Index

@@ -1,34 +1,26 @@
 using System.Data;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
-using inmobiliariaULP.Repositories.Implementations;
+using inmobiliariaULP.Repositories.Interfaces;
 
 namespace inmobiliariaULP.Services.Implementations;
 
 public class PropietarioServiceImpl : IPropietarioService
 {
 
-    private PersonaRepositoryImpl GetPersonaRepository()
+    private readonly IPropietarioRepository _propietarioRepository;
+
+    public PropietarioServiceImpl(IPropietarioRepository propietarioRepository)
     {
-        return FactoryRepository.CreatePersonaRepository();
+        _propietarioRepository = propietarioRepository;
     }
 
-    private InquilinoRepositoryImpl GetInquilinoRepository()
-    {
-        return FactoryRepository.CreateInquilinoRepository();
-    }
-
-    private PropietarioRepositoryImpl GetPropietarioRepository()
-    {
-        return FactoryRepository.CreatePropietarioRepository();
-    }
 
     public async Task<int> EliminarAsync(int propietarioId)
     {
         try
         {
-            var propietarioRepository = GetPropietarioRepository();
-            return await propietarioRepository.DeleteAsync(propietarioId);
+            return await _propietarioRepository.DeleteAsync(propietarioId);
         }
         catch (Exception ex)
         {
@@ -40,8 +32,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = GetPropietarioRepository();
-            return await propietarioRepository.AddAsync(personaId);
+            return await _propietarioRepository.AddAsync(personaId);
         }
         catch (Exception ex)
         {
@@ -53,8 +44,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = GetPropietarioRepository();
-            return propietarioRepository.GetByIdAsync(propietarioId);
+            return _propietarioRepository.GetByIdAsync(propietarioId);
         }
         catch (Exception ex)
         {
@@ -66,8 +56,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = GetPropietarioRepository();
-            return propietarioRepository.GetAllAsync(page, pageSize, search);
+            return _propietarioRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
@@ -79,8 +68,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = GetPropietarioRepository();
-            return propietarioRepository.ListActiveAsync(term);
+            return _propietarioRepository.ListActiveAsync(term);
         }
         catch (Exception ex)
         {
@@ -92,8 +80,7 @@ public class PropietarioServiceImpl : IPropietarioService
     {
         try
         {
-            var propietarioRepository = GetPropietarioRepository();
-            return await propietarioRepository.UpdateAsync(personaId, estado);
+            return await _propietarioRepository.UpdateAsync(personaId, estado);
         }
         catch (Exception ex)
         {

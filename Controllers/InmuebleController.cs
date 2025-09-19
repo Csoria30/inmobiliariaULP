@@ -14,14 +14,20 @@ public class InmuebleController : Controller
     private readonly IPropietarioService _propietarioService;
     private readonly IInmuebleService _inmuebleService;
 
-    public InmuebleController(ILogger<InmuebleController> logger)
+    public InmuebleController(
+        ILogger<InmuebleController> logger,
+        IPersonaService personaService,
+        IInquilinoService inquilinoService,
+        IPropietarioService propietarioService,
+        ITipoService tipoService,
+        IInmuebleService inmuebleService)
     {
         _logger = logger;
-        _personaService = new PersonaServiceImpl();
-        _inquilinoService = new InquilinoServiceImpl();
-        _propietarioService = new PropietarioServiceImpl();
-        _tipoService = new TipoServiceImpl();
-        _inmuebleService = new InmuebleServiceImpl();
+        _personaService = personaService;
+        _inquilinoService = inquilinoService;
+        _propietarioService = propietarioService;
+        _tipoService = tipoService;
+        _inmuebleService = inmuebleService;
     }
 
     // Ejemplo de acción Index
@@ -64,7 +70,6 @@ public class InmuebleController : Controller
 
                 if (exito)
                     return RedirectToAction(nameof(Index));
-
             }
 
             //Si el modelo no es valido, retornar los tipos y la vista

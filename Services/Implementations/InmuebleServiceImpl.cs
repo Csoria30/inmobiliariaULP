@@ -1,7 +1,7 @@
 using System.Data;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
-using inmobiliariaULP.Repositories.Implementations;
+using inmobiliariaULP.Repositories.Interfaces;
 using Google.Protobuf;
 
 namespace inmobiliariaULP.Services.Implementations;
@@ -9,12 +9,13 @@ namespace inmobiliariaULP.Services.Implementations;
 public class InmuebleServiceImpl : IInmuebleService
 {
 
+     private readonly IInmuebleRepository _inmuebleRepository;
 
-    // Getters Fabrica
-    private InmuebleRepositoryImpl GetInmuebleRepository()
+    public InmuebleServiceImpl(IInmuebleRepository inmuebleRepository)
     {
-        return FactoryRepository.CreateInmuebleRepository();
+        _inmuebleRepository = inmuebleRepository;
     }
+ 
 
     public async Task<(bool exito, string mensaje, string tipo)> CrearAsync(Inmueble inmueble)
     {
@@ -27,8 +28,7 @@ public class InmuebleServiceImpl : IInmuebleService
             if (inmueble.PropietarioId == null || inmueble.PropietarioId == 0)
                 return (false, "Debe seleccionar un propietario.", "warning");
 
-            var inmuebleRepository = GetInmuebleRepository();
-            await inmuebleRepository.AddAsync(inmueble);
+            await _inmuebleRepository.AddAsync(inmueble);
 
             return (true, "Inmueble creado con éxito.", "success");
         }
@@ -42,8 +42,7 @@ public class InmuebleServiceImpl : IInmuebleService
     {
         try
         {
-            var inmuebleRepository = GetInmuebleRepository();
-            return await inmuebleRepository.GetAllAsync(page, pageSize, search);
+            return await _inmuebleRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
@@ -55,8 +54,7 @@ public class InmuebleServiceImpl : IInmuebleService
     {
         try
         {
-            var inmuebleRepository = GetInmuebleRepository();
-            var inmueble = await inmuebleRepository.GetByIdAsync(inmuebleId);
+            var inmueble = await _inmuebleRepository.GetByIdAsync(inmuebleId);
 
             if (inmueble == null)
                 return (null, "Inmueble no encontrado.", "warning");
@@ -73,8 +71,8 @@ public class InmuebleServiceImpl : IInmuebleService
     {
         try
         {
-            var inmuebleRepository = GetInmuebleRepository();
-            var inmuebleActual = await inmuebleRepository.GetByIdAsync(inmueble.InmuebleId);
+            
+            var inmuebleActual = await _inmuebleRepository.GetByIdAsync(inmueble.InmuebleId);
 
             if (inmuebleActual == null)
                 return (false, "El inmueble no existe.", "warning");
@@ -108,7 +106,7 @@ public class InmuebleServiceImpl : IInmuebleService
                 inmuebleActual.PropietarioId = inmueble.PropietarioId;
                 inmuebleActual.TipoId = inmueble.TipoId;
 
-                await inmuebleRepository.UpdateAsync(
+                await _inmuebleRepository.UpdateAsync(
                     inmuebleActual
                 );
 
@@ -131,14 +129,14 @@ public class InmuebleServiceImpl : IInmuebleService
     {
         try
         {
-            var inmuebleActual = await GetInmuebleRepository().GetByIdAsync(inmuebleId);
+            var inmuebleActual = await _inmuebleRepository.GetByIdAsync(inmuebleId);
             if (inmuebleActual == null)
                 return (false, "El inmueble no existe.", "warning");
 
             bool nuevoEstado = !(inmuebleActual.Estado ?? false);
             inmuebleActual.Estado = nuevoEstado;
 
-            await GetInmuebleRepository().DeleteAsync(inmuebleActual.InmuebleId, nuevoEstado);
+            await _inmuebleRepository.DeleteAsync(inmuebleActual.InmuebleId, nuevoEstado);
 
 
             string mensaje = nuevoEstado ? "Inmueble habilitado correctamente." : "Inmueble deshabilitado correctamente.";

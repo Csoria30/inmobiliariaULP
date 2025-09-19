@@ -1,33 +1,26 @@
 using System.Data;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
-using inmobiliariaULP.Repositories.Implementations;
+using inmobiliariaULP.Repositories.Interfaces;
 
 namespace inmobiliariaULP.Services.Implementations;
 
 public class InquilinoServiceImpl : IInquilinoService
 {
-    private PersonaRepositoryImpl GetPersonaRepository()
+
+    private readonly IInquilinoRepository _inquilinoRepository;
+
+    public InquilinoServiceImpl(IInquilinoRepository inquilinoRepository)
     {
-        return FactoryRepository.CreatePersonaRepository();
+        _inquilinoRepository = inquilinoRepository;
     }
 
-    private InquilinoRepositoryImpl GetInquilinoRepository()
-    {
-        return FactoryRepository.CreateInquilinoRepository();
-    }
-
-    private PropietarioRepositoryImpl GetPropietarioRepository()
-    {
-        return FactoryRepository.CreatePropietarioRepository();
-    }
 
     public Task<int> EliminarAsync(int inquilinoId)
     {
         try
         {
-            var inquilinoRepository = GetInquilinoRepository();
-            return inquilinoRepository.DeleteAsync(inquilinoId);
+            return _inquilinoRepository.DeleteAsync(inquilinoId);
         }
         catch (Exception ex)
         {
@@ -39,8 +32,7 @@ public class InquilinoServiceImpl : IInquilinoService
     {
         try
         {
-            var inquilinoRepository = GetInquilinoRepository();
-            return inquilinoRepository.AddAsync(personaId);
+            return _inquilinoRepository.AddAsync(personaId);
         }
         catch (Exception ex)
         {
@@ -52,8 +44,7 @@ public class InquilinoServiceImpl : IInquilinoService
     {
         try
         {
-            var inquilinoRepository = FactoryRepository.CreateInquilinoRepository();
-            return inquilinoRepository.GetByIdAsync(inquilinoId);
+            return _inquilinoRepository.GetByIdAsync(inquilinoId);
         }
         catch (Exception ex)
         {
@@ -65,8 +56,7 @@ public class InquilinoServiceImpl : IInquilinoService
     {
         try
         {
-            var inquilinoRepository = GetInquilinoRepository();
-            return inquilinoRepository.GetAllAsync(page, pageSize, search);
+            return _inquilinoRepository.GetAllAsync(page, pageSize, search);
         }
         catch (Exception ex)
         {
@@ -78,8 +68,7 @@ public class InquilinoServiceImpl : IInquilinoService
     {
         try
         {
-            var inquilinoRepository = GetInquilinoRepository();
-            return await inquilinoRepository.UpdateAsync(personaId, estado);
+            return await _inquilinoRepository.UpdateAsync(personaId, estado);
         }
         catch (Exception ex)
         {
