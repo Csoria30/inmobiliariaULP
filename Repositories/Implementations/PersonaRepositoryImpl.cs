@@ -82,12 +82,13 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         {
             command.CommandText = $@"
                 SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
-                    i.id_inquilino, pr.id_propietario
+                    i.id_inquilino, pr.id_propietario, e.id_empleado
 
                 FROM personas p
 
                 LEFT JOIN inquilinos i ON p.id_persona = i.id_persona AND i.estado = 1
                 LEFT JOIN propietarios pr ON p.id_persona = pr.id_persona AND pr.estado = 1
+                LEFT JOIN empleados e ON p.id_persona = e.id_persona AND e.estado = 1
 
                 {where}
                 LIMIT @limit OFFSET @offset;
@@ -107,6 +108,8 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
                     tipoPersonas.Add("inquilino");
                 if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
                     tipoPersonas.Add("propietario");
+                if (!reader.IsDBNull(reader.GetOrdinal("id_empleado")))
+                    tipoPersonas.Add("empleado");
 
                 personas.Add(new Persona
                 {

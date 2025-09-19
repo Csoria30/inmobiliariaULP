@@ -151,6 +151,23 @@
                         </div>
                     </div>
 
+                    <!-- Empleado -->
+                    <div class="card flex-fill text-center tipo-persona-card border-success p-3" style="cursor:pointer; min-width:12rem;">
+                        <div class="card-body">
+                            <i class="bi bi-person-workspace display-4 text-success"></i>
+                            <p class="mt-2 mb-0 fw-semibold">Empleado</p>
+                            <input 
+                                type="checkbox" 
+                                name="TipoPersona"
+                                value="empleado" 
+                                class="form-check-input mt-2" 
+                                style="transform: scale(1.5);" 
+                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("empleado") ? "checked" : null)"
+                                @disabledAttr
+                            />
+                        </div>
+                    </div>
+
                 </div>
                 <div id="checkboxError" class="text-danger fw-semibold mb-2" style="display:none;">
                     Debe seleccionar al menos un perfil (Inquilino y/o Propietario).

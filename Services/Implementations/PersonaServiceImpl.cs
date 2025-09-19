@@ -10,16 +10,19 @@ public class PersonaServiceImpl : IPersonaService
     private readonly IPersonaRepository _personaRepository;
     private readonly IInquilinoRepository _inquilinoRepository;
     private readonly IPropietarioRepository _propietarioRepository;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public PersonaServiceImpl(
         IPersonaRepository personaRepository
         , IInquilinoRepository inquilinoRepository
         , IPropietarioRepository propietarioRepository
+        , IEmpleadoRepository empleadoRepository
     )
     {
         _personaRepository = personaRepository;
         _inquilinoRepository = inquilinoRepository;
         _propietarioRepository = propietarioRepository;
+        _empleadoRepository = empleadoRepository;
     }
     
 
@@ -96,6 +99,9 @@ public class PersonaServiceImpl : IPersonaService
                         break;
                     case "propietario":
                         await _propietarioRepository.AddAsync(personaId);
+                        break;
+                    case "empleado":
+                        await _empleadoRepository.AddAsync(personaId);
                         break;
                     default:
                         return (false, "Tipo de persona inválido.", "danger");
@@ -232,6 +238,29 @@ public class PersonaServiceImpl : IPersonaService
             await _inquilinoRepository.UpdateAsync(inquilino.InquilinoId, false);
             notificaciones.Add("Perfil inquilino deshabilitado correctamente");
         }
+
+        //- Empleado
+        var empleado = await _empleadoRepository.GetByIdAsync(personaActual.PersonaId);
+        bool esEmpleado = persona.TipoPersona.Contains("empleado");
+        if (esEmpleado)
+        {
+            if (empleado == null)
+            {
+                await _empleadoRepository.AddAsync(personaActual.PersonaId);
+                notificaciones.Add("Perfil empleado asignado correctamente");
+            }
+            else if (!empleado.Estado)
+            {
+                await _empleadoRepository.UpdateAsync(empleado.EmpleadoId, true);
+                notificaciones.Add("Perfil empleado habilitado correctamente");
+            }
+        }
+        else if (empleado != null && empleado.Estado)
+        {
+            await _empleadoRepository.UpdateAsync(empleado.EmpleadoId, false);
+            notificaciones.Add("Perfil empleado deshabilitado correctamente");
+        }
+
 
         if (notificaciones.Count == 0)
             return (true, "No hubo cambios.", "info");

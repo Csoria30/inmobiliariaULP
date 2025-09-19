@@ -62,7 +62,7 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
             command.CommandText = $@"
                 SELECT COUNT(*) 
                 FROM personas p
-                INNER JOIN inquilinos i ON p.id_persona = i.id_persona
+                INNER JOIN empleados e ON p.id_persona = e.id_persona
                 {where}
             ";
 
@@ -77,11 +77,18 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
         using (var command = connection.CreateCommand())
         {
             command.CommandText = $@"
-                Select e.id_persona, e.id_empleado , e.estado AS EstadoEmpleado, 
-                p.dni, p.nombre, p.apellido, p.telefono, p.email
+                Select 
+                    e.id_persona AS PersonaId, 
+                    e.id_empleado AS EmpleadoId, 
+                    e.estado AS Estado, 
+                    p.dni AS Dni, 
+                    p.nombre AS Nombre, 
+                    p.apellido AS Apellido, 
+                    p.telefono AS Telefono, 
+                    p.email AS Email
 
-                from empleados e
-                    Join personas p 
+                    FROM empleados e
+                        Join personas p 
                         On p.id_persona = e.id_persona
                 
                     {where}
@@ -99,14 +106,14 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
             {
                 empleados.Add(new Empleado
                 {
-                    EmpleadoId = reader.GetInt32("id_empleado"),
-                    PersonaId = reader.GetInt32("id_persona"),
-                    Dni = reader.GetString("dni"),
-                    Apellido = reader.GetString("apellido"),
-                    Nombre = reader.GetString("nombre"),
-                    Telefono = reader.GetString("telefono"),
-                    Email = reader.GetString("email"),
-                    Estado = reader.GetBoolean("EstadoInquilino"),
+                    EmpleadoId = reader.GetInt32(nameof(Empleado.EmpleadoId)),
+                    PersonaId = reader.GetInt32(nameof(Empleado.PersonaId)),
+                    Dni = reader.GetString(nameof(Empleado.Dni)),
+                    Apellido = reader.GetString(nameof(Empleado.Apellido)),
+                    Nombre = reader.GetString(nameof(Empleado.Nombre)),
+                    Telefono = reader.GetString(nameof(Empleado.Telefono)),
+                    Email = reader.GetString(nameof(Empleado.Email)),
+                    Estado = reader.GetBoolean(nameof(Empleado.Estado)),
                 });
             }
         }

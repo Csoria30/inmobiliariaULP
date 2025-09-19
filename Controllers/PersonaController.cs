@@ -240,6 +240,9 @@ public class PersonaController : Controller
                     : tipo == "propietario"
                             ? "<span class='badge bg-warning text-dark me-1'>Propietario</span>"
 
+                    : tipo == "empleado"
+                            ? "<span class='badge bg-success me-1'>Empleado</span>"
+
                     : $"<span class='badge bg-secondary me-1'>{tipo}</span>"
                 )),
 
