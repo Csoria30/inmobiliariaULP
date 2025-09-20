@@ -17,6 +17,7 @@ builder.Services.AddScoped<IPersonaRepository, PersonaRepositoryImpl>();
 builder.Services.AddScoped<IPropietarioRepository, PropietarioRepositoryImpl>();
 builder.Services.AddScoped<ITipoRepository, TipoRepositoryImpl>();
 builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepositoryImpl>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepositoryImpl>();
 
 builder.Services.AddScoped<IInmuebleService, InmuebleServiceImpl>();
 builder.Services.AddScoped<IInquilinoService, InquilinoServiceImpl>();
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IPersonaService, PersonaServiceImpl>();
 builder.Services.AddScoped<IPropietarioService, PropietarioServiceImpl>();
 builder.Services.AddScoped<ITipoService, TipoServiceImpl>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoServiceImpl>();
+builder.Services.AddScoped<IUsuarioService, UsuarioServiceImpl>();
 
 var app = builder.Build();
 

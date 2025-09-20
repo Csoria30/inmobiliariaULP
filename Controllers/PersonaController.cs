@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
+using inmobiliariaULP.Models.ViewModels;
 using inmobiliariaULP.Services.Implementations;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
@@ -15,18 +16,24 @@ public class PersonaController : Controller
     private readonly IPersonaService _personaService;
     private readonly IInquilinoService _inquilinoService;
     private readonly IPropietarioService _propietarioService;
+    private readonly IUsuarioService _usuarioService;
+    private readonly IEmpleadoService _empleadoService;
 
     public PersonaController(
         ILogger<PersonaController> logger,
         IPersonaService personaService,
         IInquilinoService inquilinoService,
-        IPropietarioService propietarioService
+        IPropietarioService propietarioService,
+        IUsuarioService usuarioService,
+        IEmpleadoService empleadoService
     )
     {
         _logger = logger;
         _personaService = personaService;
         _inquilinoService = inquilinoService;
         _propietarioService = propietarioService;
+        _usuarioService = usuarioService;
+        _empleadoService = empleadoService;
     }
 
     public async Task<IActionResult> Index()
@@ -63,24 +70,62 @@ public class PersonaController : Controller
     //! POST: PersonasController/Create
     [HttpPost]
     [ValidateAntiForgeryToken] // Buena práctica para prevenir ataques CSRF
-    public async Task<IActionResult> Create(Persona persona)
+    public async Task<IActionResult> Create(PersonaUsuarioViewModel model)
     {
         try
         {
             if (ModelState.IsValid)
             {
-                var (exito, mensaje, tipo) = await _personaService.CrearAsync(persona);
-                TempData["Notificacion"] = mensaje;
-                TempData["NotificacionTipo"] = tipo;
+                // Crear persona
+                var (exitoPersona, mensaje, tipo, personaId) = await _personaService.CrearAsync(model.Persona);
 
-                if (exito)
+                //Validacion para continuar si se creo correctamente la persona
+                if (!exitoPersona)
+                {
+                    TempData["Notificacion"] = mensaje;
+                    TempData["NotificacionTipo"] = tipo;
+                    return View("Create", model);
+                }
+
+                // Si es empleado, crearlo
+                bool exitoUsuario = true;
+                if (model.Persona.TipoPersona.Contains("empleado"))
+                {
+                    //Recuperar el empleado generado - ID Obtenido de la tupla al crear la persona
+                    var empleado = await _empleadoService.ObtenerIdAsync(personaId);
+                    if (empleado != null)
+                    {
+                        //Recperando el Id de empleado generado
+                        model.Usuario.EmpleadoId = empleado.EmpleadoId;
+                        await _usuarioService.NuevoAsync(model.Usuario);
+                    }
+                    else
+                    {
+                        exitoUsuario = false;
+                        TempData["Notificacion"] = "Error al crear el usuario asociado al empleado.";
+                        TempData["NotificacionTipo"] = "danger";
+                    }
+                }
+
+                //Notificaciones
+                if (exitoUsuario)
+                {
+                    TempData["Notificacion"] = mensaje;
+                    TempData["NotificacionTipo"] = tipo;
                     return RedirectToAction(nameof(Index));
+                }
                 else
-                    return View("Create", persona); // Volver al formulario con datos
+                {
+                    TempData["Notificacion"] = mensaje;
+                    TempData["NotificacionTipo"] = "danger";
+                    return View("Create", model.Persona); // Volver al formulario con datos
+                }
+
+
             }
 
             // Si ModelState no es válido, retornar a la vista con los datos ingresados
-            return View("Create", persona);
+            return View("Create", model);
         }
         catch (Exception ex)
         {

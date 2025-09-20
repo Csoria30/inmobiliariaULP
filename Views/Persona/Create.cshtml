@@ -1,7 +1,7 @@
-@model inmobiliariaULP.Models.Persona
+@model inmobiliariaULP.Models.ViewModels.PersonaUsuarioViewModel
 
 @{
-    bool esEdicion = Model?.PersonaId > 0;
+    bool esEdicion = Model?.Persona.PersonaId > 0;
     bool soloLectura = ViewBag.SoloLectura == true;
 
     if (soloLectura)
@@ -27,74 +27,74 @@
         
         @if (esEdicion)
         {
-            <input type="hidden" asp-for="PersonaId" />
+            <input type="hidden" asp-for="Persona.PersonaId" />
         }
 
         <!-- Información Personal -->
         <div class="row mb-4">
             <div class="col-md-6 mb-3">
-                <label asp-for="Dni" class="form-label"></label>
+                <label asp-for="Persona.Dni" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Dni" class="form-control" maxlength="8" readonly="readonly" />
+                    <input asp-for="Persona.Dni" class="form-control" maxlength="8" readonly="readonly" />
                 }
                 else
                 {
-                    <input asp-for="Dni" class="form-control" maxlength="8" />
+                    <input asp-for="Persona.Dni" class="form-control" maxlength="8" />
                 }
-                <span asp-validation-for="Dni" class="text-danger"></span>
+                <span asp-validation-for="Persona.Dni" class="text-danger"></span>
                 <div class="form-text">8 dígitos numéricos</div>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="Apellido" class="form-label"></label>
+                <label asp-for="Persona.Apellido" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Apellido" class="form-control" readonly="readonly"/>
+                    <input asp-for="Persona.Apellido" class="form-control" readonly="readonly"/>
                 }else
                 {
-                    <input asp-for="Apellido" class="form-control" />
+                    <input asp-for="Persona.Apellido" class="form-control" />
                 }
-                <span asp-validation-for="Apellido" class="text-danger"></span>
+                <span asp-validation-for="Persona.Apellido" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="Nombre" class="form-label"></label>
+                <label asp-for="Persona.Nombre" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Nombre" class="form-control" readonly="readonly"/>
+                    <input asp-for="Persona.Nombre" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
-                    <input asp-for="Nombre" class="form-control" />
+                    <input asp-for="Persona.Nombre" class="form-control" />
                 }
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+                <span asp-validation-for="Persona.Nombre" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="Telefono" class="form-label"></label>
+                <label asp-for="Persona.Telefono" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Telefono" class="form-control" readonly="readonly"/>
+                    <input asp-for="Persona.Telefono" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
-                    <input asp-for="Telefono" class="form-control" />
+                    <input asp-for="Persona.Telefono" class="form-control" />
                 }
-                <span asp-validation-for="Telefono" class="text-danger"></span>
+                <span asp-validation-for="Persona.Telefono" class="text-danger"></span>
             </div>
 
             <div class="col-12 mb-3">
-                <label asp-for="Email" class="form-label"></label>
+                <label asp-for="Persona.Email" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Email" class="form-control" readonly="readonly"/>
+                    <input asp-for="Persona.Email" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
-                    <input asp-for="Email" class="form-control" />
+                    <input asp-for="Persona.Email" class="form-control" />
                 }
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <span asp-validation-for="Persona.Email" class="text-danger"></span>
             </div>
         </div>
 
@@ -124,11 +124,11 @@
                             <p class="mt-2 mb-0 fw-semibold">Inquilino</p>
                             <input 
                                 type="checkbox" 
-                                name="TipoPersona"
+                                name="Persona.TipoPersona"
                                 value="inquilino" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("inquilino") ? "checked" : null)"
+                                checked="@(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("inquilino") ? "checked" : null)"
                                 @disabledAttr
                             />
                         </div>
@@ -141,11 +141,11 @@
                             <p class="mt-2 mb-0 fw-semibold">Propietario</p>
                             <input 
                                 type="checkbox" 
-                                name="TipoPersona"
+                                name="Persona.TipoPersona"
                                 value="propietario" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("propietario") ? "checked" : null)"
+                                checked="@(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("propietario") ? "checked" : null)"
                                 @disabledAttr
                             />
                         </div>
@@ -158,17 +158,35 @@
                             <p class="mt-2 mb-0 fw-semibold">Empleado</p>
                             <input 
                                 type="checkbox" 
-                                name="TipoPersona"
+                                name="Persona.TipoPersona"
                                 value="empleado" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("empleado") ? "checked" : null)"
+                                checked="@(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("empleado") ? "checked" : null)"
                                 @disabledAttr
                             />
                         </div>
                     </div>
 
                 </div>
+
+                @* Solicitud de datos para el usuario *@
+                <div id="empleadoExtraFields" style="display: @(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("empleado") ? "block" : "none");">
+                    <div class="mb-3">
+                        <label asp-for="Usuario.Password" class="form-label"></label>
+                        <input asp-for="Usuario.Password" class="form-control" type="password"/>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Usuario.Rol" class="form-label"></label>
+                        <select asp-for="Usuario.Rol" class="form-select">
+                            <option value="">Seleccione un rol</option>
+                            <option value="administrador">Administrador</option>
+                            <option value="empleado">Empleado</option>
+                        </select>
+                    </div>
+                </div>
+
+
                 <div id="checkboxError" class="text-danger fw-semibold mb-2" style="display:none;">
                     Debe seleccionar al menos un perfil (Inquilino y/o Propietario).
                 </div>
@@ -200,76 +218,91 @@
 @section Scripts
 {
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const cards = document.querySelectorAll('.tipo-persona-card');
-            const form = document.querySelector('form');
-            const checkboxes = document.querySelectorAll('input[type="checkbox"][name="TipoPersona"]');
-            
-            // Validación visual de selección de card
-            cards.forEach(card => {
-                const checkbox = card.querySelector('input[type="checkbox"]');
-                
-                //Si el checkbox ya está marcado al cargar la página, se le agrega la clase selected
+    document.addEventListener("DOMContentLoaded", function () {
+        const cards = document.querySelectorAll('.tipo-persona-card');
+        const form = document.querySelector('form');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="Persona.TipoPersona"]');
+        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="Persona.TipoPersona"][value="empleado"]');
+        const extraFields = document.getElementById('empleadoExtraFields');
+
+        // 1. Mostrar/ocultar campos extra de empleado
+        if (empleadoCheckbox && extraFields) {
+            // Mostrar al cargar si ya está seleccionado
+            extraFields.style.display = empleadoCheckbox.checked ? "block" : "none";
+
+            // Mostrar/ocultar al cambiar el checkbox
+            empleadoCheckbox.addEventListener('change', function () {
+                extraFields.style.display = this.checked ? "block" : "none";
+            });
+        }
+
+        // 2. Validación visual de selección de card
+        cards.forEach(card => {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+
+            // Si el checkbox ya está marcado al cargar la página, se le agrega la clase selected
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            }
+
+            // Click sobre la tarjeta
+            card.addEventListener('click', (e) => {
+                // No hacer nada si el checkbox está deshabilitado o si el click fue sobre el input
+                if (checkbox.disabled) return;
+                if (e.target.tagName.toLowerCase() === 'input') return;
+
+                // Cambia manualmente el estado del checkbox
+                checkbox.checked = !checkbox.checked;
+
+                // Dispara el evento change para que otros listeners (como el de empleado) se ejecuten
+                checkbox.dispatchEvent(new Event('change'));
+
+                // Agrega o quita la clase 'selected'
                 if (checkbox.checked) {
                     card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
                 }
-                
-                //Click sobre la tarjeta
-                card.addEventListener('click', (e) => {
-                    //// No hacer nada si el checkbox está deshabilitado
-                    if (checkbox.disabled) return;
-                    if (e.target.tagName.toLowerCase() === 'input') return;
-
-                    // Cambia manualmente el estado del checkbox
-                    checkbox.checked = !checkbox.checked;
-
-                    // Agrega o quita la clase 'selected'
-                    if (checkbox.checked) {
-                        card.classList.add('selected');
-                    } else {
-                        card.classList.remove('selected');
-                    }
-
-                });
-
-                // Escucha cambios direcntos en los checkboxs
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        card.classList.add('selected');
-                    } else {
-                        card.classList.remove('selected');
-                    }
-                });
             });
 
-            // Validación de al menos un checkbox seleccionado
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    // Solo validar si NO es solo lectura
-                    if (@(soloLectura.ToString().ToLower())) return;
-
-                    // Comprobar si hay algún checkbox seleccionado
-                    let algunoSeleccionado = false;
-                    checkboxes.forEach(cb => {
-                        if (cb.checked) algunoSeleccionado = true;
-                    });
-
-                    //Manejo de error - Al menos uno selecionado
-                    const errorDiv = document.getElementById('checkboxError');
-                    if (!algunoSeleccionado) {
-                        e.preventDefault();
-                        if (errorDiv) {
-                            errorDiv.style.display = 'block';
-                        }
-                        // Scroll al error
-                        errorDiv.scrollIntoView({ behavior: "smooth", block: "center" });
-                    } else {
-                        if (errorDiv) {
-                            errorDiv.style.display = 'none';
-                        }
-                    }
-                });
-            }
+            // Escucha cambios directos en los checkboxs
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
         });
-    </script>
+
+        // 3. Validación de al menos un checkbox seleccionado al enviar el formulario
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                // Solo validar si NO es solo lectura
+                if (@(soloLectura.ToString().ToLower())) return;
+
+                // Comprobar si hay algún checkbox seleccionado
+                let algunoSeleccionado = false;
+                checkboxes.forEach(cb => {
+                    if (cb.checked) algunoSeleccionado = true;
+                });
+
+                // Manejo de error - Al menos uno seleccionado
+                const errorDiv = document.getElementById('checkboxError');
+                if (!algunoSeleccionado) {
+                    e.preventDefault();
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                    }
+                    // Scroll al error
+                    errorDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+                } else {
+                    if (errorDiv) {
+                        errorDiv.style.display = 'none';
+                    }
+                }
+            });
+        }
+    });
+</script>
 }

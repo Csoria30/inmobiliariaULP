@@ -13,12 +13,16 @@ namespace inmobiliariaULP.Models
         [ForeignKey("Empleado")]
         [Column("id_empleado")]
         public int EmpleadoId { get; set; }
-        public virtual Empleado Empleado { get; set; }
+        
 
-        [Required, StringLength(45)]
+
+
+        [StringLength(45)]
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
         public string Password { get; set; }
 
-        [Required, StringLength(20)]
+        [StringLength(20)]
+        [Required(ErrorMessage = "El rol es obligatorio")]
         public string Rol { get; set; } // "administrador" o "empleado"
 
         [StringLength(45)]

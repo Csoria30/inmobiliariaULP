@@ -66,27 +66,16 @@ public class PersonaServiceImpl : IPersonaService
             return (true, "Persona deshabilitada correctamente", "danger");
     }
 
-    public async Task<int> NuevoAsync(Persona persona)
-    {
-        try
-        {
-            return await _personaRepository.AddAsync(persona);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Error al crear la nueva persona", ex);
-        }
-    }
 
-    public async Task<(bool exito, string mensaje, string tipo)> CrearAsync(Persona persona)
+    public async Task<(bool exito, string mensaje, string tipo, int personaId)> CrearAsync(Persona persona)
     {
         if (persona.TipoPersona == null || persona.TipoPersona.Count == 0 || !persona.TipoPersona.Any())
-            return (false, "Debe seleccionar al menos un perfil (Inquilino y/o Propietario).", "danger");
+            return (false, "Debe seleccionar al menos un perfil (Inquilino y/o Propietario).", "danger", 0);
 
         try
         {
             // Crear persona y obtener ID
-            var personaId = await NuevoAsync(persona);
+            var personaId = await _personaRepository.AddAsync(persona);
 
 
             // Crear perfiles
@@ -104,15 +93,15 @@ public class PersonaServiceImpl : IPersonaService
                         await _empleadoRepository.AddAsync(personaId);
                         break;
                     default:
-                        return (false, "Tipo de persona inválido.", "danger");
+                        return (false, "Tipo de persona inválido.", "danger", 0);
                 }
             }
 
-            return (true, "Persona creada correctamente.", "success");
+            return (true, "Persona creada correctamente.", "success", personaId);
         }
         catch (Exception ex)
         {
-            return (false, "Error al crear la persona: " + ex.Message, "danger");
+            return (false, "Error al crear la persona: " + ex.Message, "danger", 0);
         }
     }
 
