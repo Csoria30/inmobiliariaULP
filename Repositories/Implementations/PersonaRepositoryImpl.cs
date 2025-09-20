@@ -101,31 +101,40 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
             command.Parameters.AddWithValue("@offset", (page - 1) * pageSize);
 
             using var reader = await command.ExecuteReaderAsync();
+            var personasDict = new Dictionary<int, Persona>();
+
             while (await reader.ReadAsync())
             {
-                var tipoPersonas = new List<string>();
-                if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
-                    tipoPersonas.Add("inquilino");
-                if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
-                    tipoPersonas.Add("propietario");
-                if (!reader.IsDBNull(reader.GetOrdinal("id_empleado")))
-                    tipoPersonas.Add("empleado");
+                int personaId = reader.GetInt32("id_persona");
 
-                personas.Add(new Persona
+                // Evita instancias duplicadas de Persona
+                if (!personasDict.TryGetValue(personaId, out var persona))
                 {
-                    PersonaId = reader.GetInt32("id_persona"),
-                    Dni = reader.GetString("dni"),
-                    Apellido = reader.GetString("apellido"),
-                    Nombre = reader.GetString("nombre"),
-                    Telefono = reader.GetString("telefono"),
-                    Email = reader.GetString("email"),
-                    Estado = reader.GetBoolean("estado"),
-                    TipoPersona = new List<string>(tipoPersonas)
-                });
+                    persona = new Persona
+                    {
+                        PersonaId = reader.GetInt32("id_persona"),
+                        Dni = reader.GetString("dni"),
+                        Apellido = reader.GetString("apellido"),
+                        Nombre = reader.GetString("nombre"),
+                        Telefono = reader.GetString("telefono"),
+                        Email = reader.GetString("email"),
+                        Estado = reader.GetBoolean("estado"),
+                        TipoPersona = new List<string>()
+                    };
+                    personasDict.Add(personaId, persona);
+                }
+                if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")) && !persona.TipoPersona.Contains("inquilino"))
+                    persona.TipoPersona.Add("inquilino");
+                if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")) && !persona.TipoPersona.Contains("propietario"))
+                    persona.TipoPersona.Add("propietario");
+                if (!reader.IsDBNull(reader.GetOrdinal("id_empleado")) && !persona.TipoPersona.Contains("empleado"))
+                    persona.TipoPersona.Add("empleado");
+
             }
+            
+            return (personasDict.Values.ToList(), total);
         }
 
-        return (personas, total);
 
     }
 
@@ -137,13 +146,15 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         var command = connection.CreateCommand();
         command.CommandText = @"
             SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
-               i.id_inquilino, pr.id_propietario
+               i.id_inquilino, pr.id_propietario, e.id_empleado
 
             FROM personas p
             LEFT JOIN inquilinos i 
                 ON p.id_persona = i.id_persona AND i.estado = 1
             LEFT JOIN propietarios pr 
                 ON p.id_persona = pr.id_persona AND pr.estado = 1
+            LEFT JOIN empleados e 
+                ON p.id_persona = e.id_persona AND e.estado = 1
             WHERE p.id_persona = @Id;
         ";
 
@@ -163,6 +174,9 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
             tipoPersonas.Add("propietario");
+        
+        if (!reader.IsDBNull(reader.GetOrdinal("id_empleado")))
+            tipoPersonas.Add("empleado");
 
         // Crea y retorna el objeto Persona
         var persona = new Persona

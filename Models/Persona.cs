@@ -31,7 +31,7 @@ public class Persona
 
     // Propiedades no mapeadas para roles
     [NotMapped]
-     public List<string> TipoPersona { get; set; }
+     public List<string>    TipoPersona { get; set; }
     
     //Metodo ToString
     public override string ToString()

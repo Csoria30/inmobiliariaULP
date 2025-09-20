@@ -194,9 +194,16 @@ public class PersonaServiceImpl : IPersonaService
             notificaciones.Add("Datos personales actualizados correctamente");
         }
 
-        //- PROPIETARIO
-        var propietario = await _propietarioRepository.GetByIdAsync(personaActual.PersonaId);
+        //? Validacion de Roles
         bool esPropietario = persona.TipoPersona.Contains("propietario");
+        bool esInquilino = persona.TipoPersona.Contains("inquilino");
+        bool esEmpleado = persona.TipoPersona.Contains("empleado");
+
+        var propietario = await _propietarioRepository.GetByIdAsync(personaActual.PersonaId);
+        var inquilino = await _inquilinoRepository.GetByIdAsync(personaActual.PersonaId);
+        var empleado = await _empleadoRepository.GetByIdAsync(personaActual.PersonaId);
+
+        //- PROPIETARIO
         if (esPropietario)
         {
             if (propietario == null)
@@ -209,6 +216,7 @@ public class PersonaServiceImpl : IPersonaService
                 await _propietarioRepository.UpdateAsync(propietario.PropietarioId, true);
                 notificaciones.Add("Perfil propietario habilitado correctamente");
             }
+            // No hagas nada si ya está habilitado y sigue seleccionado
         }
         else if (propietario != null && propietario.Estado)
         {
@@ -217,9 +225,8 @@ public class PersonaServiceImpl : IPersonaService
         }
 
 
+
         //- INQUILINO
-        var inquilino = await _inquilinoRepository.GetByIdAsync(personaActual.PersonaId);
-        bool esInquilino = persona.TipoPersona.Contains("inquilino");
         if (esInquilino)
         {
             if (inquilino == null)
@@ -240,8 +247,6 @@ public class PersonaServiceImpl : IPersonaService
         }
 
         //- Empleado
-        var empleado = await _empleadoRepository.GetByIdAsync(personaActual.PersonaId);
-        bool esEmpleado = persona.TipoPersona.Contains("empleado");
         if (esEmpleado)
         {
             if (empleado == null)

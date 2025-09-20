@@ -134,7 +134,7 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
                 estado 
             
             FROM empleados
-            WHERE id_empleado = @EmpleadoId;
+            WHERE id_persona = @EmpleadoId;
         ";
 
         command.Parameters.AddWithValue("@EmpleadoId", empleadoId);
@@ -160,7 +160,7 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            UPDATE inquilinos 
+            UPDATE empleados 
             SET estado = @Estado 
             WHERE id_empleado = @EmpleadoId
         ";
