@@ -65,7 +65,9 @@
                                 id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="~/images/avatar.jpg" alt="Perfil" width="36" height="36"
                                     class="rounded-circle object-fit-cover me-2 border border-secondary">
-                                <span class="d-none d-sm-inline text-light">Mi cuenta</span>
+                                <span class="d-none d-sm-inline text-light">
+                                    @User.FindFirst("FullName")?.Value
+                                </span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
                                 <li><a class="dropdown-item" 
@@ -80,8 +82,8 @@
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="bi bi-box-arrow-left"></i>  Cerrar sesión</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Auth" 
+                                                    asp-action="Logout">Cerrar Sesión</a>
                                 </li>
                             </ul>
                         </div>

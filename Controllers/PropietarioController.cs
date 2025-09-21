@@ -4,9 +4,11 @@ using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization; // Para el atributo [Authorize]
 
 namespace inmobiliariaULP.Controllers;
 
+[Authorize]
 public class PropietarioController : Controller
 {
     private readonly ILogger<PersonaController> _logger;
@@ -132,7 +134,8 @@ public class PropietarioController : Controller
 
         // _logger.LogInformation("Propietarios encontrados: {@Propietarios}", propietarios);
 
-        var resultado = propietarios.Select(p => new {
+        var resultado = propietarios.Select(p => new
+        {
             id = p.PropietarioId, // o PersonaId según tu modelo
             text = $"{p.Apellido}, {p.Nombre}"
         });

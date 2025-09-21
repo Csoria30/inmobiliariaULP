@@ -31,6 +31,9 @@ public class UsuarioServiceImpl : IUsuarioService
 
     public async Task<(bool Exito, string Mensaje, UsuarioLoginDTO Usuario)> ObtenerPorEmailAsync(string email, string passsword)
     {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(passsword))
+            return (false, "Debe ingresar correo y contraseña.", null);
+
         var emailRecibido = email;
         var passwordRecibido = PasswordHelper.HashPassword(passsword, _configuration["Salt"]);
 

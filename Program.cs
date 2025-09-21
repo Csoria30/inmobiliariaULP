@@ -2,6 +2,8 @@ using inmobiliariaULP.Repositories.Implementations;
 using inmobiliariaULP.Repositories.Interfaces;
 using inmobiliariaULP.Services.Implementations;
 using inmobiliariaULP.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies; // Para autenticación con cookies
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,16 @@ builder.Services.AddScoped<ITipoService, TipoServiceImpl>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoServiceImpl>();
 builder.Services.AddScoped<IUsuarioService, UsuarioServiceImpl>();
 
+// Add authentication services
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.AccessDeniedPath = "/Home/Restringido";
+    });
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,9 +52,16 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// Ruta personalizada para login amigable
+app.MapControllerRoute( name: "login", pattern: "iniciar-sesion/{**accion}",  defaults: new { controller = "Auth", action = "Login" } );
+app.MapControllerRoute( name: "login", pattern: "login/{**accion}",  defaults: new { controller = "Auth", action = "Login" } );
+app.MapControllerRoute( name: "login", pattern: "entrar/{**accion}",  defaults: new { controller = "Auth", action = "Login" } );
+app.MapControllerRoute( name: "login", pattern: "inicio/{**accion}",  defaults: new { controller = "Auth", action = "Login" } );
 
 app.MapControllerRoute(
     name: "default",

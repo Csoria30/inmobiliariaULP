@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization; // Para el atributo [Authorize]
 
 namespace inmobiliariaULP.Controllers;
 
+[Authorize]
 public class EmpleadoController : Controller
 {
     private readonly ILogger<EmpleadoController> _logger;
@@ -18,7 +20,7 @@ public class EmpleadoController : Controller
         _logger = logger;
         _personaService = personaService;
         _empleadoService = empleadoService;
-    
+
     }
 
 
@@ -35,7 +37,7 @@ public class EmpleadoController : Controller
             return View(new List<Empleado>()); // Vista vacía con error
         }
     }
-    
+
 
     public async Task<IActionResult> ObtenerDataTable()
     {
@@ -77,7 +79,7 @@ public class EmpleadoController : Controller
                 estado = persona.Estado
                     ? "<span class='badge bg-success'>Habilitado</span>"
                     : "<span class='badge bg-danger'>Deshabilitado</span>",
-                
+
                 acciones = $@"
                 <div class='btn-group' role='group'>
                     
@@ -103,7 +105,7 @@ public class EmpleadoController : Controller
 
                 </div>"
 
-                
+
             });
 
             return Json(new
@@ -113,7 +115,8 @@ public class EmpleadoController : Controller
                 recordsFiltered = total, // Si implementas búsqueda, cambia este valor
                 data = data
             });
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener datos para DataTable");
             return StatusCode(500, "Error al procesar la solicitud.");

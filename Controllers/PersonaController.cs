@@ -7,9 +7,12 @@ using inmobiliariaULP.Services.Implementations;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 using Org.BouncyCastle.Asn1.Crmf; //  ValidationException
+using Microsoft.AspNetCore.Authorization; // Para el atributo [Authorize]
+
 
 namespace inmobiliariaULP.Controllers;
 
+[Authorize]
 public class PersonaController : Controller
 {
     private readonly ILogger<PersonaController> _logger;
@@ -49,7 +52,7 @@ public class PersonaController : Controller
             return View(new List<Persona>()); // Vista vacía con error
         }
     }
- 
+
     //* GET: PersonasController/Create
     [HttpGet]
     public IActionResult Create()
@@ -167,7 +170,7 @@ public class PersonaController : Controller
             return View("Error");
         }
     }
- 
+
 
     //! POST: PersonasController/Edit    
     [HttpPost]
@@ -273,7 +276,8 @@ public class PersonaController : Controller
             var (personas, total) = await _personaService.ObtenerTodosAsync(page, pageSize, searchValue);
 
             // Arma los datos para DataTables
-            var data = personas.Select(persona => new {
+            var data = personas.Select(persona => new
+            {
                 dni = persona.Dni,
                 apellido = persona.Apellido,
                 nombre = persona.Nombre,
@@ -281,7 +285,7 @@ public class PersonaController : Controller
                 perfil = string.Join(" ", persona.TipoPersona.Select(tipo =>
                     tipo == "inquilino"
                         ? "<span class='badge bg-primary me-1'>Inquilino</span>"
-                    
+
                     : tipo == "propietario"
                             ? "<span class='badge bg-warning text-dark me-1'>Propietario</span>"
 
@@ -318,7 +322,7 @@ public class PersonaController : Controller
                 
                     <a 
                         href='/Persona/Delete/{persona.PersonaId}' 
-                        class='btn btn-sm {(persona.Estado ? "btn-outline-danger" :   "btn-outline-success")}'
+                        class='btn btn-sm {(persona.Estado ? "btn-outline-danger" : "btn-outline-success")}'
                         data-bs-toggle='modal'
                         data-bs-target='#modalEliminarPersona'
                         data-personaid='{persona.PersonaId}'
@@ -338,7 +342,8 @@ public class PersonaController : Controller
                 recordsFiltered = total, // Si implementas búsqueda, cambia este valor
                 data = data
             });
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener datos para DataTable");
             return StatusCode(500, "Error al procesar la solicitud.");

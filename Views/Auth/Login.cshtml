@@ -46,6 +46,14 @@
             <small class="text-muted">Panel de acceso</small>
         </div>
 
+        @* Mostrar mensaje de error personalizado *@
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2" role="alert">
+                @ViewBag.Error
+            </div>
+        }
+
         <form asp-action="Login" asp-controller="Auth" autocomplete="off">
             <div class="mb-3">
                 <label asp-for="Email" class="form-label"></label>
@@ -55,12 +63,6 @@
                 <label asp-for="Password" class="form-label"></label>
                 <input asp-for="Password" class="form-control" type="password" />
             </div>
-            @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger py-2" role="alert">
-                    @ViewBag.Error
-                </div>
-            }
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">Ingresar</button>
             </div>

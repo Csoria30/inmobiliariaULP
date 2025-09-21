@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
+using Microsoft.AspNetCore.Authorization; // Para el atributo [Authorize]
 
 namespace inmobiliariaULP.Controllers;
 
+[Authorize]
 public class InmuebleController : Controller
 {
     private readonly ILogger<InmuebleController> _logger;

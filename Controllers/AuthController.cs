@@ -1,17 +1,22 @@
+using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // Para el atributo [AllowAnonymous] - Login
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using inmobiliariaULP.Models.ViewModels;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
-using System.Threading.Tasks;
 
 namespace inmobiliariaULP.Controllers;
 
+[AllowAnonymous]
 public class AuthController : Controller
 {
     private readonly ILogger<AuthController> _logger;
     private readonly IUsuarioService _usuarioService;
     private readonly IPersonaService _personaService;
-    
+
 
     public AuthController(
         ILogger<AuthController> logger,
@@ -44,12 +49,30 @@ public class AuthController : Controller
 
         if (estado)
         {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, usuario.Email),
+                new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
+                new Claim(ClaimTypes.Role, usuario.Rol)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
             return RedirectToAction("Index", "Home");
         }
         else
         {
-            return View();   
+            ViewBag.Error = mensaje;
+            return View(model);
         }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Login", "Auth");
     }
 
     // Agrega aquí tus acciones adicionales...
