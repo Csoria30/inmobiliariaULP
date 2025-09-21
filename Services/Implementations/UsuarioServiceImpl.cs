@@ -3,7 +3,8 @@ using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Repositories.Interfaces;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation; //Para hashear contraseñas
-
+using inmobiliariaULP.Helpers;
+using inmobiliariaULP.Models.ViewModels;
 
 
 namespace inmobiliariaULP.Services.Implementations;
@@ -18,29 +19,39 @@ public class UsuarioServiceImpl : IUsuarioService
         _configuration = configuration;
     }
 
-    public Task<int> ActualizarAsync(int usuarioId, bool estado)
+    public async Task<int> ActualizarAsync(int usuarioId, bool estado)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> EliminarAsync(int usuarioId)
+    public async Task<int> EliminarAsync(int usuarioId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Usuario> NuevoAsync(Usuario usuario)
+    public async Task<(bool Exito, string Mensaje, UsuarioLoginDTO Usuario)> ObtenerPorEmailAsync(string email, string passsword)
+    {
+        var emailRecibido = email;
+        var passwordRecibido = PasswordHelper.HashPassword(passsword, _configuration["Salt"]);
+
+        var usuario = await _usuarioRepository.GetByEmailAsync(emailRecibido);
+
+
+        if (usuario == null || usuario.Password != passwordRecibido)
+            return (false, "Usuario o Contraseña incorrecta", null);
+        
+        
+        return (true, "Usuario encontrado", usuario);
+    }
+
+    public async Task<Usuario> NuevoAsync(Usuario usuario)
     {
         try
         {
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: usuario.Password,
-                salt: System.Text.Encoding.UTF8.GetBytes(_configuration["Salt"]),
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 10000,
-                numBytesRequested: 256 / 8));
+            string hashed = PasswordHelper.HashPassword(usuario.Password, _configuration["Salt"]);
             usuario.Password = hashed;
 
-            return _usuarioRepository.AddAsync(usuario);
+            return await _usuarioRepository.AddAsync(usuario);
         }
         catch (Exception ex)
         {
@@ -48,13 +59,15 @@ public class UsuarioServiceImpl : IUsuarioService
         }
     }
 
-    public Task<Usuario> ObtenerIdAsync(int usuarioId)
+    public async Task<Usuario> ObtenerIdAsync(int usuarioId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<(IEnumerable<Usuario> Usuarios, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
+    public async Task<(IEnumerable<Usuario> Usuarios, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         throw new NotImplementedException();
     }
+
+    
 }

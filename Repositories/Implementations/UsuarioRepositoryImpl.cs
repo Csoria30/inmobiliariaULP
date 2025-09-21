@@ -2,6 +2,7 @@ using System.Data;
 using inmobiliariaULP.Models;
 using MySql.Data.MySqlClient;
 using inmobiliariaULP.Repositories.Interfaces;
+using inmobiliariaULP.Models.ViewModels;
 
 
 namespace inmobiliariaULP.Repositories.Implementations;
@@ -28,5 +29,54 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
         usuario.UsuarioId = Convert.ToInt32(result); // Asigna el ID generado al objeto
 
         return usuario;
+    }
+
+    public async Task<UsuarioLoginDTO> GetByEmailAsync(string email)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            Select 
+                u.id_usuario AS UsuarioId,
+                u.id_empleado AS EmpleadoId,
+                u.password AS Password,
+                u.rol AS Rol,
+                u.avatar AS Avatar,
+                e.estado AS Estado,
+                p.email AS Email,
+                p.apellido AS Apellido,
+                p.nombre AS Nombre
+                
+            From usuarios u
+                JOIN empleados e 
+                    ON u.id_empleado = e.id_empleado
+                JOIN personas p
+                    ON e.id_persona = p.id_persona
+                
+            WHERE p.email = @Email;
+        ";
+
+        command.Parameters.AddWithValue("@Email", email);
+
+        using var reader = await command.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            return new UsuarioLoginDTO
+            {
+                UsuarioId = reader.GetInt32("UsuarioId"),
+                EmpleadoId = reader.GetInt32("EmpleadoId"),
+                Password = reader.GetString("Password"),
+                Rol = reader.GetString("Rol"),
+                Avatar = reader.GetString("Avatar"),
+                Estado = reader.GetBoolean("Estado"),
+                Email = reader.GetString("Email"),
+                Apellido = reader.GetString("Apellido"),
+                Nombre = reader.GetString("Nombre")
+            };
+        }
+
+        return null;
     }
 }
