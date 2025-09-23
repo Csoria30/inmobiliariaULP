@@ -1,7 +1,7 @@
-@model inmobiliariaULP.Models.ViewModels.PersonaUsuarioViewModel
+@model inmobiliariaULP.Models.ViewModels.PersonaUsuarioDTO
 
 @{
-    bool esEdicion = Model?.Persona.PersonaId > 0;
+    bool esEdicion = Model?.PersonaId > 0;
     bool soloLectura = ViewBag.SoloLectura == true;
 
     if (soloLectura)
@@ -27,74 +27,74 @@
         
         @if (esEdicion)
         {
-            <input type="hidden" asp-for="Persona.PersonaId" />
+            <input type="hidden" asp-for="PersonaId" />
         }
 
         <!-- Información Personal -->
         <div class="row mb-4">
             <div class="col-md-6 mb-3">
-                <label asp-for="Persona.Dni" class="form-label"></label>
+                <label asp-for="Dni" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Persona.Dni" class="form-control" maxlength="8" readonly="readonly" />
+                    <input asp-for="Dni" class="form-control" maxlength="8" readonly="readonly" />
                 }
                 else
                 {
-                    <input asp-for="Persona.Dni" class="form-control" maxlength="8" />
+                    <input asp-for="Dni" class="form-control" maxlength="8" />
                 }
-                <span asp-validation-for="Persona.Dni" class="text-danger"></span>
+                <span asp-validation-for="Dni" class="text-danger"></span>
                 <div class="form-text">8 dígitos numéricos</div>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="Persona.Apellido" class="form-label"></label>
+                <label asp-for="Apellido" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Persona.Apellido" class="form-control" readonly="readonly"/>
+                    <input asp-for="Apellido" class="form-control" readonly="readonly"/>
                 }else
                 {
-                    <input asp-for="Persona.Apellido" class="form-control" />
+                    <input asp-for="Apellido" class="form-control" />
                 }
-                <span asp-validation-for="Persona.Apellido" class="text-danger"></span>
+                <span asp-validation-for="Apellido" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="Persona.Nombre" class="form-label"></label>
+                <label asp-for="Nombre" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Persona.Nombre" class="form-control" readonly="readonly"/>
+                    <input asp-for="Nombre" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
-                    <input asp-for="Persona.Nombre" class="form-control" />
+                    <input asp-for="Nombre" class="form-control" />
                 }
-                <span asp-validation-for="Persona.Nombre" class="text-danger"></span>
+                <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 mb-3">
-                <label asp-for="Persona.Telefono" class="form-label"></label>
+                <label asp-for="Telefono" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Persona.Telefono" class="form-control" readonly="readonly"/>
+                    <input asp-for="Telefono" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
-                    <input asp-for="Persona.Telefono" class="form-control" />
+                    <input asp-for="Telefono" class="form-control" />
                 }
-                <span asp-validation-for="Persona.Telefono" class="text-danger"></span>
+                <span asp-validation-for="Telefono" class="text-danger"></span>
             </div>
 
             <div class="col-12 mb-3">
-                <label asp-for="Persona.Email" class="form-label"></label>
+                <label asp-for="Email" class="form-label"></label>
                 @if (soloLectura)
                 {
-                    <input asp-for="Persona.Email" class="form-control" readonly="readonly"/>
+                    <input asp-for="Email" class="form-control" readonly="readonly"/>
                 }
                 else
                 {
-                    <input asp-for="Persona.Email" class="form-control" />
+                    <input asp-for="Email" class="form-control" />
                 }
-                <span asp-validation-for="Persona.Email" class="text-danger"></span>
+                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
         </div>
 
@@ -124,11 +124,11 @@
                             <p class="mt-2 mb-0 fw-semibold">Inquilino</p>
                             <input 
                                 type="checkbox" 
-                                name="Persona.TipoPersona"
+                                name="TipoPersona"
                                 value="inquilino" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("inquilino") ? "checked" : null)"
+                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("inquilino") ? "checked" : null)"
                                 @disabledAttr
                             />
                         </div>
@@ -145,7 +145,7 @@
                                 value="propietario" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("propietario") ? "checked" : null)"
+                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("propietario") ? "checked" : null)"
                                 @disabledAttr
                             />
                         </div>
@@ -162,7 +162,7 @@
                                 value="empleado" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
-                                checked="@(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("empleado") ? "checked" : null)"
+                                checked="@(Model?.TipoPersona != null && Model.TipoPersona.Contains("empleado") ? "checked" : null)"
                                 @disabledAttr
                             />
                         </div>
@@ -171,18 +171,35 @@
                 </div>
 
                 @* Solicitud de datos para el usuario *@
-                <div id="empleadoExtraFields" style="display: @(Model?.Persona.TipoPersona != null && Model.Persona.TipoPersona.Contains("empleado") ? "block" : "none");">
+                <div id="empleadoExtraFields" style="display: @(Model.TipoPersona != null && Model.TipoPersona.Contains("empleado") ? "block" : "none");">
                     <div class="mb-3">
-                        <label asp-for="Usuario.Password" class="form-label"></label>
-                        <input asp-for="Usuario.Password" class="form-control" type="password"/>
+                        <label asp-for="Password" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input asp-for="Password" class="form-control" type="password" readonly="readonly"/>
+                        }else{
+                            <input asp-for="Password" class="form-control" type="password"/>
+                        }
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Usuario.Rol" class="form-label"></label>
-                        <select asp-for="Usuario.Rol" class="form-select">
-                            <option value="">Seleccione un rol</option>
-                            <option value="administrador">Administrador</option>
-                            <option value="empleado">Empleado</option>
-                        </select>
+                        <label asp-for="Rol" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input asp-for="Rol" 
+                                class="form-control" 
+                                readonly="readonly"
+                                value="@(Model != null && !string.IsNullOrEmpty(Model.Rol) 
+                                    ? char.ToUpper(Model.Rol[0]) + Model.Rol.Substring(1) 
+                                    : "")" 
+                            />
+                        }else
+                        {
+                            <select asp-for="Rol" class="form-select">
+                                <option value="">Seleccione un rol</option>
+                                <option value="administrador">Administrador</option>
+                                <option value="empleado">Empleado</option>
+                            </select>
+                        }
                     </div>
                 </div>
 
@@ -221,8 +238,8 @@
     document.addEventListener("DOMContentLoaded", function () {
         const cards = document.querySelectorAll('.tipo-persona-card');
         const form = document.querySelector('form');
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="Persona.TipoPersona"]');
-        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="Persona.TipoPersona"][value="empleado"]');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="TipoPersona"]');
+        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="TipoPersona"][value="empleado"]');
         const extraFields = document.getElementById('empleadoExtraFields');
 
         // 1. Mostrar/ocultar campos extra de empleado

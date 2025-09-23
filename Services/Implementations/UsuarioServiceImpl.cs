@@ -19,9 +19,18 @@ public class UsuarioServiceImpl : IUsuarioService
         _configuration = configuration;
     }
 
-    public async Task<int> ActualizarAsync(int usuarioId, bool estado)
+    public async Task<bool> ActualizarAsync(Usuario usuario)
     {
-        throw new NotImplementedException();
+        // Si se va a actualizar la contraseña, la hasheamos
+        if (!string.IsNullOrEmpty(usuario.Password))
+        {
+            usuario.Password = PasswordHelper.HashPassword(usuario.Password, _configuration["Salt"]);
+        }
+
+        // Llama al repositorio para actualizar el usuario
+        var filasAfectadas = await _usuarioRepository.UpdateAsync(usuario);
+
+        return filasAfectadas > 0;
     }
 
     public async Task<int> EliminarAsync(int usuarioId)

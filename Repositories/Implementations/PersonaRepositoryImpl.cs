@@ -1,7 +1,9 @@
 using System.Data;
-using inmobiliariaULP.Models;
 using MySql.Data.MySqlClient;
 using inmobiliariaULP.Repositories.Interfaces;
+using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
+
 namespace inmobiliariaULP.Repositories.Implementations;
 
 public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepository(configuration), IPersonaRepository
@@ -131,7 +133,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
                     persona.TipoPersona.Add("empleado");
 
             }
-            
+
             return (personasDict.Values.ToList(), total);
         }
 
@@ -145,17 +147,26 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT p.id_persona, p.dni, p.apellido, p.nombre, p.telefono, p.email, p.estado,
-               i.id_inquilino, pr.id_propietario, e.id_empleado
+            SELECT 
+                p.id_persona, 
+                p.dni, 
+                p.apellido, 
+                p.nombre, 
+                p.telefono, 
+                p.email, 
+                p.estado,
+                i.id_inquilino, 
+                pr.id_propietario, 
+                e.id_empleado
 
-            FROM personas p
-            LEFT JOIN inquilinos i 
-                ON p.id_persona = i.id_persona AND i.estado = 1
-            LEFT JOIN propietarios pr 
-                ON p.id_persona = pr.id_persona AND pr.estado = 1
-            LEFT JOIN empleados e 
-                ON p.id_persona = e.id_persona AND e.estado = 1
-            WHERE p.id_persona = @Id;
+                FROM personas p
+                    LEFT JOIN inquilinos i 
+                        ON p.id_persona = i.id_persona AND i.estado = 1
+                    LEFT JOIN propietarios pr 
+                        ON p.id_persona = pr.id_persona AND pr.estado = 1
+                    LEFT JOIN empleados e 
+                        ON p.id_persona = e.id_persona AND e.estado = 1
+                WHERE p.id_persona = @Id;
         ";
 
         command.Parameters.AddWithValue("@Id", id);
@@ -168,13 +179,13 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         // Crea lista de tipos de persona
         var tipoPersonas = new List<string>();
 
-        //Valida si es inquilino o propietario
+        //Valida si es inquilino , propietario  o empleado
         if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
             tipoPersonas.Add("inquilino");
 
         if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
             tipoPersonas.Add("propietario");
-        
+
         if (!reader.IsDBNull(reader.GetOrdinal("id_empleado")))
             tipoPersonas.Add("empleado");
 
@@ -189,6 +200,77 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
             Email = reader.GetString("email"),
             Estado = reader.GetBoolean("estado"),
             TipoPersona = new List<string>(tipoPersonas)
+        };
+
+        return persona;
+    }
+
+    public async Task<PersonaUsuarioDTO> GetDetalleByIdAsync(int id)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+                p.id_persona AS PersonaId, 
+                p.dni AS Dni, 
+                p.apellido AS Apellido, 
+                p.nombre AS Nombre, 
+                p.telefono AS Telefono, 
+                p.email AS Email, 
+                p.estado AS Estado,
+                i.id_inquilino AS InquilinoId, 
+                pr.id_propietario AS PropietarioId, 
+                e.id_empleado AS EmpleadoId,
+                u.id_usuario AS UsuarioId, 
+                u.rol AS Rol,
+                u.password AS Password
+                
+            FROM personas p
+                LEFT JOIN inquilinos i 
+                    ON p.id_persona = i.id_persona
+                LEFT JOIN propietarios pr 
+                    ON p.id_persona = pr.id_persona
+                LEFT JOIN empleados e 
+                    ON p.id_persona = e.id_persona
+                LEFT JOIN usuarios u 
+                    ON e.id_empleado = u.id_empleado
+            WHERE p.id_persona = @Id;
+        ";
+
+        command.Parameters.AddWithValue("@Id", id);
+        using var reader = await command.ExecuteReaderAsync();
+
+        if (!await reader.ReadAsync())
+            return null;
+
+        // Crea lista de tipos de persona
+        var tipoPersonas = new List<string>();
+
+        //Valida si es inquilino , propietario  o empleado
+        if (!reader.IsDBNull(reader.GetOrdinal("InquilinoId")))
+            tipoPersonas.Add("inquilino");
+
+        if (!reader.IsDBNull(reader.GetOrdinal("PropietarioId")))
+            tipoPersonas.Add("propietario");
+
+        if (!reader.IsDBNull(reader.GetOrdinal("EmpleadoId")))
+            tipoPersonas.Add("empleado");
+
+        // Persona
+        var persona = new PersonaUsuarioDTO
+        {
+            PersonaId = reader.GetInt32("PersonaId"),
+            Dni = reader.GetString("Dni"),
+            Apellido = reader.GetString("Apellido"),
+            Nombre = reader.GetString("Nombre"),
+            Telefono = reader.GetString("Telefono"),
+            Email = reader.GetString("Email"),
+            Estado = reader.GetBoolean("Estado"),
+            TipoPersona = tipoPersonas,
+            Rol = reader.IsDBNull(reader.GetOrdinal("Rol")) ? "" : reader.GetString("Rol"),
+            Password = reader.IsDBNull(reader.GetOrdinal("Password")) ? "" : reader.GetString("Password")
         };
 
         return persona;
@@ -215,5 +297,50 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return await command.ExecuteNonQueryAsync();
     }
 
+    public async Task<List<string>> GetTiposAsync(int id)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+                i.id_inquilino, 
+                pr.id_propietario, 
+                e.id_empleado
+            FROM personas p
+
+                LEFT JOIN inquilinos i 
+                    ON p.id_persona = i.id_persona AND i.estado = 1
+
+                LEFT JOIN propietarios pr 
+                    ON p.id_persona = pr.id_persona AND pr.estado = 1
+
+                LEFT JOIN empleados e 
+                    ON p.id_persona = e.id_persona AND e.estado = 1
+                    
+            WHERE p.id_persona = @Id;
+        ";
+
+        command.Parameters.AddWithValue("@Id", id);
+
+        using var reader = await command.ExecuteReaderAsync();
+
+        var tipos = new List<string>();
+
+        if (await reader.ReadAsync())
+        {
+            if (!reader.IsDBNull(reader.GetOrdinal("id_inquilino")))
+                tipos.Add("inquilino");
+
+            if (!reader.IsDBNull(reader.GetOrdinal("id_propietario")))
+                tipos.Add("propietario");
+
+            if (!reader.IsDBNull(reader.GetOrdinal("id_empleado")))
+                tipos.Add("empleado");
+        }
+
+        return tipos;
+    }
 
 }   

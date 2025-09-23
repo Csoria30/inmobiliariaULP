@@ -39,6 +39,7 @@ public class PersonaController : Controller
         _empleadoService = empleadoService;
     }
 
+    [Authorize(Roles = "administrador")]
     public async Task<IActionResult> Index()
     {
         try
@@ -55,11 +56,14 @@ public class PersonaController : Controller
 
     //* GET: PersonasController/Create
     [HttpGet]
+    [Authorize(Roles = "administrador")]
     public IActionResult Create()
     {
         try
         {
-            return View();
+            var model = new PersonaUsuarioDTO();
+
+            return View(model);
         }
         catch (Exception ex)
         {
@@ -72,15 +76,36 @@ public class PersonaController : Controller
 
     //! POST: PersonasController/Create
     [HttpPost]
+    [Authorize(Roles = "administrador")]
     [ValidateAntiForgeryToken] // Buena práctica para prevenir ataques CSRF
-    public async Task<IActionResult> Create(PersonaUsuarioViewModel model)
+    public async Task<IActionResult> Create(PersonaUsuarioDTO model)
     {
         try
         {
+             if (!model.TipoPersona.Contains("empleado"))
+            {
+                // Si NO es empleado, limpia los campos - errores de validación
+                ModelState.Remove("Usuario.Password");
+                ModelState.Remove("Usuario.Rol");
+                ModelState.Remove("Usuario.EmpleadoId");
+            }
+
             if (ModelState.IsValid)
             {
+                // Instancia y crea la persona
+                var persona = new Persona
+                {
+                    Dni = model.Dni,
+                    Apellido = model.Apellido,
+                    Nombre = model.Nombre,
+                    Telefono = model.Telefono,
+                    Email = model.Email,
+                    Estado = model.Estado,
+                    TipoPersona = model.TipoPersona
+                };
+
                 // Crear persona
-                var (exitoPersona, mensaje, tipo, personaId) = await _personaService.CrearAsync(model.Persona);
+                var (exitoPersona, mensaje, tipo, personaId) = await _personaService.CrearAsync(persona);
 
                 //Validacion para continuar si se creo correctamente la persona
                 if (!exitoPersona)
@@ -92,15 +117,21 @@ public class PersonaController : Controller
 
                 // Si es empleado, crearlo
                 bool exitoUsuario = true;
-                if (model.Persona.TipoPersona.Contains("empleado"))
+                if (model.TipoPersona.Contains("empleado"))
                 {
                     //Recuperar el empleado generado - ID Obtenido de la tupla al crear la persona
                     var empleado = await _empleadoService.ObtenerIdAsync(personaId);
                     if (empleado != null)
                     {
                         //Recperando el Id de empleado generado
-                        model.Usuario.EmpleadoId = empleado.EmpleadoId;
-                        await _usuarioService.NuevoAsync(model.Usuario);
+                         var usuario = new Usuario
+                        {
+                            EmpleadoId = empleado.EmpleadoId,
+                            Rol = model.Rol,
+                            Password = model.Password
+                            // Otros campos si es necesario
+                        };
+                        await _usuarioService.NuevoAsync(usuario);
                     }
                     else
                     {
@@ -121,7 +152,7 @@ public class PersonaController : Controller
                 {
                     TempData["Notificacion"] = mensaje;
                     TempData["NotificacionTipo"] = "danger";
-                    return View("Create", model.Persona); // Volver al formulario con datos
+                    return View("Create", model); // Volver al formulario con datos
                 }
 
 
@@ -145,22 +176,23 @@ public class PersonaController : Controller
     {
         try
         {
-            var persona = await _personaService.ObtenerIdAsync(id);
+           var (model, mensaje, tipo) = await _personaService.ObtenerDtoIdAsync(id);
 
-            if (persona != null)
+            if (model == null)
             {
-                if (persona.Estado == false)
-                {
-                    TempData["Notificacion"] = "No se puede editar una persona deshabilitada.";
-                    return RedirectToAction(nameof(Index));
-                }
+                TempData["Notificacion"] = mensaje ?? "La persona no existe.";
+                TempData["NotificacionTipo"] = tipo ?? "danger";
+                return RedirectToAction(nameof(Index));
             }
 
-            // Inicializamos la lista de tipos vacía si es null
-            if (persona.TipoPersona == null)
-                persona.TipoPersona = new List<string>();
+            if (model.Estado == false)
+            {
+                TempData["Notificacion"] = "No se puede editar una persona deshabilitada.";
+                TempData["NotificacionTipo"] = "danger";
+                return RedirectToAction(nameof(Index));
+            }
 
-            return View("Create", persona);
+            return View("Create", model);
 
         }
         catch (Exception ex)
@@ -175,26 +207,82 @@ public class PersonaController : Controller
     //! POST: PersonasController/Edit    
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Persona persona)
+    public async Task<IActionResult> Edit(PersonaUsuarioDTO model)
     {
         try
         {
+            if (!model.TipoPersona.Contains("empleado"))
+            {
+                // Si NO es empleado, limpia los campos de usuario para evitar errores de validación
+                ModelState.Remove("Password");
+                ModelState.Remove("Rol");
+                ModelState.Remove("EmpleadoId");
+            }
+
             if (ModelState.IsValid)
             {
+                // Actualizar persona
+                var persona = new Persona
+                {
+                    PersonaId = model.PersonaId,
+                    Dni = model.Dni,
+                    Apellido = model.Apellido,
+                    Nombre = model.Nombre,
+                    Telefono = model.Telefono,
+                    Email = model.Email,
+                    Estado = model.Estado,
+                    TipoPersona = model.TipoPersona
+                };
+
                 var (exito, mensaje, tipo) = await _personaService.EditarAsync(persona);
                 TempData["Notificacion"] = mensaje;
                 TempData["NotificacionTipo"] = tipo;
-                return RedirectToAction(nameof(Index));
+
+                bool exitoUsuario = true;
+
+                if (exito && model.TipoPersona.Contains("empleado"))
+                {
+                    // Buscar el empleado asociado
+                    var empleado = await _empleadoService.ObtenerIdAsync(model.PersonaId);
+                    if (empleado != null)
+                    {
+                        var usuario = new Usuario
+                        {
+                            EmpleadoId = empleado.EmpleadoId,
+                            Rol = model.Rol,
+                            Password = model.Password
+                            // Otros campos si es necesario
+                        };
+                        exitoUsuario = await _usuarioService.ActualizarAsync(usuario);
+                    }
+                    else
+                    {
+                        exitoUsuario = false;
+                        TempData["Notificacion"] = "No se encontró el empleado asociado para actualizar el usuario.";
+                        TempData["NotificacionTipo"] = "danger";
+                    }
+                }
+
+                if (exito && exitoUsuario)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    // Si hubo error, vuelve a mostrar el formulario con los datos ingresados
+                    return View("Create", model);
+                }
             }
+
             TempData["Notificacion"] = "Error al editar la persona.";
             TempData["NotificacionTipo"] = "danger";
-            return RedirectToAction(nameof(Index));
+            return View("Create", model);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al actualizar persona {PersonaId}", persona.PersonaId);
+            _logger.LogError(ex, "Error al actualizar persona {PersonaId}", model.PersonaId);
             TempData["Error"] = "Error al guardar los cambios.";
-            return View("Create", persona);
+            return View("Create", model);
         }
 
     }
@@ -205,18 +293,51 @@ public class PersonaController : Controller
     {
         try
         {
-            var (persona, mensaje, tipo) = await _personaService.ObtenerDetalleAsync(id);
+            var esEmpleado = await _personaService.EsEmpleado(id);
+            ViewBag.soloLectura = true; // Flag para la vista
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Persona"); //Identificar de donde se llamo
+            PersonaUsuarioDTO? model = null;
 
-            if (persona == null)
+            if (esEmpleado)
             {
-                TempData["Error"] = "La persona no existe.";
-                return RedirectToAction(nameof(Index));
+                var (persona, mensaje, tipo) = await _personaService.ObtenerDtoIdAsync(id);
+                if (persona == null)
+                {
+                    TempData["Error"] = "La persona no existe.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                model = persona;
+            }
+            else
+            {
+                var (persona, mensaje, tipo) = await _personaService.ObtenerDetalleAsync(id);
+                if (persona == null)
+                {
+                    TempData["Error"] = "La persona no existe.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Armar el DTO plano
+                model = new PersonaUsuarioDTO
+                {
+                    PersonaId = persona.PersonaId,
+                    Dni = persona.Dni,
+                    Apellido = persona.Apellido,
+                    Nombre = persona.Nombre,
+                    Telefono = persona.Telefono,
+                    Email = persona.Email,
+                    Estado = persona.Estado,
+                    TipoPersona = persona.TipoPersona,
+                    // Usuario: campos vacíos porque no es empleado
+                    Rol = "",
+                    Password = ""
+                };
+
+                return View("Create", model);
             }
 
-            ViewBag.SoloLectura = true; // Flag para la vista
-            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Persona"); //Identificar de donde se llamo
-
-            return View("Create", persona);
+            return View("Create", model);
 
         }
         catch (Exception ex)
@@ -229,6 +350,7 @@ public class PersonaController : Controller
 
     //! POST: PersonasController/Delete
     [HttpPost]
+    [Authorize(Roles = "administrador")]
     public async Task<IActionResult> Delete(int id)
     {
         try

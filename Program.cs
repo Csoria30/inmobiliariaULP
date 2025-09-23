@@ -1,8 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies; // Para autenticación con cookies
 using inmobiliariaULP.Repositories.Implementations;
 using inmobiliariaULP.Repositories.Interfaces;
 using inmobiliariaULP.Services.Implementations;
 using inmobiliariaULP.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies; // Para autenticación con cookies
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 // Inicializar el factory una sola vez
 //FactoryRepository.Initialize(builder.Configuration);
+
+//Politicas de autorizacion
+builder.Services.AddAuthorization(options =>
+{
+    //options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role,  "empleado"));
+    options.AddPolicy("Administrador", policy => policy.RequireRole("administrador"));
+    options.AddPolicy("Empleado", policy => policy.RequireRole("empleado"));
+});
 
 //Inyeccion de dependencias - Repositorios y Servicios
 builder.Services.AddScoped<IInmuebleRepository, InmuebleRepositoryImpl>();
@@ -37,6 +46,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/Auth/Logout";
         options.AccessDeniedPath = "/Home/Restringido";
     });
+
+
 
 
 var app = builder.Build();

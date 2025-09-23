@@ -4,6 +4,7 @@ using inmobiliariaULP.Models.ViewModels;
 public interface IUsuarioRepository
 {
     Task<Usuario> AddAsync(Usuario usuario);
-    
-    Task<UsuarioLoginDTO> GetByEmailAsync(string email);    
+    Task<UsuarioLoginDTO> GetByEmailAsync(string email);
+    Task<int> UpdateAsync(Usuario usuario);
+
 }

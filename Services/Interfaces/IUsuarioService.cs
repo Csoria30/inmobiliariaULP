@@ -8,6 +8,6 @@ public interface IUsuarioService
     Task<(IEnumerable<Usuario> Usuarios, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null);
     Task<Usuario> ObtenerIdAsync(int usuarioId);
     Task<int> EliminarAsync(int usuarioId);
-    Task<int> ActualizarAsync(int usuarioId, Boolean estado);
+    Task<bool> ActualizarAsync(Usuario usuario);
     Task<(bool Exito, string Mensaje, UsuarioLoginDTO Usuario)> ObtenerPorEmailAsync(string email, string passsword);
 }

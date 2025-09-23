@@ -1,7 +1,8 @@
 using System.Data;
-using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Repositories.Interfaces;
+using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 
 namespace inmobiliariaULP.Services.Implementations;
 
@@ -24,7 +25,7 @@ public class PersonaServiceImpl : IPersonaService
         _propietarioRepository = propietarioRepository;
         _empleadoRepository = empleadoRepository;
     }
-    
+
 
 
     public async Task<int> ActualizarAsync(Persona persona)
@@ -53,7 +54,7 @@ public class PersonaServiceImpl : IPersonaService
 
     public async Task<(bool exito, string mensaje, string tipo)> CambiarEstadoAsync(int personaId)
     {
-        var personaActual = await ObtenerIdAsync(personaId);
+        var personaActual = await _personaRepository.GetByIdAsync(personaId);
         if (personaActual == null)
             return (false, "La persona no existe.", "danger");
 
@@ -117,6 +118,22 @@ public class PersonaServiceImpl : IPersonaService
         }
     }
 
+    public async Task<(PersonaUsuarioDTO persona, string mensaje, string tipo)> ObtenerDtoIdAsync(int personaId)
+    {
+        try
+        {
+            var persona = await _personaRepository.GetDetalleByIdAsync(personaId);
+
+            if (persona == null)
+                return (null, "La persona no existe.", "danger");
+
+            return (persona, "Persona obtenida correctamente.", "success");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener la persona por ID", ex);
+        }
+    }
     public async Task<(IEnumerable<Persona> Personas, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         try
@@ -129,13 +146,11 @@ public class PersonaServiceImpl : IPersonaService
         }
     }
 
-
-
     public async Task<(Persona persona, string mensaje, string tipo)> ObtenerDetalleAsync(int id)
     {
         try
         {
-            var persona = await ObtenerIdAsync(id);
+            var persona = await _personaRepository.GetByIdAsync(id);
             if (persona == null)
                 return (null, "La persona no existe.", "danger");
 
@@ -149,7 +164,7 @@ public class PersonaServiceImpl : IPersonaService
 
     public async Task<(bool exito, string mensaje, string tipo)> EditarAsync(Persona persona)
     {
-         var personaActual = await ObtenerIdAsync(persona.PersonaId);
+        var personaActual = await _personaRepository.GetByIdAsync(persona.PersonaId);
 
         if (personaActual == null)
             return (false, "La persona no existe.", "danger");
@@ -261,5 +276,11 @@ public class PersonaServiceImpl : IPersonaService
 
         var tipo = notificaciones.Any(n => n.Contains("deshabilitado")) ? "danger" : "success";
         return (true, string.Join(". ", notificaciones), tipo);
+    }
+
+    public async Task<bool> EsEmpleado(int personaId)
+    {
+        var empleado = await _empleadoRepository.GetByIdAsync(personaId);
+        return empleado != null && empleado.Estado;
     }
 }

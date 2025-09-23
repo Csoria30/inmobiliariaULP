@@ -79,4 +79,23 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         return null;
     }
+
+    public async Task<int> UpdateAsync(Usuario usuario)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE usuarios
+            SET password = @Password,
+                rol = @Rol
+            WHERE id_empleado = @EmpleadoId;
+        ";
+
+        command.Parameters.AddWithValue("@Password", usuario.Password);
+        command.Parameters.AddWithValue("@Rol", usuario.Rol);
+        command.Parameters.AddWithValue("@EmpleadoId", usuario.EmpleadoId);
+
+        return await command.ExecuteNonQueryAsync();
+    }
 }
