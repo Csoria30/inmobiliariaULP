@@ -16,4 +16,7 @@ public interface IPersonaService
     Task<(bool exito, string mensaje, string tipo, int personaId)> CrearAsync(Persona persona);
     Task<(bool exito, string mensaje, string tipo)> EditarAsync(Persona persona);
     Task<bool> EsEmpleado(int personaId);
+    Task<(DatosPersonalesDTO datos, bool exito)> ObtenerDatosPersonalesByEmailAsync(string email);
+    Task<(DatosPersonalesDTO datos, bool exito)> ActualizarDatosPersonalesAsync(DatosPersonalesDTO datos);
+    Task<bool> CambiarPasswordAsync(CambiarPasswordDTO cambiarPasswordDTO, string email);
 }

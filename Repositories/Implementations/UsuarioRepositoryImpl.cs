@@ -45,9 +45,11 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
                 u.rol AS Rol,
                 u.avatar AS Avatar,
                 e.estado AS Estado,
+                p.id_persona AS PersonaId,
                 p.email AS Email,
                 p.apellido AS Apellido,
-                p.nombre AS Nombre
+                p.nombre AS Nombre,
+                p.telefono AS Telefono
                 
             From usuarios u
                 JOIN empleados e 
@@ -73,7 +75,8 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
                 Estado = reader.GetBoolean("Estado"),
                 Email = reader.GetString("Email"),
                 Apellido = reader.GetString("Apellido"),
-                Nombre = reader.GetString("Nombre")
+                Nombre = reader.GetString("Nombre"),
+                Telefono = reader.GetString("Telefono"),
             };
         }
 
@@ -97,5 +100,26 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
         command.Parameters.AddWithValue("@EmpleadoId", usuario.EmpleadoId);
 
         return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> UpdatePasswordAsync(string password, string email)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE usuarios u
+            JOIN empleados e ON u.id_empleado = e.id_empleado
+            JOIN personas p ON e.id_persona = p.id_persona
+            SET u.password = @NewPassword
+            WHERE p.email = @Email;
+        ";
+
+        command.Parameters.AddWithValue("@NewPassword", password);
+        command.Parameters.AddWithValue("@Email", email);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
     }
 }

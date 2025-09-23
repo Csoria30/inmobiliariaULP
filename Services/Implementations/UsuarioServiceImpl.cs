@@ -56,6 +56,19 @@ public class UsuarioServiceImpl : IUsuarioService
         return (true, "Usuario encontrado", usuario);
     }
 
+    public async Task<(bool Exito, string Mensaje, UsuarioLoginDTO Usuario)> ObtenerPerfilAsync(string email)
+    {
+        try
+        {
+            var emailRecibido = email;
+            var usuario = await _usuarioRepository.GetByEmailAsync(emailRecibido);
+            return (true, "Usuario encontrado", usuario);
+        }catch (Exception ex)
+        {
+            throw new Exception("Error al obtener el perfil del usuario", ex);
+        }
+    }
+
     public async Task<Usuario> NuevoAsync(Usuario usuario)
     {
         try

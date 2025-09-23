@@ -1,4 +1,4 @@
-﻿@model inmobiliariaULP.Models.Persona
+﻿@model inmobiliariaULP.Models.ViewModels.PerfilViewModel
 
 @{
     var tipoPersona = "Perfil";
@@ -18,57 +18,74 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <form asp-action="Edit" asp-controller="Perfil" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
-                        <div class="row">
-                            <!-- Columna izquierda: Formulario -->
-                            <div class="col-md-7 border-end">
-                                <div class="mb-3">
-                                    <label asp-for="Apellido" class="form-label"></label>
-                                    <input asp-for="Apellido" class="form-control" required />
-                                    <span asp-validation-for="Apellido" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Nombre" class="form-label"></label>
-                                    <input asp-for="Nombre" class="form-control" required />
-                                    <span asp-validation-for="Nombre" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Telefono" class="form-label"></label>
-                                    <input asp-for="Telefono" class="form-control" required />
-                                    <span asp-validation-for="Telefono" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="Email" class="form-label"></label>
-                                    <input asp-for="Email" class="form-control" type="email" required />
-                                    <span asp-validation-for="Email" class="text-danger"></span>
+    <div class="col-lg-10">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Formulario de datos personales -->
+                    <div class="col-md-6 border-end">
+                        <form asp-action="ActualizarDatos" asp-controller="Perfil" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                            <h5 class="mb-4 text-primary"><i class="bi bi-person me-2"></i>Datos personales</h5>
+                            <div class="mb-3">
+                                <label asp-for="DatosPersonalesDTO.Apellido" class="form-label"></label>
+                                <input asp-for="DatosPersonalesDTO.Apellido" class="form-control" required />
+                                <span asp-validation-for="DatosPersonalesDTO.Apellido" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="DatosPersonalesDTO.Nombre" class="form-label"></label>
+                                <input asp-for="DatosPersonalesDTO.Nombre" class="form-control" required />
+                                <span asp-validation-for="DatosPersonalesDTO.Nombre" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="DatosPersonalesDTO.Telefono" class="form-label"></label>
+                                <input asp-for="DatosPersonalesDTO.Telefono" class="form-control" required />
+                                <span asp-validation-for="DatosPersonalesDTO.Telefono" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="DatosPersonalesDTO.Email" class="form-label"></label>
+                                <input asp-for="DatosPersonalesDTO.Email" class="form-control" type="email" required readonly="readonly"/>
+                                <span asp-validation-for="DatosPersonalesDTO.Email" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <img src="/img/default-avatar.png" alt="Avatar" class="rounded-circle mb-3" style="width: 140px; height: 140px; object-fit: cover; border: 2px solid #ccc;">
+                                <div>
+                                    <label for="avatar" class="form-label">Actualizar imagen de perfil</label>
+                                    <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*" />
                                 </div>
                             </div>
-                            <!-- Columna derecha: Imagen de perfil -->
-                            <div class="col-md-5 d-flex flex-column align-items-center justify-content-center">
-                                <div class="mb-3 text-center">
-                                    <img src="/img/default-avatar.png" alt="Avatar" class="rounded-circle mb-3" style="width: 140px; height: 140px; object-fit: cover; border: 2px solid #ccc;">
-                                    <div>
-                                        <label for="avatar" class="form-label">Actualizar imagen de perfil</label>
-                                        <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Botones alineados a la derecha -->
-                        <div class="row mt-4">
-                            <div class="col-12 d-flex justify-content-end">
+                            <div class="d-flex justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary me-2">
                                     <i class="bi bi-save me-1"></i> Guardar Cambios
                                 </button>
-                                <a asp-action="Index" class="btn btn-secondary">
+                                <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">
                                     <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
                                 </a>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+                    <!-- Formulario de cambio de contraseña -->
+                    <div class="col-md-6">
+                        <form asp-action="CambiarPassword" asp-controller="Perfil" method="post">
+                            <h5 class="mb-4 text-warning"><i class="bi bi-key me-2"></i>Cambiar contraseña</h5>
+                            <div class="mb-3">
+                                <label for="PasswordActual" class="form-label">Contraseña actual</label>
+                                <input type="password" asp-for="CambiarPasswordDTO.PasswordActual" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="PasswordNueva" class="form-label">Nueva contraseña</label>
+                                <input type="password" asp-for="CambiarPasswordDTO.PasswordNueva" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="PasswordConfirmar" class="form-label">Repetir nueva contraseña</label>
+                                <input type="password" asp-for="CambiarPasswordDTO.PasswordConfirmar" class="form-control" required />
+                            </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-shield-lock me-1"></i> Cambiar Contraseña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

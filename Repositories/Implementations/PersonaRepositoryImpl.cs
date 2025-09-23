@@ -343,4 +343,80 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return tipos;
     }
 
-}   
+    public async Task<DatosPersonalesDTO> GetDatosPersonalesByEmailAsync(string email)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+                p.apellido AS Apellido,
+                p.nombre AS Nombre,
+                p.telefono AS Telefono,
+                p.email AS Email,
+                u.avatar AS Avatar
+            FROM usuarios u
+                JOIN empleados e ON u.id_empleado = e.id_empleado
+                JOIN personas p ON e.id_persona = p.id_persona
+            WHERE p.email = @Email;
+        ";
+
+        command.Parameters.AddWithValue("@Email", email);
+
+        using var reader = await command.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            return new DatosPersonalesDTO
+            {
+                Apellido = reader.GetString("Apellido"),
+                Nombre = reader.GetString("Nombre"),
+                Telefono = reader.GetString("Telefono"),
+                Email = reader.GetString("Email"),
+                Avatar = reader.GetString("Avatar")
+            };
+        }
+
+        return null;
+    }
+
+    public async Task<DatosPersonalesDTO> UpdateDatosPersonalesAsync(DatosPersonalesDTO datos)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE personas 
+            SET apellido = @Apellido, nombre = @Nombre, telefono = @Telefono, email = @Email
+            WHERE email = @Email
+        ";
+
+        command.Parameters.AddWithValue("@Apellido", datos.Apellido);
+        command.Parameters.AddWithValue("@Nombre", datos.Nombre);
+        command.Parameters.AddWithValue("@Telefono", datos.Telefono);
+        command.Parameters.AddWithValue("@Email", datos.Email);
+
+        await command.ExecuteNonQueryAsync();
+        return datos;
+    }
+
+    public async Task<string> GetPasswordByEmailAsync(string email)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT u.password
+            FROM usuarios u
+            JOIN empleados e ON u.id_empleado = e.id_empleado
+            JOIN personas p ON e.id_persona = p.id_persona
+            WHERE p.email = @Email;
+        ";
+        command.Parameters.AddWithValue("@Email", email);
+
+        var result = await command.ExecuteScalarAsync();
+        return result?.ToString();
+        
+    }
+}

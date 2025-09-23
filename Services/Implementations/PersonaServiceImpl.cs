@@ -3,6 +3,7 @@ using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Repositories.Interfaces;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Models.ViewModels;
+using inmobiliariaULP.Helpers;
 
 namespace inmobiliariaULP.Services.Implementations;
 
@@ -12,18 +13,24 @@ public class PersonaServiceImpl : IPersonaService
     private readonly IInquilinoRepository _inquilinoRepository;
     private readonly IPropietarioRepository _propietarioRepository;
     private readonly IEmpleadoRepository _empleadoRepository;
+    private readonly IConfiguration _configuration;
+    private readonly IUsuarioRepository _usuarioRepository;
 
     public PersonaServiceImpl(
         IPersonaRepository personaRepository
         , IInquilinoRepository inquilinoRepository
         , IPropietarioRepository propietarioRepository
         , IEmpleadoRepository empleadoRepository
+        , IConfiguration configuration,
+        IUsuarioRepository usuarioRepository
     )
     {
         _personaRepository = personaRepository;
         _inquilinoRepository = inquilinoRepository;
         _propietarioRepository = propietarioRepository;
         _empleadoRepository = empleadoRepository;
+        _configuration = configuration;
+        _usuarioRepository = usuarioRepository;
     }
 
 
@@ -39,6 +46,8 @@ public class PersonaServiceImpl : IPersonaService
             throw new Exception("Error al actualizar la persona", ex);
         }
     }
+
+    
 
     public async Task<int> EliminarAsync(int personaId, bool estado)
     {
@@ -282,5 +291,69 @@ public class PersonaServiceImpl : IPersonaService
     {
         var empleado = await _empleadoRepository.GetByIdAsync(personaId);
         return empleado != null && empleado.Estado;
+    }
+
+    public async Task<(DatosPersonalesDTO datos, bool exito)> ObtenerDatosPersonalesByEmailAsync(string email)
+    {
+        try
+        {
+            var data = await _personaRepository.GetDatosPersonalesByEmailAsync(email);
+
+            if (data == null)
+                return (null, false);
+
+            return (data, true);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener los datos personales por email", ex);
+        }
+    }
+
+    public async Task<(DatosPersonalesDTO datos, bool exito)> ActualizarDatosPersonalesAsync(DatosPersonalesDTO datos)
+    {
+        try
+        {
+            var data = await _personaRepository.UpdateDatosPersonalesAsync(datos);
+            if (data == null)
+                return (null, false);
+                
+            return (data, true);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al actualizar los datos personales", ex);
+        }
+    }
+
+    public async Task<bool> CambiarPasswordAsync(CambiarPasswordDTO cambiarPasswordDTO, string email)
+    {
+        try
+        {
+            var passwordActual = await _personaRepository.GetPasswordByEmailAsync(email);
+            var hashActual = PasswordHelper.HashPassword(cambiarPasswordDTO.PasswordActual, _configuration["Salt"]);
+
+            // Validar contraseña enviada con la de la base de datos
+            if (hashActual != passwordActual)
+                return false;
+
+            //Validar nueva contraseña y confirmación
+            if (cambiarPasswordDTO.PasswordNueva != cambiarPasswordDTO.PasswordConfirmar)
+                return false;
+
+            // Hashear la nueva contraseña y actualizar
+            var passwordNueva = PasswordHelper.HashPassword(cambiarPasswordDTO.PasswordNueva, _configuration["Salt"]);
+
+            var data = await _usuarioRepository.UpdatePasswordAsync(passwordNueva, email);
+
+            if (!data)
+                return false;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al cambiar la contraseña", ex);
+        }
     }
 }

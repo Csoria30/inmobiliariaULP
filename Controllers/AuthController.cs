@@ -51,6 +51,7 @@ public class AuthController : Controller
         {
             var claims = new List<Claim>
             {
+                new Claim("PersonaId", usuario.PersonaId.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Email),
                 new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
                 new Claim(ClaimTypes.Role, usuario.Rol)
