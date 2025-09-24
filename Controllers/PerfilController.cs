@@ -79,7 +79,7 @@ public class PerfilController : Controller
         }
         try
         {
-            string avatarFileName = model.DatosPersonalesDTO.Avatar ?? "default-avatar.png";
+            var idPersona = User.FindFirst("PersonaId")?.Value;
 
             // Si el usuario sube una nueva imagen
             if (model.DatosPersonalesDTO.AvatarFile != null && model.DatosPersonalesDTO.AvatarFile.Length > 0)
@@ -89,29 +89,43 @@ public class PerfilController : Controller
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
-                avatarFileName = Guid.NewGuid() + Path.GetExtension(model.DatosPersonalesDTO.AvatarFile.FileName);
+                // Nombre único usando el id de persona
+                string extension = Path.GetExtension(model.DatosPersonalesDTO.AvatarFile.FileName);
+                string avatarFileName = $"persona_{idPersona}_perfil{extension}";
                 string filePath = Path.Combine(path, avatarFileName);
+
+                //Nombre Aleatorio - para subir imagenes sin sobreescribir
+                //avatarFileName = Guid.NewGuid() + Path.GetExtension(model.DatosPersonalesDTO.AvatarFile.FileName);
+
+                // Elimina la imagen anterior si existe
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
+
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await model.DatosPersonalesDTO.AvatarFile.CopyToAsync(stream);
                 }
+                
+                //Actualiza el nombre del avatar en el modelo
+                model.DatosPersonalesDTO.Avatar = avatarFileName;
             }
 
-            // Actualiza el DTO con el nuevo nombre de imagen
-            model.DatosPersonalesDTO.Avatar = avatarFileName;
 
             // Actualiza los datos personales usando el servicio
             var (data, estado) = await _personaService.ActualizarDatosPersonalesAsync(model.DatosPersonalesDTO);
+
+            // Recarga los datos personales para obtener el avatar actualizado desde la base
+            var email = User.FindFirst(ClaimTypes.Name)?.Value;
+            var (datosActualizados, _) = await _personaService.ObtenerDatosPersonalesByEmailAsync(email);
 
             //Actualizar el claim de Avatar en la cookie de autenticación
             var identity = (ClaimsIdentity)User.Identity;
             var avatarClaim = identity.FindFirst("Avatar");
             if (avatarClaim != null)
-            {
                 identity.RemoveClaim(avatarClaim);
-            }
-            identity.AddClaim(new Claim("Avatar", model.DatosPersonalesDTO.Avatar ?? "default-avatar.png"));
+            
+            identity.AddClaim(new Claim("Avatar", datosActualizados.Avatar ?? "defaultAvatar.png"));
 
             // Refresca el principal
             await HttpContext.SignInAsync(
@@ -129,9 +143,7 @@ public class PerfilController : Controller
             {
                 TempData["Notificacion"] = "No se pudieron actualizar los datos personales.";
                 TempData["NotificacionTipo"] = "danger";
-                var email = User.FindFirst(ClaimTypes.Name)?.Value;
-                var (datosActuales, _) = await _personaService.ObtenerDatosPersonalesByEmailAsync(email);
-                model.DatosPersonalesDTO = datosActuales;
+                model.DatosPersonalesDTO = datosActualizados;
                 return View("Index", model);
             }
         }

@@ -38,7 +38,8 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            Select 
+            Select
+                p.id_persona AS PersonaId,
                 u.id_usuario AS UsuarioId,
                 u.id_empleado AS EmpleadoId,
                 u.password AS Password,
@@ -67,6 +68,7 @@ public class UsuarioRepositoryImpl(IConfiguration configuration) : BaseRepositor
         {
             return new UsuarioLoginDTO
             {
+                PersonaId = reader.GetInt32("PersonaId"),
                 UsuarioId = reader.GetInt32("UsuarioId"),
                 EmpleadoId = reader.GetInt32("EmpleadoId"),
                 Password = reader.GetString("Password"),

@@ -351,7 +351,8 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            SELECT 
+            SELECT
+                p.id_persona AS PersonaId,
                 p.apellido AS Apellido,
                 p.nombre AS Nombre,
                 p.telefono AS Telefono,
@@ -370,6 +371,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         {
             return new DatosPersonalesDTO
             {
+                PersonaId = reader.GetInt32("PersonaId"),
                 Apellido = reader.GetString("Apellido"),
                 Nombre = reader.GetString("Nombre"),
                 Telefono = reader.GetString("Telefono"),
