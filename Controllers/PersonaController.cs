@@ -245,7 +245,14 @@ public class PersonaController : Controller
 
                 if (exito && model.TipoPersona.Contains("empleado"))
                 {
-                    string avatarFileName = "defaultAvatar.png";
+                    // Obtener avatar actual (de la base o de la claim)
+                    string avatarFileName = model.Avatar;
+
+                    if (avatarFileName == null)
+                    {
+                        //Obtener perfil de la persona
+                        avatarFileName = await _personaService.ObtenerImagenPerfilByIdAsync(model.PersonaId);
+                    }
 
                     // Si el modelo tiene un archivo de imagen subido
                     if (model.AvatarFile != null && model.AvatarFile.Length > 0)
@@ -255,8 +262,12 @@ public class PersonaController : Controller
                         if (!Directory.Exists(path))
                             Directory.CreateDirectory(path); // Si no existe la carpeta, la crea
 
-                        avatarFileName = Guid.NewGuid() + Path.GetExtension(model.AvatarFile.FileName); // Genera un nombre único para el archivo usando un GUID y conserva la extensión original
-                        string filePath = Path.Combine(path, avatarFileName); // Ruta completa del archivo
+                        avatarFileName = $"persona_{model.PersonaId}_perfil{Path.GetExtension(model.AvatarFile.FileName)}";
+                        // Nombre único usando el id de persona
+                        //avatarFileName = Guid.NewGuid() + Path.GetExtension(model.AvatarFile.FileName); 
+
+                        // Ruta completa del archivo
+                        string filePath = Path.Combine(path, avatarFileName);
 
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
@@ -269,11 +280,18 @@ public class PersonaController : Controller
                     var empleado = await _empleadoService.ObtenerIdAsync(model.PersonaId);
                     if (empleado != null)
                     {
+                        var password = model.Password;
+                        if (string.IsNullOrEmpty(password))
+                        {
+                            // Recupera la contraseña actual del usuario
+                            password = await _personaService.ObtenerPasswordByEmpleadoIdAsync(empleado.EmpleadoId);
+                        }
+
                         var usuario = new Usuario
                         {
                             EmpleadoId = empleado.EmpleadoId,
                             Rol = model.Rol,
-                            Password = model.Password,
+                            Password = password,
                             Avatar = avatarFileName
                         };
                         exitoUsuario = await _usuarioService.ActualizarAsync(usuario);

@@ -47,8 +47,6 @@ public class PersonaServiceImpl : IPersonaService
         }
     }
 
-    
-
     public async Task<int> EliminarAsync(int personaId, bool estado)
     {
         try
@@ -354,6 +352,32 @@ public class PersonaServiceImpl : IPersonaService
         catch (Exception ex)
         {
             throw new Exception("Error al cambiar la contraseña", ex);
+        }
+    }
+
+    public Task<string> ObtenerPasswordByEmpleadoIdAsync(int empleadoId)
+    {
+        try
+        {
+            return _personaRepository.GetPasswordByEmpleadoIdAsync(empleadoId);
+        }
+        catch
+        {
+            throw new Exception("Error al obtener la contraseña por empleadoId");
+        }
+    }
+
+    public Task<string> ObtenerImagenPerfilByIdAsync(int empleadoId)
+    {
+        try
+        {
+            if (empleadoId <= 0)
+                throw new ArgumentException("ERROR: empleadoId debe ser mayor que cero.");
+            return _personaRepository.GetImagenPerfilByIdAsync(empleadoId);
+        }
+        catch
+        {
+            throw new Exception("Error al obtener la imagen de perfil por empleadoId");
         }
     }
 }

@@ -141,7 +141,7 @@
                             <p class="mt-2 mb-0 fw-semibold">Propietario</p>
                             <input 
                                 type="checkbox" 
-                                name="Persona.TipoPersona"
+                                name="TipoPersona"
                                 value="propietario" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
@@ -158,7 +158,7 @@
                             <p class="mt-2 mb-0 fw-semibold">Empleado</p>
                             <input 
                                 type="checkbox" 
-                                name="Persona.TipoPersona"
+                                name="TipoPersona"
                                 value="empleado" 
                                 class="form-check-input mt-2" 
                                 style="transform: scale(1.5);" 
@@ -243,8 +243,8 @@
     document.addEventListener("DOMContentLoaded", function () {
         const cards = document.querySelectorAll('.tipo-persona-card');
         const form = document.querySelector('form');
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="Persona.TipoPersona"]');
-        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="Persona.TipoPersona"][value="empleado"]');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="TipoPersona"]');
+        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="TipoPersona"][value="empleado"]');
         const extraFields = document.getElementById('empleadoExtraFields');
 
         // 1. Mostrar/ocultar campos extra de empleado

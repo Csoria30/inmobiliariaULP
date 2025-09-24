@@ -21,8 +21,8 @@ public class UsuarioServiceImpl : IUsuarioService
 
     public async Task<bool> ActualizarAsync(Usuario usuario)
     {
-        // Si se va a actualizar la contraseña, la hasheamos
-        if (!string.IsNullOrEmpty(usuario.Password))
+        // Si se va a actualizar la contraseña, la hasheamos solo si no está hasheada
+        if (!string.IsNullOrEmpty(usuario.Password) && usuario.Password.Length != 44)
         {
             usuario.Password = PasswordHelper.HashPassword(usuario.Password, _configuration["Salt"]);
         }

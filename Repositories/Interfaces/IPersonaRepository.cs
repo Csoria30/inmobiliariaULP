@@ -14,4 +14,6 @@ public interface IPersonaRepository
     Task<DatosPersonalesDTO> GetDatosPersonalesByEmailAsync(string email);
     Task<DatosPersonalesDTO> UpdateDatosPersonalesAsync(DatosPersonalesDTO datos);
     Task<string> GetPasswordByEmailAsync(string email);
+    Task<string> GetPasswordByEmpleadoIdAsync(int empleadoId);
+    Task<string> GetImagenPerfilByIdAsync(int personaId);
 }

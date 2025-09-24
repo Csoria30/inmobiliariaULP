@@ -429,6 +429,57 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
         var result = await command.ExecuteScalarAsync();
         return result?.ToString();
+
+    }
+
+    public async Task<string> GetPasswordByEmpleadoIdAsync(int empleadoId)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+	            u.password
+
+            FROM usuarios u
+                JOIN empleados e 
+                    ON u.id_empleado = e.id_empleado
+                JOIN personas p 
+                    ON e.id_persona = p.id_persona
+                    
+            WHERE u.id_empleado = @EmpleadoId;
+        ";
         
+        command.Parameters.AddWithValue("@EmpleadoId", empleadoId);
+
+        var result = await command.ExecuteScalarAsync();
+        return result?.ToString();
+
+    }
+
+    public async Task<string> GetImagenPerfilByIdAsync(int personaId)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+                u.avatar AS Avatar
+
+            FROM usuarios u
+                JOIN empleados e 
+                    ON u.id_empleado = e.id_empleado
+                JOIN personas p 
+                    ON e.id_persona = p.id_persona
+
+            WHERE p.id_persona = @PersonaId;
+        ";
+        
+        command.Parameters.AddWithValue("@PersonaId", personaId);
+
+        var result = await command.ExecuteScalarAsync();
+        return result?.ToString();
     }
 }

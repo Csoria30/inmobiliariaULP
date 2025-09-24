@@ -19,4 +19,6 @@ public interface IPersonaService
     Task<(DatosPersonalesDTO datos, bool exito)> ObtenerDatosPersonalesByEmailAsync(string email);
     Task<(DatosPersonalesDTO datos, bool exito)> ActualizarDatosPersonalesAsync(DatosPersonalesDTO datos);
     Task<bool> CambiarPasswordAsync(CambiarPasswordDTO cambiarPasswordDTO, string email);
+    Task<string> ObtenerPasswordByEmpleadoIdAsync(int empleadoId);
+    Task<string> ObtenerImagenPerfilByIdAsync(int empleadoId);
 }

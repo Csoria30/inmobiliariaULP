@@ -13,7 +13,7 @@ public class PersonaUsuarioDTO
     public string Email { get; set; }
     public bool Estado { get; set; }
     public List<string> TipoPersona { get; set; }
-    public string Password { get; set; }
+    public string? Password { get; set; }
     public string Rol { get; set; } // "administrador" o "empleado"
     public string? Avatar { get; set; }
     public IFormFile? AvatarFile { get; set; }
