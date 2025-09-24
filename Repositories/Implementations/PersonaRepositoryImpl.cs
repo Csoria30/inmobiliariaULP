@@ -10,6 +10,7 @@ namespace inmobiliariaULP.Repositories.Implementations;
 public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepository(configuration), IPersonaRepository
 {
 
+    //? Agrega una nueva persona y retorna su ID
     public async Task<int> AddAsync(Persona persona)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -33,6 +34,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return Convert.ToInt32(result);
     }
 
+    //? "Elimina" una persona cambiando su estado (Logica delete)
     public async Task<int> DeleteAsync(int personaId, bool estado)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -52,6 +54,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return await command.ExecuteNonQueryAsync();
     }
 
+    //? Obtiene todas las personas con paginación y búsqueda opcional - DataTable
     public async Task<(IEnumerable<Persona> Personas, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -141,6 +144,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
     }
 
+    //? Obtiene una persona por su ID
     public async Task<Persona?> GetByIdAsync(int id)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -206,6 +210,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return persona;
     }
 
+    //? Return PersonaUsuarioDTO por ID
     public async Task<PersonaUsuarioDTO> GetDetalleByIdAsync(int id)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -222,12 +227,18 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
                 p.email AS Email, 
                 p.estado AS Estado,
                 i.id_inquilino AS InquilinoId, 
+                i.estado AS InquilinoEstado,
+
                 pr.id_propietario AS PropietarioId, 
-                e.id_empleado AS EmpleadoId,
+                pr.estado AS PropietarioEstado,
+
+                e.id_empleado AS EmpleadoId, 
+                e.estado AS EmpleadoEstado,
+
                 u.id_usuario AS UsuarioId, 
                 u.rol AS Rol,
                 u.password AS Password
-                
+
             FROM personas p
                 LEFT JOIN inquilinos i 
                     ON p.id_persona = i.id_persona
@@ -237,6 +248,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
                     ON p.id_persona = e.id_persona
                 LEFT JOIN usuarios u 
                     ON e.id_empleado = u.id_empleado
+
             WHERE p.id_persona = @Id;
         ";
 
@@ -249,14 +261,14 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         // Crea lista de tipos de persona
         var tipoPersonas = new List<string>();
 
-        //Valida si es inquilino , propietario  o empleado
-        if (!reader.IsDBNull(reader.GetOrdinal("InquilinoId")))
+        // Solo agrega si el estado es 1
+        if (!reader.IsDBNull(reader.GetOrdinal("InquilinoId")) && !reader.IsDBNull(reader.GetOrdinal("InquilinoEstado")) && reader.GetInt32("InquilinoEstado") == 1)
             tipoPersonas.Add("inquilino");
 
-        if (!reader.IsDBNull(reader.GetOrdinal("PropietarioId")))
+        if (!reader.IsDBNull(reader.GetOrdinal("PropietarioId")) && !reader.IsDBNull(reader.GetOrdinal("PropietarioEstado")) && reader.GetInt32("PropietarioEstado") == 1)
             tipoPersonas.Add("propietario");
 
-        if (!reader.IsDBNull(reader.GetOrdinal("EmpleadoId")))
+        if (!reader.IsDBNull(reader.GetOrdinal("EmpleadoId")) && !reader.IsDBNull(reader.GetOrdinal("EmpleadoEstado")) && reader.GetInt32("EmpleadoEstado") == 1)
             tipoPersonas.Add("empleado");
 
         // Persona
@@ -277,6 +289,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return persona;
     }
 
+    //? Actualiza una persona existente
     public async Task<int> UpdateAsync(Persona persona)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -298,6 +311,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return await command.ExecuteNonQueryAsync();
     }
 
+    //? Obtiene los tipos de persona (inquilino, propietario, empleado) por ID - Usado en DataTable
     public async Task<List<string>> GetTiposAsync(int id)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -344,6 +358,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return tipos;
     }
 
+    //? Obtiene los datos personales y el avatar por email
     public async Task<DatosPersonalesDTO> GetDatosPersonalesByEmailAsync(string email)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -383,6 +398,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return null;
     }
 
+    //? Actualiza los datos personales y el avatar (Usado en Perfil)
     public async Task<DatosPersonalesDTO> UpdateDatosPersonalesAsync(DatosPersonalesDTO datos)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -412,6 +428,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         return datos;
     }
 
+    //? Obtiene la contraseña hasheada por email (Para autenticación)
     public async Task<string> GetPasswordByEmailAsync(string email)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -432,6 +449,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
     }
 
+    //? Obtiene la contraseña hasheada por empleadoId (Para autenticación)
     public async Task<string> GetPasswordByEmpleadoIdAsync(int empleadoId)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -450,7 +468,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
                     
             WHERE u.id_empleado = @EmpleadoId;
         ";
-        
+
         command.Parameters.AddWithValue("@EmpleadoId", empleadoId);
 
         var result = await command.ExecuteScalarAsync();
@@ -458,6 +476,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
     }
 
+    //? Obtiene la imagen de perfil (avatar) por personaId
     public async Task<string> GetImagenPerfilByIdAsync(int personaId)
     {
         using var connection = new MySqlConnection(connectionString);
@@ -476,7 +495,7 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
 
             WHERE p.id_persona = @PersonaId;
         ";
-        
+
         command.Parameters.AddWithValue("@PersonaId", personaId);
 
         var result = await command.ExecuteScalarAsync();

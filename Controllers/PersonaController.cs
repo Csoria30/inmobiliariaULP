@@ -88,9 +88,11 @@ public class PersonaController : Controller
              if (!model.TipoPersona.Contains("empleado"))
             {
                 // Si NO es empleado, limpia los campos - errores de validación
-                ModelState.Remove("Usuario.Password");
-                ModelState.Remove("Usuario.Rol");
-                ModelState.Remove("Usuario.EmpleadoId");
+                ModelState.Remove("Password");
+                ModelState.Remove("Rol");
+                ModelState.Remove("EmpleadoId");
+                ModelState.Remove("Avatar");
+                ModelState.Remove("AvatarFile");
             }
 
             if (ModelState.IsValid)
