@@ -23,7 +23,7 @@
     </h2>
 
 
-    <form asp-action="@(esEdicion ? "Edit" : "Create")" asp-controller="Persona" class="needs-validation" novalidate>
+    <form asp-action="@(esEdicion ? "Edit" : "Create")" asp-controller="Persona" class="needs-validation" novalidate enctype="multipart/form-data">
         
         @if (esEdicion)
         {
@@ -173,6 +173,11 @@
                 @* Solicitud de datos para el usuario *@
                 <div id="empleadoExtraFields" style="display: @(Model.TipoPersona != null && Model.TipoPersona.Contains("empleado") ? "block" : "none");">
                     <div class="mb-3">
+                        <label asp-for="AvatarFile" class="form-label">Imagen de perfil</label>
+                        <input asp-for="AvatarFile" class="form-control" type="file" accept="image/*" />
+                        <span asp-validation-for="AvatarFile" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
                         <label asp-for="Password" class="form-label"></label>
                         @if (soloLectura)
                         {
@@ -238,8 +243,8 @@
     document.addEventListener("DOMContentLoaded", function () {
         const cards = document.querySelectorAll('.tipo-persona-card');
         const form = document.querySelector('form');
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="TipoPersona"]');
-        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="TipoPersona"][value="empleado"]');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="Persona.TipoPersona"]');
+        const empleadoCheckbox = document.querySelector('input[type="checkbox"][name="Persona.TipoPersona"][value="empleado"]');
         const extraFields = document.getElementById('empleadoExtraFields');
 
         // 1. Mostrar/ocultar campos extra de empleado

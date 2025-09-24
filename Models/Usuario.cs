@@ -13,7 +13,7 @@ namespace inmobiliariaULP.Models
         [ForeignKey("Empleado")]
         [Column("id_empleado")]
         public int EmpleadoId { get; set; }
-        
+
 
 
 
@@ -27,5 +27,6 @@ namespace inmobiliariaULP.Models
 
         [StringLength(45)]
         public string? Avatar { get; set; }
+        public IFormFile? AvatarFile { get; set; }
     }
 }

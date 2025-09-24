@@ -54,7 +54,8 @@ public class AuthController : Controller
                 new Claim("PersonaId", usuario.PersonaId.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Email),
                 new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
-                new Claim(ClaimTypes.Role, usuario.Rol)
+                new Claim(ClaimTypes.Role, usuario.Rol),
+                new Claim("Avatar", usuario.Avatar ?? "default-avatar.png") 
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

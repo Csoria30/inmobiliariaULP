@@ -4,6 +4,9 @@ using System.Security.Claims;
 using inmobiliariaULP.Models.ViewModels;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 namespace inmobiliariaULP.Controllers;
 
@@ -15,13 +18,15 @@ public class PerfilController : Controller
     private readonly IInquilinoService _inquilinoService;
     private readonly IPropietarioService _propietarioService;
     private readonly IUsuarioService _usuarioService;
+    private readonly IWebHostEnvironment _environment;
 
     public PerfilController(
         ILogger<PerfilController> logger,
         IPersonaService personaService,
         IInquilinoService inquilinoService,
         IPropietarioService propietarioService,
-        IUsuarioService usuarioService
+        IUsuarioService usuarioService,
+        IWebHostEnvironment environment
     )
     {
         _logger = logger;
@@ -29,6 +34,7 @@ public class PerfilController : Controller
         _inquilinoService = inquilinoService;
         _propietarioService = propietarioService;
         _usuarioService = usuarioService;
+        _environment = environment;
     }
 
     // Ejemplo de acción Index
@@ -73,8 +79,45 @@ public class PerfilController : Controller
         }
         try
         {
+            string avatarFileName = model.DatosPersonalesDTO.Avatar ?? "default-avatar.png";
+
+            // Si el usuario sube una nueva imagen
+            if (model.DatosPersonalesDTO.AvatarFile != null && model.DatosPersonalesDTO.AvatarFile.Length > 0)
+            {
+                string wwwPath = _environment.WebRootPath;
+                string path = Path.Combine(wwwPath, "images");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                avatarFileName = Guid.NewGuid() + Path.GetExtension(model.DatosPersonalesDTO.AvatarFile.FileName);
+                string filePath = Path.Combine(path, avatarFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.DatosPersonalesDTO.AvatarFile.CopyToAsync(stream);
+                }
+            }
+
+            // Actualiza el DTO con el nuevo nombre de imagen
+            model.DatosPersonalesDTO.Avatar = avatarFileName;
+
             // Actualiza los datos personales usando el servicio
             var (data, estado) = await _personaService.ActualizarDatosPersonalesAsync(model.DatosPersonalesDTO);
+
+            //Actualizar el claim de Avatar en la cookie de autenticación
+            var identity = (ClaimsIdentity)User.Identity;
+            var avatarClaim = identity.FindFirst("Avatar");
+            if (avatarClaim != null)
+            {
+                identity.RemoveClaim(avatarClaim);
+            }
+            identity.AddClaim(new Claim("Avatar", model.DatosPersonalesDTO.Avatar ?? "default-avatar.png"));
+
+            // Refresca el principal
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity)
+            );
 
             if (estado)
             {
@@ -102,7 +145,7 @@ public class PerfilController : Controller
             model.DatosPersonalesDTO = datosActuales;
             return View("Index", model);
         }
-        
+
     }
 
     [HttpPost]
@@ -117,7 +160,7 @@ public class PerfilController : Controller
 
         try
         {
-            
+
             var email = User.FindFirst(ClaimTypes.Name)?.Value;
             var resultado = await _personaService.CambiarPasswordAsync(model.CambiarPasswordDTO, email);
 
@@ -144,7 +187,7 @@ public class PerfilController : Controller
             return View("Index", model);
         }
     }
-    
+
 
     // Agrega aquí tus acciones adicionales...
 }

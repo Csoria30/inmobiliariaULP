@@ -16,5 +16,6 @@ public class PersonaUsuarioDTO
     public string Password { get; set; }
     public string Rol { get; set; } // "administrador" o "empleado"
     public string? Avatar { get; set; }
+    public IFormFile? AvatarFile { get; set; }
     
 }

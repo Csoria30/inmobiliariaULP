@@ -4,6 +4,7 @@ using inmobiliariaULP.Repositories.Interfaces;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Models.ViewModels;
 
+
 namespace inmobiliariaULP.Repositories.Implementations;
 
 public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepository(configuration), IPersonaRepository
@@ -386,15 +387,24 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         await connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = @"
+            UPDATE usuarios 
+            SET avatar = @Avatar
+            WHERE id_empleado = (
+                SELECT e.id_empleado
+                FROM empleados e
+                JOIN personas p ON e.id_persona = p.id_persona
+                WHERE p.email = @Email
+            );
             UPDATE personas 
             SET apellido = @Apellido, nombre = @Nombre, telefono = @Telefono, email = @Email
-            WHERE email = @Email
+            WHERE email = @Email;
         ";
 
         command.Parameters.AddWithValue("@Apellido", datos.Apellido);
         command.Parameters.AddWithValue("@Nombre", datos.Nombre);
         command.Parameters.AddWithValue("@Telefono", datos.Telefono);
         command.Parameters.AddWithValue("@Email", datos.Email);
+        command.Parameters.AddWithValue("@Avatar", datos.Avatar ?? "default-avatar.png");
 
         await command.ExecuteNonQueryAsync();
         return datos;

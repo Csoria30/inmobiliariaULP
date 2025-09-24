@@ -9,4 +9,5 @@ public class DatosPersonalesDTO
     public string Telefono { get; set; }
     public string Email { get; set; }
     public string? Avatar { get; set; }
+    public IFormFile? AvatarFile { get; set; }
 }

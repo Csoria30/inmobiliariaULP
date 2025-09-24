@@ -21,6 +21,7 @@ public class PersonaController : Controller
     private readonly IPropietarioService _propietarioService;
     private readonly IUsuarioService _usuarioService;
     private readonly IEmpleadoService _empleadoService;
+     private readonly IWebHostEnvironment _environment;
 
     public PersonaController(
         ILogger<PersonaController> logger,
@@ -28,7 +29,8 @@ public class PersonaController : Controller
         IInquilinoService inquilinoService,
         IPropietarioService propietarioService,
         IUsuarioService usuarioService,
-        IEmpleadoService empleadoService
+        IEmpleadoService empleadoService,
+        IWebHostEnvironment environment
     )
     {
         _logger = logger;
@@ -37,6 +39,7 @@ public class PersonaController : Controller
         _propietarioService = propietarioService;
         _usuarioService = usuarioService;
         _empleadoService = empleadoService;
+        _environment = environment;
     }
 
     [Authorize(Roles = "administrador")]
@@ -242,6 +245,26 @@ public class PersonaController : Controller
 
                 if (exito && model.TipoPersona.Contains("empleado"))
                 {
+                    string avatarFileName = "defaultAvatar.png";
+
+                    // Si el modelo tiene un archivo de imagen subido
+                    if (model.AvatarFile != null && model.AvatarFile.Length > 0)
+                    {
+                        string wwwPath = _environment.WebRootPath; // Obtiene la ruta raíz de la carpeta wwwroot del proyecto.
+                        string path = Path.Combine(wwwPath, "images"); // Junta la ruta raíz con la carpeta img
+                        if (!Directory.Exists(path))
+                            Directory.CreateDirectory(path); // Si no existe la carpeta, la crea
+
+                        avatarFileName = Guid.NewGuid() + Path.GetExtension(model.AvatarFile.FileName); // Genera un nombre único para el archivo usando un GUID y conserva la extensión original
+                        string filePath = Path.Combine(path, avatarFileName); // Ruta completa del archivo
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await model.AvatarFile.CopyToAsync(stream);
+                        }
+
+                    }
+
                     // Buscar el empleado asociado
                     var empleado = await _empleadoService.ObtenerIdAsync(model.PersonaId);
                     if (empleado != null)
@@ -250,8 +273,8 @@ public class PersonaController : Controller
                         {
                             EmpleadoId = empleado.EmpleadoId,
                             Rol = model.Rol,
-                            Password = model.Password
-                            // Otros campos si es necesario
+                            Password = model.Password,
+                            Avatar = avatarFileName
                         };
                         exitoUsuario = await _usuarioService.ActualizarAsync(usuario);
                     }

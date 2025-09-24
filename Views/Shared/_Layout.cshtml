@@ -63,7 +63,11 @@
                             <a href="#"
                                 class="d-flex align-items-center link-light text-decoration-none dropdown-toggle"
                                 id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="~/images/avatar.jpg" alt="Perfil" width="36" height="36"
+                                <img 
+                                    src="~/images/@(User.FindFirst("Avatar")?.Value ?? "default-avatar.png")" 
+                                    alt="Perfil" 
+                                    width="36" 
+                                    height="36"
                                     class="rounded-circle object-fit-cover me-2 border border-secondary">
                                 <span class="d-none d-sm-inline text-light">
                                     @User.FindFirst("FullName")?.Value
