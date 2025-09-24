@@ -106,9 +106,14 @@ public class PerfilController : Controller
                 {
                     await model.DatosPersonalesDTO.AvatarFile.CopyToAsync(stream);
                 }
-                
+
                 //Actualiza el nombre del avatar en el modelo
                 model.DatosPersonalesDTO.Avatar = avatarFileName;
+            }
+            else
+            {
+                // Si no se sube una nueva imagen, mantener la existente
+                    model.DatosPersonalesDTO.Avatar = User.FindFirst("Avatar")?.Value ?? "default-avatar.png";
             }
 
 
@@ -121,11 +126,18 @@ public class PerfilController : Controller
 
             //Actualizar el claim de Avatar en la cookie de autenticación
             var identity = (ClaimsIdentity)User.Identity;
+
+            // Actualiza claim Avatar
             var avatarClaim = identity.FindFirst("Avatar");
             if (avatarClaim != null)
                 identity.RemoveClaim(avatarClaim);
-            
-            identity.AddClaim(new Claim("Avatar", datosActualizados.Avatar ?? "defaultAvatar.png"));
+            identity.AddClaim(new Claim("Avatar", datosActualizados.Avatar ?? "default-avatar.png"));
+
+            // Actualiza claim FullName
+            var fullNameClaim = identity.FindFirst("FullName");
+            if (fullNameClaim != null)
+                identity.RemoveClaim(fullNameClaim);
+            identity.AddClaim(new Claim("FullName", $"{datosActualizados.Nombre} {datosActualizados.Apellido}"));
 
             // Refresca el principal
             await HttpContext.SignInAsync(
