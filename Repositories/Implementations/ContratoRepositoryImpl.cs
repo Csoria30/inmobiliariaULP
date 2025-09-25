@@ -116,9 +116,121 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         return (contratos, total);
     }
 
-    public Task<Contrato> GetByIdAsync(int contratoId)
+    public async Task<ContratoDetalleDTO> GetByIdAsync(int contratoId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT 
+                    c.id_contrato AS ContratoId,
+                    -- Inmueble
+                    c.id_inmueble AS InmuebleId,
+                    i.direccion AS Direccion,
+                    t.descripcion AS TipoInmueble,
+                    i.uso AS UsoInmueble,
+                    i.ambientes AS Ambientes,
+                    i.coordenadas AS Coordenadas,
+                    i.estado AS EstadoInmueble,
+                    -- Propietario
+                    pro.id_propietario AS PropietarioId,
+                    pro.id_persona AS PropietarioIdPersona,
+                    CONCAT(p.apellido, ' ', p.nombre ) AS NombrePropietario,
+                    p.email AS EmailPropietario,
+                    -- Inquilino
+                    c.id_inquilino AS InquilinoId,
+                    pi.id_persona AS InquilinoIdPersona,
+                    CONCAT(pi.apellido, ' ', pi.nombre) AS NombreInquilino,
+                    pi.email AS EmailInquilino,
+                    -- Usuario Inicio
+                    c.id_usuario AS UsuarioId,
+                    CONCAT(pu.apellido, ' ', pu.nombre) AS NombreEmpleado,
+                    pu.email AS EmailUsuario,
+                    u.rol AS RolUsuario,
+                    -- Usuario Fin
+                    c.id_usuario_finaliza AS UsuarioIdFin,
+                    CONCAT(puf.apellido, ' ', puf.nombre) AS NombreEmpleadoFin,
+                    puf.email AS EmailUsuarioFin,
+                    uf.rol AS RolUsuarioFin,
+                    -- Contrato
+                    c.fecha_inicio AS FechaInicio,
+                    c.fecha_fin AS FechaFin,
+                    c.monto_mensual AS MontoMensual,
+                    c.fecha_finalizacion_anticipada AS FechaAnticipada,
+                    c.multa AS Multa,
+                    c.estado AS EstadoContrato,
+                    -- Pagos
+                    (SELECT COUNT(*) FROM pagos pg WHERE pg.id_contrato = c.id_contrato AND pg.estadoPago = 'aprobado') AS PagosRealizados
+
+                FROM contratos c
+                    JOIN inmuebles i ON i.id_inmueble = c.id_inmueble
+                    JOIN tipos t ON i.id_tipo = t.id_tipo
+                    JOIN propietarios pro ON i.id_propietario = pro.id_propietario
+                    JOIN personas p ON pro.id_persona = p.id_persona
+                    JOIN inquilinos inq ON inq.id_inquilino = c.id_inquilino
+                    JOIN personas pi ON inq.id_persona = pi.id_persona
+                    JOIN usuarios u ON c.id_usuario = u.id_usuario
+                    JOIN empleados e ON u.id_empleado = e.id_empleado
+                    JOIN personas pu ON e.id_persona = pu.id_persona
+                    LEFT JOIN usuarios uf ON c.id_usuario_finaliza = uf.id_usuario
+                    LEFT JOIN empleados ef ON uf.id_empleado = ef.id_empleado
+                    LEFT JOIN personas puf ON ef.id_persona = puf.id_persona
+            ";
+            command.Parameters.AddWithValue("@contratoId", contratoId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return new ContratoDetalleDTO
+                {
+                    ContratoId = reader.GetInt32("ContratoId"),
+                    FechaInicio = reader.GetDateTime("FechaInicio"),
+                    FechaFin = reader.GetDateTime("FechaFin"),
+                    MontoMensual = reader.GetDecimal("MontoMensual"),
+                    FechaAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaAnticipada")) ? null : reader.GetDateTime("FechaAnticipada"),
+                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa")) ? null : reader.GetDecimal("Multa"),
+                    EstadoContrato = reader.GetString("EstadoContrato"),
+                    PagosRealizados = reader.GetInt32("PagosRealizados"),
+
+                    InmuebleId = reader.GetInt32("InmuebleId"),
+                    Direccion = reader.GetString("Direccion"),
+                    TipoInmueble = reader.GetString("TipoInmueble"),
+                    UsoInmueble = reader.GetString("UsoInmueble"),
+                    Ambientes = reader.GetInt32("Ambientes"),
+                    Coordenadas = reader.GetString("Coordenadas"),
+                    EstadoInmueble = reader.GetBoolean("EstadoInmueble"),
+
+                    PropietarioId = reader.GetInt32("PropietarioId"),
+                    PropietarioIdPersona = reader.GetInt32("PropietarioIdPersona"),
+                    NombrePropietario = reader.GetString("NombrePropietario"),
+                    EmailPropietario = reader.GetString("EmailPropietario"),
+
+                    InquilinoId = reader.GetInt32("InquilinoId"),
+                    InquilinoIdPersona = reader.GetInt32("InquilinoIdPersona"),
+                    NombreInquilino = reader.GetString("NombreInquilino"),
+                    EmailInquilino = reader.GetString("EmailInquilino"),
+
+                    UsuarioId = reader.GetInt32("UsuarioId"),
+                    NombreEmpleado = reader.GetString("NombreEmpleado"),
+                    EmailUsuario = reader.GetString("EmailUsuario"),
+                    RolUsuario = reader.GetString("RolUsuario"),
+
+                    UsuarioIdFin = reader.IsDBNull(reader.GetOrdinal("UsuarioIdFin")) ? null : reader.GetInt32("UsuarioIdFin"),
+                    NombreEmpleadoFin = reader.IsDBNull(reader.GetOrdinal("NombreEmpleadoFin")) ? null : reader.GetString("NombreEmpleadoFin"),
+                    EmailUsuarioFin = reader.IsDBNull(reader.GetOrdinal("EmailUsuarioFin")) ? null : reader.GetString("EmailUsuarioFin"),
+                    RolUsuarioFin = reader.IsDBNull(reader.GetOrdinal("RolUsuarioFin")) ? null : reader.GetString("RolUsuarioFin")
+                };
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener el contrato por ID", ex);
+        }
     }
 
     public Task<int> UpdateAsync(int contratoId)

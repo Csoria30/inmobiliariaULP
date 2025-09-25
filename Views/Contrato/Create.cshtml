@@ -1,0 +1,363 @@
+@using System.Globalization
+@model inmobiliariaULP.Models.ViewModels.ContratoDetalleDTO
+
+@{
+    var esEdicion = Model?.ContratoId > 0;
+    var soloLectura = ViewBag.SoloLectura == true;
+    ViewData["Title"] = esEdicion ? "Editar Contrato" : "Crear Contrato";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">
+        <i class="bi @(soloLectura ? "bi-eye" : (esEdicion ? "bi-pencil-square" : "bi-file-earmark-plus")) me-2"></i>
+        @(soloLectura ? "Información completa" : (esEdicion ? "Editar Contrato" : "Crear Nuevo Contrato"))
+    </h2>
+
+    <form asp-action="@(esEdicion ? "Edit" : "Create")" asp-controller="Contrato" class="needs-validation" novalidate>
+        @if (esEdicion)
+        {
+            <input type="hidden" asp-for="ContratoId" />
+        }
+
+        @* - Informacion del inmueble *@
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-house-door me-2"></i> Información del Inmueble
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Dirección</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.Direccion" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.Direccion" name="Direccion" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tipo de Inmueble</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.TipoInmueble" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.TipoInmueble" name="TipoInmueble" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Uso</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.UsoInmueble" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.UsoInmueble" name="UsoInmueble" />
+                        }
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Ambientes</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.Ambientes" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.Ambientes" name="Ambientes" type="number" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Coordenadas</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.Coordenadas" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.Coordenadas" name="Coordenadas" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Estado</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
+                        }
+                        else
+                        {
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Estado</label>
+                                <input class="form-control" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        </div> 
+
+        @* - Informacion del Propietario *@
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-house-door me-2"></i> Información del Propietario
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Propietario</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.NombrePropietario" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.NombrePropietario" name="NombrePropietario" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Email de contacto</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.EmailPropietario" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.EmailPropietario" name="EmailPropietario" />
+                        }
+                    </div>
+                    
+                </div>
+            </div>
+        </div> 
+
+        @* - Informacion del Inquilino *@
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-house-door me-2"></i> Información del Inquilino
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Inquilino</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.NombreInquilino" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.NombreInquilino" name="NombreInquilino" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Email de contacto</label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.EmailInquilino" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.EmailInquilino" name="EmailInquilino" />
+                        }
+                    </div>
+                    
+                </div>
+            </div>
+        </div> 
+
+        @* - Informacion del contrato *@
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-house-door me-2"></i> Información del Contrato
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="FechaInicio" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" type="date" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="FechaInicio" class="form-control" type="date" />
+                        }
+                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="FechaFin" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.FechaFin.ToString("yyyy-MM-dd")" type="date" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="FechaFin" class="form-control" type="date" />
+                        }
+                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="DiasRestantes" class="form-label"></label>
+                        <input class="form-control" value="@Model.DiasRestantes" readonly />
+                    </div>
+                    
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="MontoMensual" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.MontoMensual.ToString("C", new CultureInfo("es-AR"))" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="MontoMensual" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="MontoMensual" class="text-danger"></span>
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="EstadoContrato" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.EstadoContrato" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="EstadoContrato" class="form-control" type="text"  />
+                            <span asp-validation-for="EstadoContrato" class="text-danger"></span>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="FechaAnticipada" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" 
+                                value="@(Model.FechaAnticipada.HasValue ? Model.FechaAnticipada.Value.ToString("yyyy-MM-dd") : "")" 
+                                type="date" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="FechaAnticipada" class="form-control" type="date" />
+                        }
+                        <span asp-validation-for="FechaAnticipada" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Multa" class="form-label"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" 
+                                value="@(Model.Multa.HasValue ? Model.Multa.Value.ToString("C", new CultureInfo("es-AR")) : "")" 
+                                readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="Multa" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="Multa" class="text-danger"></span>
+                        }
+                    </div>
+                    
+
+                </div>
+
+            </div>
+
+            
+        </div> <!--. Información del Contrato -->
+
+        @* - Informacion del Usuarios *@
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-house-door me-2"></i> Información de Usuarios
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="NombreEmpleado"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.NombreEmpleado" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.NombreEmpleado" name="NombreEmpleado" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="EmailUsuario"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.EmailUsuario" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.EmailUsuario" name="EmailUsuario" />
+                        }
+                    </div>
+                    
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="NombreEmpleadoFin"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.NombreEmpleadoFin" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.NombreEmpleadoFin" name="NombreEmpleadoFin" />
+                        }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="EmailUsuarioFin"></label>
+                        @if (soloLectura)
+                        {
+                            <input class="form-control" value="@Model.EmailUsuarioFin" readonly />
+                        }
+                        else
+                        {
+                            <input class="form-control" value="@Model.EmailUsuarioFin" name="EmailUsuarioFin" />
+                        }
+                    </div>
+                    
+                </div>
+
+
+            </div>
+        </div>
+
+        
+
+        <!-- Botones -->
+        <div class="mb-4 mt-2 gap-2 d-flex justify-content-end">
+            @if (!soloLectura)
+            {
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi @(esEdicion ? "bi-pencil-square" : "bi-check-circle") me-2"></i>
+                    @(esEdicion ? "Guardar Cambios" : "Crear Contrato")
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            }
+            else
+            {
+                <a href="@ViewBag.ReturnUrl" class="btn btn-secondary">Volver</a>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/contratos-select2.js"></script>
+}

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization; // Para el atributo [Authorize]
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
+using inmobiliariaULP.Models.ViewModels;
 
 namespace inmobiliariaULP.Controllers;
 
@@ -119,7 +120,7 @@ public class ContratoController : Controller
             };
 
             return Json(response);
-            
+
         }
         catch (Exception ex)
         {
@@ -128,4 +129,20 @@ public class ContratoController : Controller
             return View(new List<Contrato>()); // Vista vacía con error
         }
     }
+
+    //* GET: ContratoController/Details
+    public async Task<IActionResult> Details(int id)
+    {
+        var contrato = await _contratoService.GetByIdAsync(id);
+        if (contrato == null)
+        {
+            TempData["Error"] = "El contrato no existe.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        ViewBag.SoloLectura = true; // Flag para la vista
+
+        return View("Create", contrato);
+    }
+
 }

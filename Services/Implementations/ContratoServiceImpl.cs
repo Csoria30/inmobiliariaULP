@@ -16,6 +16,11 @@ public class ContratoServiceImpl : IContratoService
         _contratoRepository = contratoRepository;
     }
 
+    public async Task<ContratoDetalleDTO?> GetByIdAsync(int id)
+    {
+        return await _contratoRepository.GetByIdAsync(id);
+    }
+
     public async Task<(IEnumerable<ContratoListadoDTO> Contratos, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null)
     {
         return await _contratoRepository.GetAllAsync(page, pageSize, search);

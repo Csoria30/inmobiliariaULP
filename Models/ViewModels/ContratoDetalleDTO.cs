@@ -11,6 +11,14 @@ public class ContratoDetalleDTO
     public decimal? Multa { get; set; }
     public string EstadoContrato { get; set; }
     public int PagosRealizados { get; set; }
+    public int DiasRestantes
+    {
+        get
+        {
+            var dias = (FechaFin - DateTime.Today).Days;
+            return dias < 0 ? 0 : dias;
+        }
+    }
 
     // Inmueble
     public int InmuebleId { get; set; }
