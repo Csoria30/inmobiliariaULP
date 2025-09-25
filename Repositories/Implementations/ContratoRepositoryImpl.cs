@@ -135,16 +135,21 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
                     i.ambientes AS Ambientes,
                     i.coordenadas AS Coordenadas,
                     i.estado AS EstadoInmueble,
+                    
                     -- Propietario
                     pro.id_propietario AS PropietarioId,
                     pro.id_persona AS PropietarioIdPersona,
                     CONCAT(p.apellido, ' ', p.nombre ) AS NombrePropietario,
                     p.email AS EmailPropietario,
+                    p.telefono AS TelefonoPropietario,
+                    
                     -- Inquilino
                     c.id_inquilino AS InquilinoId,
                     pi.id_persona AS InquilinoIdPersona,
                     CONCAT(pi.apellido, ' ', pi.nombre) AS NombreInquilino,
                     pi.email AS EmailInquilino,
+                    pi.telefono AS TelefonoInquilino,
+                    
                     -- Usuario Inicio
                     c.id_usuario AS UsuarioId,
                     CONCAT(pu.apellido, ' ', pu.nombre) AS NombreEmpleado,
@@ -155,6 +160,7 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
                     CONCAT(puf.apellido, ' ', puf.nombre) AS NombreEmpleadoFin,
                     puf.email AS EmailUsuarioFin,
                     uf.rol AS RolUsuarioFin,
+                    
                     -- Contrato
                     c.fecha_inicio AS FechaInicio,
                     c.fecha_fin AS FechaFin,
@@ -207,11 +213,13 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
                     PropietarioIdPersona = reader.GetInt32("PropietarioIdPersona"),
                     NombrePropietario = reader.GetString("NombrePropietario"),
                     EmailPropietario = reader.GetString("EmailPropietario"),
+                    TelefonoPropietario = reader.GetString("TelefonoPropietario"),
 
                     InquilinoId = reader.GetInt32("InquilinoId"),
                     InquilinoIdPersona = reader.GetInt32("InquilinoIdPersona"),
                     NombreInquilino = reader.GetString("NombreInquilino"),
                     EmailInquilino = reader.GetString("EmailInquilino"),
+                    TelefonoInquilino = reader.GetString("TelefonoInquilino"),
 
                     UsuarioId = reader.GetInt32("UsuarioId"),
                     NombreEmpleado = reader.GetString("NombreEmpleado"),
