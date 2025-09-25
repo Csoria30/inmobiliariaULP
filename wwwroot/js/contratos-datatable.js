@@ -8,16 +8,20 @@ $(document).ready(function () {
                 url: '/Contrato/ObtenerDataTable',
                 type: 'POST'
             },
-            columnDefs:[
-                { targets: 0, className: 'text-center'}, // Centra la primera columna (DNI)
-                
+            columnDefs: [
+                { targets: 0, className: 'text-center' } // Centra la primera columna (ID)
             ],
             columns: [
-                { data: 'dni' },
-                { data: 'apellido' },
-                { data: 'nombre' },
-                { data: 'telefono' },
-                { data: 'estado' },
+                { data: 'contratoId' },
+                { data: 'direccion' },
+                { data: 'tipoInmueble' },
+                { data: 'nombrePropietario' },
+                { data: 'nombreInquilino' },
+                { data: 'fechaInicio' },
+                { data: 'fechaFin' },
+                { data: 'montoMensual' },
+                { data: 'estadoContrato' },
+                { data: 'pagosRealizados' },
                 { data: 'acciones', orderable: false, searchable: false }
             ],
             dom: '<"row mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' + 'rt' + '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -30,17 +34,14 @@ $(document).ready(function () {
                     previous: "Anterior",
                     next: "Siguiente"
                 }
-                
             },
-
             drawCallback: function () {
-            // Inicializa tooltips de Bootstrap en los nuevos elementos
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                // Inicializa tooltips de Bootstrap en los nuevos elementos
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
             }
-
         });
     }
 });

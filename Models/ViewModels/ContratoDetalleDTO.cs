@@ -1,5 +1,3 @@
-using inmobiliariaULP.Models;
-
 namespace inmobiliariaULP.Models.ViewModels;
 
 public class ContratoDetalleDTO

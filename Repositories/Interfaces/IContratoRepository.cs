@@ -1,10 +1,11 @@
 using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 namespace inmobiliariaULP.Repositories.Interfaces;
 
-public interface IContratosRepository
+public interface IContratoRepository
 {
     Task<int> AddAsync(Contrato contrato);
-    Task<(IEnumerable<Contrato> Contratos, int Total)> GetAllAsync(int page, int pageSize, string? search = null);
+    Task<(IEnumerable<ContratoListadoDTO> Contratos, int Total)> GetAllAsync(int page, int pageSize, string? search = null);
     Task<Contrato> GetByIdAsync(int contratoId);
     Task<int> DeleteAsync(int contratoId);
     Task<int> UpdateAsync(int contratoId);    
