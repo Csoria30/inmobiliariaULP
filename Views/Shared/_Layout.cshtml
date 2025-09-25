@@ -174,7 +174,7 @@
                                 <div id="collapseProps" class="accordion-collapse collapse"
                                     aria-labelledby="headingProps" data-bs-parent="#adminAccordion">
                                     <div class="accordion-body p-0">
-                                        <ul class="list-group list-group-flush admin-submenu">
+                                         <ul class="list-group list-group-flush admin-submenu">
                                             
                                             <li class="list-group-item">
                                                 <a class="nav-link admin-link" asp-area="" asp-controller="Inmueble"
@@ -185,7 +185,8 @@
                                     </div>
                                 </div>
                             </div><!-- Módulo: Inmuebles -->
-@*
+
+                            @* - Seccion -> Contratos *@
                             <!-- Módulo: Contratos -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="headingContracts">
@@ -201,20 +202,18 @@
                                     <div class="accordion-body p-0">
                                         <ul class="list-group list-group-flush admin-submenu">
                                             <li class="list-group-item">
-                                                <a href="/Admin/Contratos" class="admin-link">Listado</a>
-                                            </li>
-                                            <li class="list-group-item">
-                                                <a href="/Admin/Contratos/Crear" class="admin-link">Crear</a>
-                                            </li>
-                                            <li class="list-group-item">
-                                                <a href="/Admin/Contratos/Vencimientos"
-                                                    class="admin-link">Vencimientos</a>
+                                                <a 
+                                                    class="nav-link admin-link" 
+                                                    asp-area="" 
+                                                    asp-controller="Contrato" 
+                                                    asp-action="Index">Lista Contratos
+                                                </a>
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
                             </div><!-- Módulo: Contratos -->
-
+@*
                             <!-- Módulo: Reportes -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="headingReports">
@@ -285,6 +284,7 @@
     <script src="~/js/personas-datatable.js"></script>
     <script src="~/js/propietarios-datatable.js"></script>
     <script src="~/js/empleados-datatable.js"></script>
+    <script src="~/js/contratos-datatable.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

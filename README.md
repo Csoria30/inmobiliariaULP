@@ -15,3 +15,4 @@ Puedes iniciar sesión con los siguientes usuarios para probar el sistema:
 |----------------------|----------------|---------------|
 | admin@correo.com        | 123       | administrador |
 | usuario@correo.com     | 123    | empleado      |
+| camila.fernandez@ulp.co     | 123    | empleado      |
