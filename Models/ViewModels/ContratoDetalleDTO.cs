@@ -9,10 +9,10 @@ public class ContratoDetalleDTO
     public int inquilinoId { get; set; }
 
     [Display(Name = "Fecha de inicio")]
-    public DateTime FechaInicio { get; set; }
+    public DateTime FechaInicio { get; set; } = DateTime.Today;
 
-    [Display(Name = "Fecha de fin")]
-    public DateTime FechaFin { get; set; }
+    [Display(Name = "Fecha de fin")] 
+    public DateTime FechaFin { get; set; } = DateTime.Today.AddMonths(1);   
 
     [Display(Name = "Monto mensual")]
     public decimal MontoMensual { get; set; }

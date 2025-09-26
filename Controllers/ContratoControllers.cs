@@ -199,6 +199,15 @@ public class ContratoController : Controller
     public async Task<IActionResult> Create()
     {
         var model = new ContratoDetalleDTO();
+        var emailUsuario = User.Identity.Name; // O como obtengas el email del usuario logueado
+        var (exito, mensaje, usuario) = await _usuarioService.ObtenerPerfilAsync(emailUsuario);
+
+        if (exito && usuario != null)
+        {
+            model.NombreEmpleado = $"{usuario.Apellido} {usuario.Nombre}";
+            model.EmailUsuario = usuario.Email;
+        }
+
         return View("Create", model);
     }
 
