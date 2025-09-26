@@ -150,21 +150,71 @@ public class ContratoController : Controller
         return View("Create", contrato);
     }
 
+    //! POST: ContratoController/Edit
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(ContratoDetalleDTO contrato)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                var errores = ModelStateHelper.GetErrors(ModelState);
+            }
+
+            if (ModelState.IsValid)
+            {
+                var (exito, mensaje, tipo) = await _contratoService.EditarAsync(contrato);
+                TempData["Notificacion"] = mensaje;
+                TempData["NotificacionTipo"] = tipo;
+
+                if (exito)
+                    return RedirectToAction(nameof(Index));
+                
+                return View("Create", contrato);
+            }
+
+
+            return View("Create", contrato);
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al editar el contrato");
+            TempData["Error"] = "Error al editar el contrato: " + ex.Message;
+            return View("Error");
+        }
+    }
+
     //* GET: ContratoController/Edit
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var contrato = await _contratoService.ObtenerPorIdAsync(id);
-        if (contrato == null)
+        var contratoActual = await _contratoService.ObtenerPorIdAsync(id);
+
+        if (contratoActual == null)
         {
             TempData["Error"] = "El contrato no existe.";
             return RedirectToAction(nameof(Index));
         }
 
+        var emailUsuario = User.Identity.Name;
+        var (exito, mensaje, usuario) = await _usuarioService.ObtenerPerfilAsync(emailUsuario);
+
+        if (exito && usuario != null)
+        {
+            contratoActual.UsuarioId = usuario.UsuarioId;
+            contratoActual.NombreEmpleado = $"{usuario.Apellido} {usuario.Nombre}";
+            contratoActual.EmailUsuario = usuario.Email;
+            contratoActual.RolUsuario = usuario.Rol;
+            contratoActual.EmailUsuario = usuario.Email;
+        }
+
         ViewBag.SoloLectura = false; // Flag para la vista
 
-        return View("Create", contrato);
+        return View("Create", contratoActual);
     }
+
 
     //! POST: ContratoController/Create
     [HttpPost]
@@ -254,7 +304,6 @@ public class ContratoController : Controller
             return Json(new { error = "Error al buscar inmuebles habilitados: " + ex.Message });
         }
     }
-
 
     //!POST: ContratoController/BuscarHabilitadosInquilinos
     [HttpGet]

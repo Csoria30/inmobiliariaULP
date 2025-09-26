@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $('#inquilinoId').select2({
+    $('#InquilinoId').select2({
         placeholder: 'Buscar inmueble...',
         minimumInputLength: 2,
         language: {
@@ -39,10 +39,25 @@ $(document).ready(function() {
     });
 
     // Autocompletar campos al seleccionar un inmueble
-    $('#inquilinoId').on('select2:select', function(e) {
+    $('#InquilinoId').on('select2:select', function(e) {
         var data = e.params.data;
         $('#NombreInquilino').val(data.nombreInquilino);
         $('#EmailInquilino').val(data.email);
         $('#TelefonoInquilino').val(data.telefono);
     });
+
+    // --- Para Editar
+    var inquilinoId = $('#InquilinoId').data('selected');
+    var nombreInquilino = $('#NombreInquilino').val();
+
+    if (inquilinoId && nombreInquilino) {
+        var $select = $('#InquilinoId');
+        if ($select.find("option[value='" + inquilinoId + "']").length === 0) {
+            var newOption = new Option(nombreInquilino, inquilinoId, true, true);
+            $select.append(newOption).trigger('change');
+        } else {
+            $select.val(inquilinoId).trigger('change');
+        }
+    }
+
 });

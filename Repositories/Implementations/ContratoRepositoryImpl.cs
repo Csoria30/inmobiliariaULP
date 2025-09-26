@@ -270,9 +270,46 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         }
     }
 
-    public Task<int> UpdateAsync(int contratoId)
+    public async Task<int> UpdateAsync(Contrato contrato)
     {
-        throw new NotImplementedException();
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE contratos
+                SET 
+                    id_inmueble = @IdInmueble,
+                    id_inquilino = @IdInquilino,
+                    id_usuario = @IdUsuario,
+                    fecha_inicio = @FechaInicio,
+                    fecha_fin = @FechaFin,
+                    monto_mensual = @MontoMensual,
+                    fecha_finalizacion_anticipada = @FechaFinalizacionAnticipada,
+                    multa = @Multa,
+                    estado = @EstadoContrato
+                WHERE id_contrato = @ContratoId;
+            ";
+
+            command.Parameters.AddWithValue("@IdInmueble", contrato.InmuebleId);
+            command.Parameters.AddWithValue("@IdInquilino", contrato.InquilinoId);
+            command.Parameters.AddWithValue("@IdUsuario", contrato.UsuarioId);
+            command.Parameters.AddWithValue("@FechaInicio", contrato.FechaInicio);
+            command.Parameters.AddWithValue("@FechaFin", contrato.FechaFin);
+            command.Parameters.AddWithValue("@MontoMensual", contrato.MontoMensual);
+            command.Parameters.AddWithValue("@FechaFinalizacionAnticipada", contrato.FechaFinalizacionAnticipada);
+            command.Parameters.AddWithValue("@Multa", (object?)contrato.Multa ?? DBNull.Value);
+            command.Parameters.AddWithValue("@EstadoContrato", contrato.Estado);
+            command.Parameters.AddWithValue("@ContratoId", contrato.ContratoId);
+
+            return await command.ExecuteNonQueryAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al actualizar el contrato", ex);
+        }
     }
 
 }

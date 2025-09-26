@@ -57,4 +57,19 @@ $(document).ready(function() {
         $('#EmailPropietario').val(data.propietarioEmail);
         $('#TelefonoPropietario').val(data.propietarioTelefono);
     });
+
+    // Setear valor seleccionado al editar
+    var inmuebleId = $('#InmuebleId').data('selected');
+    // Intenta obtener la dirección desde el input o desde un atributo data-direccion
+    var direccion = $('#Direccion').val() || $('#InmuebleId').data('direccion');
+
+    if (inmuebleId && direccion) {
+        var $select = $('#InmuebleId');
+        if ($select.find("option[value='" + inmuebleId + "']").length === 0) {
+            var newOption = new Option(direccion, inmuebleId, true, true);
+            $select.append(newOption).trigger('change');
+        } else {
+            $select.val(inmuebleId).trigger('change');
+        }
+    }
 });

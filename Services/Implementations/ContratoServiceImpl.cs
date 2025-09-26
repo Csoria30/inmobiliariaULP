@@ -45,6 +45,64 @@ public class ContratoServiceImpl : IContratoService
         }
     }
 
+    public async Task<(bool exito, string mensaje, string tipo)> EditarAsync(ContratoDetalleDTO contrato)
+    {
+        try
+        {
+            var contratoActual = await _contratoRepository.GetByIdAsync(contrato.ContratoId);
+
+            if (contratoActual == null)
+                return (false, "El contrato no existe.", "error");
+
+            // Lista de campos a comparar
+            var campos = new[] { "InmuebleId", "InquilinoId", "UsuarioId", "FechaInicio", "FechaFin", "MontoMensual", "EstadoContrato" };
+
+            bool hayCambios = false;
+
+            foreach (var campo in campos)
+            {
+                var valorActual = contratoActual.GetType().GetProperty(campo)?.GetValue(contratoActual)?.ToString();
+                var valorNuevo = contrato.GetType().GetProperty(campo)?.GetValue(contrato)?.ToString();
+
+                if (!Equals(valorActual, valorNuevo))
+                {
+                    hayCambios = true;
+                    break;
+                }
+            }
+
+            if (!hayCambios)
+                return (false, "No se detectaron cambios en el contrato.", "warning");
+
+            // Mapear DTO a entidad Contrato
+            var contratoModelado = new Contrato
+            {
+                ContratoId = contrato.ContratoId,
+                InmuebleId = contrato.InmuebleId,
+                InquilinoId = contrato.InquilinoId,
+                UsuarioId = contrato.UsuarioId,
+                FechaInicio = contrato.FechaInicio,
+                FechaFin = contrato.FechaFin,
+                MontoMensual = contrato.MontoMensual,
+                FechaFinalizacionAnticipada = contrato.FechaAnticipada,
+                Multa = contrato.Multa,
+                Estado = contrato.EstadoContrato
+            };
+
+            var filasAfectadas = await _contratoRepository.UpdateAsync(contratoModelado);
+
+            if (filasAfectadas > 0)
+                return (true, "Contrato actualizado exitosamente.", "success");
+            else
+                return (false, "No se pudo actualizar el contrato.", "error");
+
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message, "error");
+        }
+    }
+
     public async Task<ContratoDetalleDTO?> ObtenerPorIdAsync(int id)
     {
         return await _contratoRepository.GetByIdAsync(id);

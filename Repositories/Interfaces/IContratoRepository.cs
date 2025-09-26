@@ -8,5 +8,5 @@ public interface IContratoRepository
     Task<(IEnumerable<ContratoListadoDTO> Contratos, int Total)> GetAllAsync(int page, int pageSize, string? search = null);
     Task<ContratoDetalleDTO> GetByIdAsync(int contratoId);
     Task<int> DeleteAsync(int contratoId);
-    Task<int> UpdateAsync(int contratoId);    
+    Task<int> UpdateAsync(Contrato contrato);
 }

@@ -20,11 +20,21 @@ namespace inmobiliariaULP.Helpers
 
     public static class ModelStateHelper
     {
+        // Devuelve solo los mensajes de error (como antes)
         public static List<string> GetErrors(ModelStateDictionary modelState)
         {
             return modelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
+                .ToList();
+        }
+
+        // Devuelve una lista de objetos con el nombre del campo y el mensaje de error
+        public static List<(string Field, string Error)> GetFieldErrors(ModelStateDictionary modelState)
+        {
+            return modelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .SelectMany(x => x.Value.Errors.Select(e => (Field: x.Key, Error: e.ErrorMessage)))
                 .ToList();
         }
     }

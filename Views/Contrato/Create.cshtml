@@ -23,6 +23,9 @@
         <input type="hidden" asp-for="RolUsuario" />
         <input type="hidden" asp-for="RolUsuarioFin" />
         <input type="hidden" asp-for="UsuarioId" />
+        <input type="hidden" asp-for="NombreEmpleado" />
+        <input type="hidden" asp-for="EmailUsuario" />
+        <input type="hidden" asp-for="EstadoInmueble" />
 
         @* - Información del inmueble *@
         <div class="card mb-4">
@@ -39,7 +42,7 @@
                         }
                         else
                         {
-                            <select asp-for="InmuebleId" class="form-select">
+                            <select asp-for="InmuebleId" class="form-select" data-selected="@Model.InmuebleId">
                                 <option value="">Seleccione un inmueble...</option>
                             </select>
                         }
@@ -108,14 +111,14 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-12 mb-3">
-                        <label class="form-label" asp-for="inquilinoId">Inquilino</label>
+                        <label class="form-label" asp-for="InquilinoId">Inquilino</label>
                         @if (soloLectura)
                         {
                             <input class="form-control" value="@Model.NombrePropietario" readonly />
                         }
                         else
                         {
-                            <select asp-for="inquilinoId" class="form-select">
+                            <select asp-for="InquilinoId" class="form-select" data-selected="@Model.InquilinoId">
                                 <option value="">Seleccione un Inquilino...</option>
                             </select>
                         }
@@ -255,50 +258,22 @@
                 <div class="row mb-3">
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="NombreEmpleado"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.NombreEmpleado" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.NombreEmpleado" name="NombreEmpleado" />
-                        }
+                        <input class="form-control" value="@Model.NombreEmpleado" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="EmailUsuario"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.EmailUsuario" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.EmailUsuario" name="EmailUsuario" />
-                        }
+                        <input class="form-control" value="@Model.EmailUsuario" readonly />
                     </div>
                     
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="NombreEmpleadoFin"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.NombreEmpleadoFin" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.NombreEmpleadoFin" name="NombreEmpleadoFin" />
-                        }
+                        <input class="form-control" value="@Model.NombreEmpleadoFin" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="EmailUsuarioFin"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.EmailUsuarioFin" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.EmailUsuarioFin" name="EmailUsuarioFin" />
-                        }
+                        <input class="form-control" value="@Model.EmailUsuarioFin" readonly />
                     </div>
                     
                 </div>
