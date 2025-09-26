@@ -2,6 +2,7 @@ using System.Data;
 using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Repositories.Interfaces;
+using inmobiliariaULP.Models.ViewModels;
 
 namespace inmobiliariaULP.Services.Implementations;
 
@@ -75,6 +76,17 @@ public class InquilinoServiceImpl : IInquilinoService
             throw new Exception("Error al actualizar el inquilino", ex);
         }
     }
-    
+
+    public async Task<IEnumerable<InquilinoContratoDTO>> ListarActivosAsync(string term)
+    {
+        try
+        {
+            return await _inquilinoRepository.ListActiveAsync(term);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al listar inquilinos activos", ex);
+        }
+    }
 
 }

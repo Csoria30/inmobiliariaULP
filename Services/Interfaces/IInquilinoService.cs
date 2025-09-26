@@ -1,4 +1,5 @@
 using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 namespace inmobiliariaULP.Services.Interfaces;
 
 public interface IInquilinoService
@@ -8,4 +9,5 @@ public interface IInquilinoService
     Task<Inquilino> ObtenerIdAsync(int inquilinoId);
     Task<int> EliminarAsync(int inquilinoId);
     Task<int> ActualizarAsync(int personaId, Boolean estado); 
+    Task<IEnumerable<InquilinoContratoDTO>> ListarActivosAsync(string term);
 }

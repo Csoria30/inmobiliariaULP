@@ -2,6 +2,7 @@ using System.Data;
 using inmobiliariaULP.Models;
 using MySql.Data.MySqlClient;
 using inmobiliariaULP.Repositories.Interfaces;
+using inmobiliariaULP.Models.ViewModels;
 namespace inmobiliariaULP.Repositories.Implementations;
 
 public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseRepository(configuration), IInquilinoRepository
@@ -36,7 +37,6 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         command.Parameters.AddWithValue("@inquilinoId", inquilinoId);
         return await command.ExecuteNonQueryAsync();
     }
-
 
     public async Task<(IEnumerable<Inquilino> Personas, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
     {
@@ -107,7 +107,7 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
                 });
             }
         }
-         return (inquilinos, total);
+        return (inquilinos, total);
     }
 
     public async Task<Inquilino?> GetByIdAsync(int inquilinoId)
@@ -159,4 +159,50 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
 
         return await command.ExecuteNonQueryAsync();
     }
+
+    public async Task<IEnumerable<InquilinoContratoDTO>> ListActiveAsync(string term)
+    {
+        var inquilinos = new List<InquilinoContratoDTO>();
+
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 
+                i.id_inquilino AS InquilinoId,
+                p.dni AS Dni,
+                CONCAT(p.apellido, ' ', p.nombre) AS NombreInquilino,
+                p.email AS Email,
+                p.telefono AS Telefono
+
+            FROM inquilinos i
+	            JOIN personas p 
+		            ON i.id_persona = p.id_persona
+
+            WHERE i.estado = 1
+              AND (p.apellido LIKE @Term OR p.nombre LIKE @Term OR p.dni LIKE @Term)
+            
+            ORDER BY p.apellido, p.nombre
+            LIMIT 10;
+        ";
+
+        command.Parameters.AddWithValue("@term", $"%{term}%");
+
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var inquilino = new InquilinoContratoDTO
+            {
+                InquilinoId = reader.GetInt32("InquilinoId"),
+                Dni = reader.GetString("Dni"),
+                NombreInquilino = reader.GetString("NombreInquilino"),
+                Email = reader.GetString("Email"),
+                Telefono = reader.GetString("Telefono")
+            };
+
+            inquilinos.Add(inquilino);
+        }
+        return inquilinos;
+    }
+
 }  

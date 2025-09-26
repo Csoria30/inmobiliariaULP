@@ -6,6 +6,7 @@ public class ContratoDetalleDTO
 {
     // Contrato
     public int ContratoId { get; set; }
+    public int inquilinoId { get; set; }
 
     [Display(Name = "Fecha de inicio")]
     public DateTime FechaInicio { get; set; }

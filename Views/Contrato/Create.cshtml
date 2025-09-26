@@ -102,40 +102,32 @@
             </div>
             <div class="card-body">
                 <div class="row mb-3">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" asp-for="NombreInquilino"></label>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label" asp-for="inquilinoId">Inquilino</label>
                         @if (soloLectura)
                         {
-                            <input class="form-control" value="@Model.NombreInquilino" readonly />
+                            <input class="form-control" value="@Model.NombrePropietario" readonly />
                         }
                         else
                         {
-                            <input class="form-control" value="@Model.NombreInquilino" name="NombreInquilino" />
+                            <select asp-for="inquilinoId" class="form-select">
+                                <option value="">Seleccione un Inquilino...</option>
+                            </select>
                         }
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="NombreInquilino"></label>
+                        <input class="form-control" asp-for="NombreInquilino" value="@Model.NombreInquilino" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="EmailInquilino"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.EmailInquilino" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.EmailInquilino" name="EmailInquilino" />
-                        }
+                        <input class="form-control" asp-for="EmailInquilino" value="@Model.EmailInquilino" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="TelefonoInquilino"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.TelefonoInquilino" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.TelefonoInquilino" name="TelefonoInquilino" />
-                        }
+                        <input class="form-control" asp-for="TelefonoInquilino" value="@Model.TelefonoInquilino" readonly />
                     </div>
-                    
+
                 </div>
             </div>
         </div> 
@@ -327,6 +319,7 @@
 
 @section Scripts
 {
-    <script src="~/js/contratos-select2.js"></script>
+    <script src="~/js/Select2-InmuebleContrato.js"></script>
+    <script src="~/js/Select2-InquilinoContrato.js"></script>
 
 }

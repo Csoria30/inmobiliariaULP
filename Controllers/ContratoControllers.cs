@@ -206,7 +206,8 @@ public class ContratoController : Controller
     [HttpGet]
     public async Task<IActionResult> BuscarHabilitados(string term)
     {
-        try{
+        try
+        {
             var inmuebles = await _inmuebleService.ListarActivosAsync(term);
 
             var resultado = inmuebles.Select(i => new
@@ -223,6 +224,34 @@ public class ContratoController : Controller
                 NombrePropietario = i.NombrePropietario,
                 EmailPropietario = i.EmailPropietario,
                 TelefonoPropietario = i.TelefonoPropietario
+            });
+
+            return Json(resultado);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al buscar inmuebles habilitados");
+            return Json(new { error = "Error al buscar inmuebles habilitados: " + ex.Message });
+        }
+    }
+
+
+    //!POST: ContratoController/BuscarHabilitadosInquilinos
+    [HttpGet]
+    public async Task<IActionResult> BuscarHabilitadosInquilinos(string term)
+    {
+        try
+        {
+            var inquilinos = await _inquilinoService.ListarActivosAsync(term);
+
+            var resultado = inquilinos.Select(i => new
+            {
+                inquilinoId = i.InquilinoId,
+                text = $"{i.NombreInquilino} - {i.Dni}", // Para mostrar nombre y DNI en el select
+                dni = i.Dni,
+                nombreInquilino = i.NombreInquilino,
+                email = i.Email,
+                telefono = i.Telefono
             });
 
             return Json(resultado);
