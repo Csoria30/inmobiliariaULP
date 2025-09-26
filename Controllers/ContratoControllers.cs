@@ -4,6 +4,7 @@ using inmobiliariaULP.Models;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
 using inmobiliariaULP.Models.ViewModels;
+using inmobiliariaULP.Helpers;
 
 namespace inmobiliariaULP.Controllers;
 
@@ -172,6 +173,11 @@ public class ContratoController : Controller
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                var errores = ModelStateHelper.GetErrors(ModelState);
+            }
+
             if (ModelState.IsValid)
             {
                 var (exito, mensaje, tipo) = await _contratoService.CrearAsync(contrato);
@@ -204,9 +210,14 @@ public class ContratoController : Controller
 
         if (exito && usuario != null)
         {
+            model.UsuarioId = usuario.UsuarioId;
             model.NombreEmpleado = $"{usuario.Apellido} {usuario.Nombre}";
             model.EmailUsuario = usuario.Email;
+            model.RolUsuario = usuario.Rol;
         }
+
+        //Atributos Default
+        model.EstadoContrato = "vigente";
 
         return View("Create", model);
     }

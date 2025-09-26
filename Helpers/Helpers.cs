@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text;
 
@@ -13,6 +15,17 @@ namespace inmobiliariaULP.Helpers
                 prf: KeyDerivationPrf.HMACSHA256,
                 iterationCount: 10000,
                 numBytesRequested: 256 / 8));
+        }
+    }
+
+    public static class ModelStateHelper
+    {
+        public static List<string> GetErrors(ModelStateDictionary modelState)
+        {
+            return modelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
         }
     }
 }

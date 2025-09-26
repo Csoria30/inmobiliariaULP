@@ -19,6 +19,11 @@
             <input type="hidden" asp-for="ContratoId" />
         }
 
+        @* Campos auditoria *@
+        <input type="hidden" asp-for="RolUsuario" />
+        <input type="hidden" asp-for="RolUsuarioFin" />
+        <input type="hidden" asp-for="UsuarioId" />
+
         @* - Información del inmueble *@
         <div class="card mb-4">
             <div class="card-header card-header-dark2">
@@ -165,7 +170,7 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label asp-for="DiasRestantes" class="form-label"></label>
-                        <input class="form-control" value="@Model.DiasRestantes" readonly />
+                        <input class="form-control" asp-for="DiasRestantes" value="@Model.DiasRestantes" type="number" readonly />
                     </div>
                     
                 </div>
@@ -179,7 +184,7 @@
                         }
                         else
                         {
-                            <input asp-for="MontoMensual" class="form-control" type="number" min="0" step="1" />
+                            <input asp-for="MontoMensual" class="form-control" type="number" min="0" step="100" />
                             <span asp-validation-for="MontoMensual" class="text-danger"></span>
                         }
                     </div>
@@ -191,7 +196,12 @@
                         }
                         else
                         {
-                            <input asp-for="EstadoContrato" class="form-control" type="text"  />
+                            <select asp-for="EstadoContrato" class="form-select">
+                                <option value="">Seleccione estado...</option>
+                                <option value="vigente">Vigente</option>
+                                <option value="finalizado">Finalizado</option>
+                                <option value="rescindido">Rescindido</option>
+                            </select>
                             <span asp-validation-for="EstadoContrato" class="text-danger"></span>
                         }
                     </div>
@@ -323,5 +333,28 @@
 {
     <script src="~/js/Select2-InmuebleContrato.js"></script>
     <script src="~/js/Select2-InquilinoContrato.js"></script>
+
+    <script>
+        function calcularDiasRestantes() {
+        var inicio = document.getElementById('FechaInicio').value;
+        var fin = document.getElementById('FechaFin').value;
+        if (fin) {
+            var fechaFin = new Date(fin);
+            var hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            var dias = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+            document.getElementById('DiasRestantes').value = dias > 0 ? dias : 0;
+        } else {
+            document.getElementById('DiasRestantes').value = '';
+        }
+    }
+
+    document.getElementById('FechaInicio').addEventListener('change', calcularDiasRestantes);
+    document.getElementById('FechaFin').addEventListener('change', calcularDiasRestantes);
+
+    // Llama una vez al cargar
+    calcularDiasRestantes();
+    
+    </script>
 
 }

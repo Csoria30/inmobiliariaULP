@@ -100,9 +100,9 @@ public class ContratoDetalleDTO
     public int? UsuarioIdFin { get; set; }
 
     [Display(Name = "Empleado fin de contrato")]
-    public string NombreEmpleadoFin { get; set; }
+    public string? NombreEmpleadoFin { get; set; }
 
     [Display(Name = "Email de contacto")]
-    public string EmailUsuarioFin { get; set; }
-    public string RolUsuarioFin { get; set; }
+    public string? EmailUsuarioFin { get; set; }
+    public string? RolUsuarioFin { get; set; }
 }
