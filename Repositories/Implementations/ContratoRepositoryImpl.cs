@@ -8,9 +8,37 @@ namespace inmobiliariaULP.Repositories.Implementations;
 
 public class ContratoRepositoryImpl(IConfiguration configuration) : BaseRepository(configuration), IContratoRepository
 {
-    public Task<int> AddAsync(Contrato contrato)
+    public async Task<int> AddAsync(Contrato contrato)
     {
-        throw new NotImplementedException();
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO contratos(
+                id_inmueble, id_inquilino, id_usuario, 
+                fecha_inicio,  fecha_fin, monto_mensual, 
+                estado
+
+            )VALUES(
+                @IdInmueble, @IdInquilino, @IdUsuario, 
+                @FechaInicio, @FechaFin, @MontoMensual, 
+                @EstadoContrato
+            );
+
+            SELECT LAST_INSERT_ID();
+        ";
+
+        command.Parameters.AddWithValue("@IdInmueble", contrato.InmuebleId);
+        command.Parameters.AddWithValue("@IdInquilino", contrato.InquilinoId);
+        command.Parameters.AddWithValue("@IdUsuario", contrato.UsuarioId);
+        command.Parameters.AddWithValue("@FechaInicio", contrato.FechaInicio);
+        command.Parameters.AddWithValue("@FechaFin", contrato.FechaFin);
+        command.Parameters.AddWithValue("@MontoMensual", contrato.MontoMensual);
+        command.Parameters.AddWithValue("@EstadoContrato", contrato.Estado);
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public Task<int> DeleteAsync(int contratoId)

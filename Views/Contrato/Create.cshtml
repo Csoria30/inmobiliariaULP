@@ -19,90 +19,58 @@
             <input type="hidden" asp-for="ContratoId" />
         }
 
-        @* - Informacion del inmueble *@
+        @* - Información del inmueble *@
         <div class="card mb-4">
             <div class="card-header card-header-dark2">
                 <i class="bi bi-house-door me-2"></i> Información del Inmueble
             </div>
             <div class="card-body">
                 <div class="row mb-3">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" asp-for="Direccion" ></label>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label" asp-for="InmuebleId">Inmueble</label>
                         @if (soloLectura)
                         {
                             <input class="form-control" value="@Model.Direccion" readonly />
                         }
                         else
                         {
-                            <input class="form-control" value="@Model.Direccion" name="Direccion" />
-                        }
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" asp-for="TipoInmueble"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.TipoInmueble" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.TipoInmueble" name="TipoInmueble" />
-                        }
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" asp-for="UsoInmueble"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.UsoInmueble" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.UsoInmueble" name="UsoInmueble" />
+                            <select asp-for="InmuebleId" class="form-select">
+                                <option value="">Seleccione un inmueble...</option>
+                            </select>
                         }
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="Direccion"></label>
+                        <input class="form-control" asp-for="Direccion" value="@Model.Direccion" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="TipoInmueble"></label>
+                        <input class="form-control" asp-for="TipoInmueble" value="@Model.TipoInmueble" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" asp-for="UsoInmueble"></label>
+                        <input class="form-control" asp-for="UsoInmueble" value="@Model.UsoInmueble" readonly />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="Ambientes"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.Ambientes" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.Ambientes" name="Ambientes" type="number" />
-                        }
+                        <input class="form-control" asp-for="Ambientes" value="@Model.Ambientes" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="Coordenadas"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.Coordenadas" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.Coordenadas" name="Coordenadas" />
-                        }
+                        <input class="form-control" asp-for="Coordenadas" value="@Model.Coordenadas" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="EstadoInmueble"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
-                        }
-                        else
-                        {
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Estado</label>
-                                <input class="form-control" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
-                            </div>
-                        }
+                        <input class="form-control" asp-for="EstadoInmueble" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
                     </div>
-
                 </div>
-
             </div>
-        </div> 
+        </div>
 
         @* - Informacion del Propietario *@
         <div class="card mb-4">
@@ -113,38 +81,16 @@
                 <div class="row mb-3">
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="NombrePropietario"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.NombrePropietario" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.NombrePropietario" name="NombrePropietario" />
-                        }
+                        <input class="form-control" asp-for="NombrePropietario" value="@Model.NombrePropietario" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="EmailPropietario"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.EmailPropietario" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.EmailPropietario" name="EmailPropietario" />
-                        }
+                        <input class="form-control" asp-for="EmailPropietario" value="@Model.EmailPropietario" readonly />
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="TelefonoPropietario"></label>
-                        @if (soloLectura)
-                        {
-                            <input class="form-control" value="@Model.TelefonoPropietario" readonly />
-                        }
-                        else
-                        {
-                            <input class="form-control" value="@Model.TelefonoPropietario" name="TelefonoPropietario" />
-                        }
+                        <input class="form-control" asp-for="TelefonoPropietario" value="@Model.TelefonoPropietario" readonly />
                     </div>
-                    
                 </div>
             </div>
         </div> 
@@ -382,4 +328,5 @@
 @section Scripts
 {
     <script src="~/js/contratos-select2.js"></script>
+
 }

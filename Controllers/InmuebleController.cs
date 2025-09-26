@@ -291,7 +291,7 @@ public class InmuebleController : Controller
             ViewBag.eliminacion = true;
 
             return RedirectToAction(nameof(Index));
-        }
+        } 
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al eliminar el inmueble");

@@ -1,5 +1,6 @@
 using System.Data;
 using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 using MySql.Data.MySqlClient;
 using inmobiliariaULP.Repositories.Interfaces;
 
@@ -233,4 +234,69 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
         return await command.ExecuteNonQueryAsync();
     }
 
+    public async Task<IEnumerable<InmueblePropietarioDTO>> ListActiveAsync(string term)
+    {
+        var inmuebles = new List<InmueblePropietarioDTO>();
+
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 	
+                i.id_inmueble AS InmuebleId, 
+                i.direccion AS Direccion, 
+                i.uso AS Uso, 
+                i.ambientes AS Ambientes, 
+                i.coordenadas AS Coordenadas, 
+                i.precio_base PrecioBase, 
+                i.estado AS EstadoInmueble, 
+                i.id_propietario AS PropietarioId, 
+                CONCAT(p.apellido, ' ', p.nombre ) AS NombrePropietario,
+                i.id_tipo AS Tipo, 
+                t.descripcion AS Descripcion,
+                p.email AS Email,
+                p.telefono AS Telefono
+
+            FROM inmuebles i
+                JOIN propietarios pr
+                    ON pr.id_propietario = i.id_propietario
+                JOIN personas p
+                    ON p.id_persona = pr.id_persona
+                JOIN tipos t
+                    ON i.id_tipo = t.id_tipo
+
+            WHERE 
+                (LOWER(i.direccion) LIKE LOWER(@term) OR 
+                LOWER(i.uso) LIKE LOWER(@term)) AND 
+                i.estado = 1
+            LIMIT 10;
+        ";
+
+        command.Parameters.AddWithValue("@term", $"%{term}%");
+
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var inmueble = new InmueblePropietarioDTO
+            {
+                InmuebleId = reader.GetInt32("InmuebleId"),
+                Direccion = reader.GetString("Direccion"),
+                UsoInmueble = reader.GetString("Uso"), 
+                Ambientes = reader.GetInt32("Ambientes"),
+                Coordenadas = reader.GetString("Coordenadas"),
+                PrecioBase = reader.GetDecimal("PrecioBase"),
+                EstadoInmueble = reader.GetBoolean("EstadoInmueble"),
+                TipoId = reader.GetInt32("Tipo"),
+                TipoInmueble = reader.GetString("Descripcion"),
+                PropietarioId = reader.GetInt32("PropietarioId"),
+                NombrePropietario = reader.GetString("NombrePropietario"),
+                EmailPropietario = reader.GetString("Email"),
+                TelefonoPropietario = reader.GetString("Telefono")
+            };
+            inmuebles.Add(inmueble);
+        }
+
+        return inmuebles;
+    }
 }

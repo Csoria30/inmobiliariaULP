@@ -1,5 +1,6 @@
 using System.Data;
 using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Repositories.Interfaces;
 using Google.Protobuf;
@@ -9,13 +10,13 @@ namespace inmobiliariaULP.Services.Implementations;
 public class InmuebleServiceImpl : IInmuebleService
 {
 
-     private readonly IInmuebleRepository _inmuebleRepository;
+    private readonly IInmuebleRepository _inmuebleRepository;
 
     public InmuebleServiceImpl(IInmuebleRepository inmuebleRepository)
     {
         _inmuebleRepository = inmuebleRepository;
     }
- 
+
 
     public async Task<(bool exito, string mensaje, string tipo)> CrearAsync(Inmueble inmueble)
     {
@@ -71,7 +72,7 @@ public class InmuebleServiceImpl : IInmuebleService
     {
         try
         {
-            
+
             var inmuebleActual = await _inmuebleRepository.GetByIdAsync(inmueble.InmuebleId);
 
             if (inmuebleActual == null)
@@ -147,6 +148,18 @@ public class InmuebleServiceImpl : IInmuebleService
         catch (Exception ex)
         {
             throw new Exception("Error al eliminar el inmueble", ex);
+        }
+    }
+
+    public async Task<IEnumerable<InmueblePropietarioDTO>> ListarActivosAsync(string term)
+    {
+        try
+        {
+            return await _inmuebleRepository.ListActiveAsync(term);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al listar inmuebles activos", ex);
         }
     }
 }

@@ -17,6 +17,7 @@ public class ContratoController : Controller
     private readonly IUsuarioService _usuarioService;
     private readonly IEmpleadoService _empleadoService;
     private readonly IContratoService _contratoService;
+    private readonly IInmuebleService _inmuebleService;
 
     public ContratoController(
         ILogger<ContratoController> logger,
@@ -25,7 +26,8 @@ public class ContratoController : Controller
         IPropietarioService propietarioService,
         IUsuarioService usuarioService,
         IEmpleadoService empleadoService,
-        IContratoService contratoService
+        IContratoService contratoService,
+        IInmuebleService inmuebleService
     )
     {
         _logger = logger;
@@ -35,6 +37,7 @@ public class ContratoController : Controller
         _usuarioService = usuarioService;
         _empleadoService = empleadoService;
         _contratoService = contratoService;
+        _inmuebleService = inmuebleService;
     }
 
     // Ejemplo de acción Index
@@ -131,6 +134,7 @@ public class ContratoController : Controller
     }
 
     //* GET: ContratoController/Details
+    [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
         var contrato = await _contratoService.GetByIdAsync(id);
@@ -143,6 +147,91 @@ public class ContratoController : Controller
         ViewBag.SoloLectura = true; // Flag para la vista
 
         return View("Create", contrato);
+    }
+
+    //* GET: ContratoController/Edit
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var contrato = await _contratoService.GetByIdAsync(id);
+        if (contrato == null)
+        {
+            TempData["Error"] = "El contrato no existe.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        ViewBag.SoloLectura = false; // Flag para la vista
+
+        return View("Create", contrato);
+    }
+
+    //! POST: ContratoController/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(ContratoDetalleDTO contrato)
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                var (exito, mensaje, tipo) = await _contratoService.CrearAsync(contrato);
+                TempData["Notificacion"] = mensaje;
+                TempData["NotificacionTipo"] = tipo;
+
+                if (exito)
+                    return RedirectToAction(nameof(Index));
+            }
+
+
+            return View("Create", contrato);
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al crear el inmueble");
+            TempData["Error"] = "Error al crear el inmueble: " + ex.Message;
+            return View("Error");
+        }
+    }
+
+    //* GET: ContratoController/Create
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var model = new ContratoDetalleDTO();
+        return View("Create", model);
+    }
+
+    //!POST: ContratoController/BuscarHabilitados
+    [HttpGet]
+    public async Task<IActionResult> BuscarHabilitados(string term)
+    {
+        try{
+            var inmuebles = await _inmuebleService.ListarActivosAsync(term);
+
+            var resultado = inmuebles.Select(i => new
+            {
+                InmuebleId = i.InmuebleId,
+                text = i.Direccion,
+                TipoInmueble = i.TipoInmueble,
+                UsoInmueble = i.UsoInmueble,
+                Ambientes = i.Ambientes,
+                Coordenadas = i.Coordenadas,
+                PrecioBase = i.PrecioBase,
+                EstadoInmueble = i.EstadoInmueble,
+                PropietarioId = i.PropietarioId,
+                NombrePropietario = i.NombrePropietario,
+                EmailPropietario = i.EmailPropietario,
+                TelefonoPropietario = i.TelefonoPropietario
+            });
+
+            return Json(resultado);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al buscar inmuebles habilitados");
+            return Json(new { error = "Error al buscar inmuebles habilitados: " + ex.Message });
+        }
     }
 
 }

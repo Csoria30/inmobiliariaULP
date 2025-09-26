@@ -136,7 +136,7 @@ public class PropietarioController : Controller
 
         var resultado = propietarios.Select(p => new
         {
-            id = p.PropietarioId, // o PersonaId según tu modelo
+            id = p.PropietarioId,
             text = $"{p.Apellido}, {p.Nombre}"
         });
 

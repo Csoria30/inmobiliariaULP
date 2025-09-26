@@ -1,4 +1,5 @@
 using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 namespace inmobiliariaULP.Services.Interfaces;
 
 public interface IInmuebleService
@@ -9,4 +10,5 @@ public interface IInmuebleService
     Task<(Inmueble inmueble, string mensaje, string tipo)> ObtenerIdAsync(int inmuebleId);
     Task<(bool exito, string mensaje, string tipo)> EditarAsync(Inmueble inmueble);
     Task<(bool exito, string mensaje, string tipo)> CambiarEstadoAsync(int inmuebleId);
+    Task<IEnumerable<InmueblePropietarioDTO>> ListarActivosAsync(string term);
 }
