@@ -6,6 +6,6 @@ public interface IContratoService
 {
     Task<(IEnumerable<ContratoListadoDTO> Contratos, int Total)> ObtenerTodosAsync(int page, int pageSize, string? search = null);
 
-    Task<ContratoDetalleDTO?> GetByIdAsync(int id);
+    Task<ContratoDetalleDTO?> ObtenerPorIdAsync(int id);
     Task<( bool exito, string mensaje, string tipo )> CrearAsync(ContratoDetalleDTO contrato);
 }

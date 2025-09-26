@@ -45,7 +45,7 @@ public class ContratoServiceImpl : IContratoService
         }
     }
 
-    public async Task<ContratoDetalleDTO?> GetByIdAsync(int id)
+    public async Task<ContratoDetalleDTO?> ObtenerPorIdAsync(int id)
     {
         return await _contratoRepository.GetByIdAsync(id);
     }

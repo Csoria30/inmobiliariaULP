@@ -138,7 +138,7 @@ public class ContratoController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var contrato = await _contratoService.GetByIdAsync(id);
+        var contrato = await _contratoService.ObtenerPorIdAsync(id);
         if (contrato == null)
         {
             TempData["Error"] = "El contrato no existe.";
@@ -154,7 +154,7 @@ public class ContratoController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var contrato = await _contratoService.GetByIdAsync(id);
+        var contrato = await _contratoService.ObtenerPorIdAsync(id);
         if (contrato == null)
         {
             TempData["Error"] = "El contrato no existe.";

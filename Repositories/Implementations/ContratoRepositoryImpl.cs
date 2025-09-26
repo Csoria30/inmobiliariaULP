@@ -212,6 +212,7 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
                     LEFT JOIN usuarios uf ON c.id_usuario_finaliza = uf.id_usuario
                     LEFT JOIN empleados ef ON uf.id_empleado = ef.id_empleado
                     LEFT JOIN personas puf ON ef.id_persona = puf.id_persona
+                WHERE c.id_contrato = @contratoId
             ";
             command.Parameters.AddWithValue("@contratoId", contratoId);
 
