@@ -225,11 +225,12 @@ public class ContratoController : Controller
         {
             if (!ModelState.IsValid)
             {
-                var errores = ModelStateHelper.GetErrors(ModelState);
+                return View("Create", contrato);
             }
 
             if (ModelState.IsValid)
             {
+
                 var (exito, mensaje, tipo) = await _contratoService.CrearAsync(contrato);
                 TempData["Notificacion"] = mensaje;
                 TempData["NotificacionTipo"] = tipo;
@@ -254,22 +255,38 @@ public class ContratoController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var model = new ContratoDetalleDTO();
-        var emailUsuario = User.Identity.Name; // O como obtengas el email del usuario logueado
-        var (exito, mensaje, usuario) = await _usuarioService.ObtenerPerfilAsync(emailUsuario);
-
-        if (exito && usuario != null)
+        try
         {
-            model.UsuarioId = usuario.UsuarioId;
-            model.NombreEmpleado = $"{usuario.Apellido} {usuario.Nombre}";
-            model.EmailUsuario = usuario.Email;
-            model.RolUsuario = usuario.Rol;
+            // Crear una sola instancia del modelo
+            var model = new ContratoDetalleDTO();
+            
+            // Obtener información del usuario logueado
+            var emailUsuario = User.Identity.Name;
+            var (exito, mensaje, usuario) = await _usuarioService.ObtenerPerfilAsync(emailUsuario);
+
+            // Configurar información del usuario si se obtuvo correctamente
+            if (exito && usuario != null)
+            {
+                model.UsuarioId = usuario.UsuarioId;
+                model.NombreEmpleado = $"{usuario.Apellido} {usuario.Nombre}";
+                model.EmailUsuario = usuario.Email;
+                model.RolUsuario = usuario.Rol;
+            }
+
+            // Configurar valores por defecto
+            var fechaHoy = DateTime.Today;
+            model.FechaInicio = fechaHoy;
+            model.FechaFin = fechaHoy.AddDays(30);
+            model.EstadoContrato = "vigente";
+
+            return View("Create", model);
         }
-
-        //Atributos Default
-        model.EstadoContrato = "vigente";
-
-        return View("Create", model);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar la vista de crear contrato");
+            TempData["Error"] = "Error al cargar el formulario: " + ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     //!POST: ContratoController/BuscarHabilitados

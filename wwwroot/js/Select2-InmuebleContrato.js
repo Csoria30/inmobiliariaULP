@@ -52,7 +52,10 @@ $(document).ready(function() {
         $('#UsoInmueble').val(data.uso);
         $('#Ambientes').val(data.ambientes);
         $('#Coordenadas').val(data.coordenadas);
+
         $('#EstadoInmueble').val(data.estado ? 'Habilitado' : 'Deshabilitado');
+         /* $('#EstadoInmueble').prop('checked', data.estado); */
+
         $('#NombrePropietario').val(data.propietarioNombre);
         $('#EmailPropietario').val(data.propietarioEmail);
         $('#TelefonoPropietario').val(data.propietarioTelefono);

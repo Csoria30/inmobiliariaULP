@@ -2,18 +2,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace inmobiliariaULP.Models.ViewModels;
 
-public class ContratoDetalleDTO
+public class ContratoDetalleDTO : IValidatableObject
 {
     // Contrato
     public int ContratoId { get; set; }
-    public int inquilinoId { get; set; }
 
+    [Required(ErrorMessage = "La fecha de inicio es obligatoria")]
     [Display(Name = "Fecha de inicio")]
-    public DateTime FechaInicio { get; set; } = DateTime.Today;
+    public DateTime FechaInicio { get; set; }
 
-    [Display(Name = "Fecha de fin")] 
-    public DateTime FechaFin { get; set; } = DateTime.Today.AddMonths(1);   
+    [Required(ErrorMessage = "La fecha de fin es obligatoria")]
+    [Display(Name = "Fecha de fin")]
+    public DateTime FechaFin { get; set; } 
 
+    [Required(ErrorMessage = "El monto mensual es obligatorio")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "El monto mensual debe ser mayor a 0")]
     [Display(Name = "Monto mensual")]
     public decimal MontoMensual { get; set; }
 
@@ -23,6 +26,7 @@ public class ContratoDetalleDTO
     [Display(Name = "Multa")]
     public decimal? Multa { get; set; }
 
+    [Required(ErrorMessage = "Debe seleccionar el estado del contrato")]
     [Display(Name = "Estado del contrato")]
     public string EstadoContrato { get; set; }
 
@@ -40,8 +44,9 @@ public class ContratoDetalleDTO
     }
 
     // Inmueble
+    [Required(ErrorMessage = "Debe seleccionar un inmueble")]
     public int InmuebleId { get; set; }
-    
+
     [Display(Name = "Dirección")]
     public string Direccion { get; set; }
 
@@ -74,6 +79,8 @@ public class ContratoDetalleDTO
     public string TelefonoPropietario { get; set; }
 
     //- Inquilino
+
+    [Required(ErrorMessage = "Debe seleccionar un inquilino")]
     public int InquilinoId { get; set; }
     public int InquilinoIdPersona { get; set; }
 
@@ -105,4 +112,42 @@ public class ContratoDetalleDTO
     [Display(Name = "Email de contacto")]
     public string? EmailUsuarioFin { get; set; }
     public string? RolUsuarioFin { get; set; }
+
+    //- Validacion PERsONALIZADA
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var results = new List<ValidationResult>();
+    
+
+
+
+        // Validar que la fecha de fin sea mayor que la fecha de inicio
+        if (FechaFin <= FechaInicio)
+        {
+            results.Add(new ValidationResult(
+                "La fecha de fin debe ser posterior a la fecha de inicio",
+                new[] { nameof(FechaFin) }
+            ));
+        }
+
+        // Validar que la fecha de inicio no sea anterior a hoy (PERMITE HOY)
+        if (FechaInicio < DateTime.Today)
+        {
+            results.Add(new ValidationResult(
+                "La fecha de inicio no puede ser anterior a la fecha actual",
+                new[] { nameof(FechaInicio) }
+            ));
+        }
+
+        // Validar que el contrato tenga una duración mínima
+        if ((FechaFin - FechaInicio).Days < 30)
+        {
+            results.Add(new ValidationResult(
+                "El contrato debe tener una duración mínima de 30 días",
+                new[] { nameof(FechaFin) }
+            ));
+        }
+
+        return results;
+    }
 }
