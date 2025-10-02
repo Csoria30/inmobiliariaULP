@@ -30,6 +30,7 @@ builder.Services.AddScoped<ITipoRepository, TipoRepositoryImpl>();
 builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepositoryImpl>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepositoryImpl>();
 builder.Services.AddScoped<IContratoRepository, ContratoRepositoryImpl>();
+builder.Services.AddScoped<IPagoRepository, PagoRepositoryImpl>();
 
 builder.Services.AddScoped<IInmuebleService, InmuebleServiceImpl>();
 builder.Services.AddScoped<IInquilinoService, InquilinoServiceImpl>();
@@ -39,6 +40,7 @@ builder.Services.AddScoped<ITipoService, TipoServiceImpl>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoServiceImpl>();
 builder.Services.AddScoped<IUsuarioService, UsuarioServiceImpl>();
 builder.Services.AddScoped<IContratoService, ContratoServiceImpl>();
+builder.Services.AddScoped<IPagoService, PagoServiceImpl>();
 
 // Add authentication services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -52,7 +52,9 @@ public class AuthController : Controller
             var claims = new List<Claim>
             {
                 new Claim("PersonaId", usuario.PersonaId.ToString()),
+                new Claim("UsuarioId", usuario.UsuarioId.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Email),
+                new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
                 new Claim(ClaimTypes.Role, usuario.Rol),
                 new Claim("Avatar", usuario.Avatar ?? "default-avatar.png") 

@@ -1,0 +1,319 @@
+@model inmobiliariaULP.Models.ViewModels.PagoDTO
+
+@{
+    var esEdicion = Model?.IdPago > 0;
+    ViewData["Title"] = esEdicion ? "Editar Pago" : "Registrar Nuevo Pago";
+}
+
+<div class="container-fluid px-4 py-5">
+    
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 fw-bold text-success mb-0">
+                <i class="bi @(esEdicion ? "bi-pencil-square" : "bi-cash-coin") me-2"></i>@ViewData["Title"]
+            </h1>
+            <p class="text-muted mb-0">@(esEdicion ? "Modifica la información del pago" : "Registra un nuevo pago de alquiler")</p>
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-outline-secondary" asp-controller="Contrato" asp-action="Index">
+                <i class="bi bi-arrow-left me-2"></i>Volver a Contratos
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensajes de notificación -->
+    @if (TempData["Notificacion"] != null)
+    {
+        var tipoNotificacion = TempData["NotificacionTipo"]?.ToString() ?? "info";
+        var iconoNotificacion = tipoNotificacion switch
+        {
+            "success" => "bi-check-circle",
+            "error" => "bi-exclamation-triangle",
+            "warning" => "bi-exclamation-triangle",
+            _ => "bi-info-circle"
+        };
+        var colorNotificacion = tipoNotificacion switch
+        {
+            "success" => "alert-success",
+            "error" => "alert-danger",
+            "warning" => "alert-warning",
+            _ => "alert-info"
+        };
+
+        <div class="alert @colorNotificacion alert-dismissible fade show" role="alert">
+            <i class="bi @iconoNotificacion me-2"></i>@TempData["Notificacion"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Información del Contrato -->
+    @if (Model?.DireccionInmueble != null)
+    {
+        <div class="card border-success mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-house-fill me-2"></i>Información del Contrato
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong><i class="bi bi-geo-alt me-1"></i>Dirección:</strong><br>
+                        <span class="text-muted">@Model.DireccionInmueble</span>
+                    </div>
+                    <div class="col-md-4">
+                        <strong><i class="bi bi-person me-1"></i>Inquilino:</strong><br>
+                        <span class="text-muted">@Model.NombreInquilino</span>
+                    </div>
+                    <div class="col-md-4">
+                        <strong><i class="bi bi-currency-dollar me-1"></i>Monto Mensual:</strong><br>
+                        <span class="text-success fw-bold">@Model.MontoMensualContrato?.ToString("C")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Formulario de Pago -->
+    <div class="card border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-credit-card me-2"></i>Datos del Pago
+            </h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="@(esEdicion ? "Edit" : "Create")" asp-controller="Pago" method="post" class="needs-validation" novalidate>
+                @if (esEdicion)
+                {
+                    <input type="hidden" asp-for="IdPago" />
+                }
+                
+                <input type="hidden" asp-for="IdContrato" />
+                <input type="hidden" asp-for="IdUsuario" />
+                <input type="hidden" asp-for="DireccionInmueble" />
+                <input type="hidden" asp-for="NombreInquilino" />
+                <input type="hidden" asp-for="MontoMensualContrato" />
+
+                <div class="row g-3">
+                    <!-- Fecha de Pago -->
+                    <div class="col-md-4">
+                        <label asp-for="FechaPago" class="form-label">
+                            <i class="bi bi-calendar-event me-1"></i>@Html.DisplayNameFor(m => m.FechaPago)
+                        </label>
+                        <input asp-for="FechaPago" class="form-control" type="date" />
+                        <span asp-validation-for="FechaPago" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Número de Pago -->
+                    <div class="col-md-4">
+                        <label asp-for="NumeroPago" class="form-label">
+                            <i class="bi bi-hash me-1"></i>@Html.DisplayNameFor(m => m.NumeroPago)
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="NumeroPago" class="form-control" readonly />
+                            <button type="button" class="btn btn-outline-success" id="btnGenerarNumero">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Generar
+                            </button>
+                        </div>
+                        <span asp-validation-for="NumeroPago" class="text-danger small"></span>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>Se genera automáticamente o puede modificarlo
+                        </div>
+                    </div>
+
+                    <!-- Estado del Pago -->
+                    <div class="col-md-4">
+                        <label asp-for="EstadoPago" class="form-label">
+                            <i class="bi bi-check-circle me-1"></i>@Html.DisplayNameFor(m => m.EstadoPago)
+                        </label>
+                        <select asp-for="EstadoPago" class="form-select">
+                            <option value="aprobado">Aprobado</option>
+                            <option value="anulado">Anulado</option>
+                        </select>
+                        <span asp-validation-for="EstadoPago" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Importe -->
+                    <div class="col-md-6">
+                        <label asp-for="Importe" class="form-label">
+                            <i class="bi bi-currency-dollar me-1"></i>@Html.DisplayNameFor(m => m.Importe)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Importe" class="form-control" type="number" min="0.01" step="0.01" />
+                            @if (Model?.MontoMensualContrato.HasValue == true)
+                            {
+                                <button type="button" class="btn btn-outline-success" id="btnUsarMontoContrato">
+                                    <i class="bi bi-copy me-1"></i>Usar monto del contrato
+                                </button>
+                            }
+                        </div>
+                        <span asp-validation-for="Importe" class="text-danger small"></span>
+                        @if (Model?.MontoMensualContrato.HasValue == true)
+                        {
+                            <div class="form-text">
+                                <i class="bi bi-lightbulb me-1"></i>Monto sugerido: @Model.MontoMensualContrato?.ToString("C")
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Concepto -->
+                    <div class="col-md-6">
+                        <label asp-for="Concepto" class="form-label">
+                            <i class="bi bi-card-text me-1"></i>@Html.DisplayNameFor(m => m.Concepto)
+                        </label>
+                        <input asp-for="Concepto" class="form-control" placeholder="Ej: Pago de alquiler mes de enero 2024" />
+                        <span asp-validation-for="Concepto" class="text-danger small"></span>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>Describe el concepto del pago
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mostrar errores de validación generales -->
+                <div asp-validation-summary="All" class="text-danger mt-3"></div>
+
+                <!-- Botones de acción -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi @(esEdicion ? "bi-check-lg" : "bi-cash-coin") me-2"></i>
+                                @(esEdicion ? "Actualizar Pago" : "Registrar Pago")
+                            </button>
+                            
+                            <a class="btn btn-outline-secondary" asp-controller="Contrato" asp-action="Details" asp-route-id="@Model?.IdContrato">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+
+                            @if (esEdicion && Model?.EstadoPago == "aprobado")
+                            {
+                                <button type="button" class="btn btn-outline-danger ms-auto" data-bs-toggle="modal" data-bs-target="#modalAnularPago">
+                                    <i class="bi bi-x-octagon me-2"></i>Anular Pago
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="card border-success mt-4">
+        <div class="card-header bg-light">
+            <h6 class="card-title mb-0">
+                <i class="bi bi-info-circle me-2"></i>Información Importante
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check text-success me-2"></i>
+                            La fecha de pago no puede ser futura
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check text-success me-2"></i>
+                            El número de pago se genera automáticamente
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check text-success me-2"></i>
+                            El importe puede diferir del monto mensual
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check text-success me-2"></i>
+                            Solo se pueden anular pagos aprobados
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal para Anular Pago -->
+@if (esEdicion && Model?.EstadoPago == "aprobado")
+{
+    <div class="modal fade" id="modalAnularPago" tabindex="-1" aria-labelledby="modalAnularPagoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAnularPagoLabel">Anular Pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea anular el pago <strong>@Model?.NumeroPago</strong>?</p>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Esta acción no se puede deshacer. El pago quedará marcado como anulado.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-danger" asp-controller="Pago" asp-action="Delete" asp-route-id="@Model?.IdPago">
+                        Anular Pago
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generar número automático
+            const btnGenerarNumero = document.getElementById('btnGenerarNumero');
+            const inputNumero = document.querySelector('input[name="NumeroPago"]');
+            const contratoId = @Model?.IdContrato;
+
+            if (btnGenerarNumero) {
+                btnGenerarNumero.addEventListener('click', async function() {
+                    try {
+                        const response = await fetch(`/Pago/GenerarNumero?contratoId=${contratoId}`);
+                        if (response.ok) {
+                            const numero = await response.text();
+                            inputNumero.value = numero.replace(/"/g, ''); // Remover comillas si vienen
+                        }
+                    } catch (error) {
+                        console.error('Error al generar número:', error);
+                    }
+                });
+            }
+
+            // Usar monto del contrato
+            const btnUsarMonto = document.getElementById('btnUsarMontoContrato');
+            const inputImporte = document.querySelector('input[name="Importe"]');
+            const montoContrato = @(Model?.MontoMensualContrato ?? 0);
+
+            if (btnUsarMonto) {
+                btnUsarMonto.addEventListener('click', function() {
+                    inputImporte.value = montoContrato;
+                });
+            }
+
+            // Generar número automáticamente al cargar si está vacío
+            if (inputNumero && !inputNumero.value && contratoId) {
+                btnGenerarNumero?.click();
+            }
+
+            // Sugerir concepto automático
+            const inputConcepto = document.querySelector('input[name="Concepto"]');
+            if (inputConcepto && !inputConcepto.value) {
+                const fechaActual = new Date();
+                const mesNombre = fechaActual.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+                inputConcepto.value = `Pago de alquiler mes de ${mesNombre}`;
+            }
+        });
+    </script>
+}
