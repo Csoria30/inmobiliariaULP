@@ -124,7 +124,7 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
 	            estado 
 	
 	        FROM propietarios 
-	        WHERE id_persona = @PropietarioId;
+	        WHERE id_propietario = @PropietarioId;
         ";
 
         command.Parameters.AddWithValue("@PropietarioId", propietarioId);

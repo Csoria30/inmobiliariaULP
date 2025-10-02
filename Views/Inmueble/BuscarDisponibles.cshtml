@@ -230,7 +230,7 @@
     }
     else
     {
-        <!-- ✅ Estado inicial (no se ha hecho búsqueda) -->
+        <!--Estado inicial (no se ha hecho búsqueda) -->
         <div class="card">
             <div class="card-body text-center py-5">
                 <i class="bi bi-funnel display-1 text-muted"></i>
@@ -246,14 +246,5 @@
     <!-- Solo validación del lado cliente -->
     <partial name="_ValidationScriptsPartial" />
     
-    <!-- Tooltips -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
-        });
-    </script>
+    
 }

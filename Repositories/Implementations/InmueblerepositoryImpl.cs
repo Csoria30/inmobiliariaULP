@@ -131,10 +131,17 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             var command = connection.CreateCommand();
             command.CommandText = @"
                 SELECT 	
-                    i.id_inmueble, i.direccion, i.uso, i.ambientes, 
-                    i.coordenadas, i.precio_base, i.estado, 
-                    i.id_propietario, p.nombre,p.apellido,
-                    i.id_tipo, t.descripcion
+                    i.id_inmueble, 
+                    i.direccion, 
+                    i.uso, 
+                    i.ambientes, 
+                    i.coordenadas, 
+                    i.precio_base, 
+                    i.estado, 
+                    i.id_propietario,
+                     p.nombre,p.apellido,
+                    i.id_tipo, 
+                    t.descripcion
 
                 FROM inmuebles i
 

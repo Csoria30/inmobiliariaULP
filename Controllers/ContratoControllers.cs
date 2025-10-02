@@ -253,13 +253,71 @@ public class ContratoController : Controller
 
     //* GET: ContratoController/Create
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(int? inmuebleId = null, DateTime? fechaInicio = null, DateTime? fechaFin = null)
     {
         try
         {
             // Crear una sola instancia del modelo
             var model = new ContratoDetalleDTO();
+
+            //- INMUEBLE
+            //Obtener datos del inmueble que viene por parámetro
+            if (inmuebleId.HasValue)
+            {
+                //Datos inmueble
+                var (inmueble, _, _) = await _inmuebleService.ObtenerIdAsync(inmuebleId.Value);
+
+                model.InmuebleId = inmueble.InmuebleId;
+                model.PropietarioId = inmueble.PropietarioId ?? 0;
+                model.Coordenadas = inmueble.Coordenadas;
+                model.Direccion = inmueble.Direccion;
+                model.Ambientes = inmueble.Ambientes ?? 0;
+                model.TipoInmueble = inmueble.TipoDescripcion;
+                model.UsoInmueble = inmueble.Uso;
+                model.NombrePropietario = inmueble.PropietarioNombre;
+
+
+                //- PROPIETARIO
+                if (inmueble.PropietarioId.HasValue && inmueble.PropietarioId.Value > 0)
+                {
+                    var propietario = await _propietarioService.ObtenerIdAsync(inmueble.PropietarioId.Value);
+                    if (propietario != null)
+                    {
+                        //-Persona
+                        var personaPropietario = await _personaService.ObtenerIdAsync(propietario.PersonaId);
+                        model.EmailPropietario = personaPropietario.Email;
+                        model.TelefonoPropietario = personaPropietario.Telefono;
+                    }   
+                }
+                else
+                {
+                    model.EmailPropietario = string.Empty;
+                    model.TelefonoPropietario = string.Empty;
+                }
+            }
+
+            //Fechas - Si vienen por parametros
+            if (fechaInicio.HasValue)
+            {
+                model.FechaInicio = fechaInicio.Value;
+            }
+            else
+            {
+                model.FechaInicio = DateTime.Today;
+            }
+
+            if (fechaFin.HasValue)
+            {
+                model.FechaFin = fechaFin.Value;
+            }
+            else
+            {
+                model.FechaFin = DateTime.Today.AddDays(30);
+            }
+
             
+            
+            //-USUARIO
             // Obtener información del usuario logueado
             var emailUsuario = User.Identity.Name;
             var (exito, mensaje, usuario) = await _usuarioService.ObtenerPerfilAsync(emailUsuario);
@@ -274,9 +332,6 @@ public class ContratoController : Controller
             }
 
             // Configurar valores por defecto
-            var fechaHoy = DateTime.Today;
-            model.FechaInicio = fechaHoy;
-            model.FechaFin = fechaHoy.AddDays(30);
             model.EstadoContrato = "vigente";
 
             return View("Create", model);
