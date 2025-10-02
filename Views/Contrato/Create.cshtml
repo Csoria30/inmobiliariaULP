@@ -77,7 +77,8 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" asp-for="EstadoInmueble"></label>
-                        <input class="form-control" asp-for="EstadoInmueble" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
+                        <input class="form-control" value="@(Model.EstadoInmueble ? "Habilitado" : "Deshabilitado")" readonly />
+                        <input type="hidden" asp-for="EstadoInmueble" />
                     </div>
                 </div>
             </div>

@@ -140,7 +140,8 @@ public class PagoController : Controller
 
             if (exito)
             {
-                return RedirectToAction("Details", "Contrato", new { id = pagoDto.IdContrato });
+                //return RedirectToAction("Details", "Contrato", new { id = pagoDto.IdContrato });
+                return RedirectToAction("Index", "Contrato");
             }
 
             return View(pagoDto);

@@ -147,8 +147,10 @@ public class ContratoDetalleDTO : IValidatableObject
         // Validar que la fecha de inicio no sea anterior a hoy (PERMITE HOY)
         if (FechaInicio < DateTime.Today)
         {
+            var fechaSeleccionada = FechaInicio.ToString("dd/MM/yyyy");
+            var fechaActual = DateTime.Today.ToString("dd/MM/yyyy");
             results.Add(new ValidationResult(
-                "La fecha de inicio no puede ser anterior a la fecha actual",
+                $"La fecha de inicio seleccionada ({fechaSeleccionada}) es anterior al día de hoy ({fechaActual}). Por favor, seleccione una fecha igual o posterior a la fecha actual.",
                 new[] { nameof(FechaInicio) }
             ));
         }

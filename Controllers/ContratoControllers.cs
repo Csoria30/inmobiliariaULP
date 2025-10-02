@@ -287,6 +287,7 @@ public class ContratoController : Controller
                 model.UsoInmueble = inmueble.Uso;
                 model.NombrePropietario = inmueble.PropietarioNombre;
                 model.MontoMensual = inmueble.PrecioBase ?? 0;
+                
 
 
                 //- PROPIETARIO
@@ -356,7 +357,7 @@ public class ContratoController : Controller
         }
     }
 
-    //!POST: ContratoController/BuscarHabilitados
+    //*GET : ContratoController/BuscarHabilitados
     [HttpGet]
     public async Task<IActionResult> BuscarHabilitados(string term)
     {
