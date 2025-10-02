@@ -1,150 +1,272 @@
-// ~/js/buscar-inmuebles.js
-function inicializarBusquedaInmuebles() {
-    if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
-        console.log('Esperando jQuery y DataTables...');
-        setTimeout(inicializarBusquedaInmuebles, 100);
-        return;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarTooltips(); // INICIALIZAR tooltips de Bootstrap
+    configurarValidacionesFormulario(); // VALIDACIONES del formulario en tiempo real
+    configurarMejorasUX(); //MEJORAR experiencia de usuario
+});
 
-    $(document).ready(function () {
-        console.log('✅ Inicializando búsqueda de inmuebles...');
-        
-        // ✅ Las fechas ya vienen del servidor (valores por defecto del ViewModel)
-        
-        // Verificar elementos
-        if ($('#resultadosTable').length === 0) {
-            console.error('❌ Tabla #resultadosTable no encontrada');
-            return;
-        }
-
-        // Destruir tabla existente
-        if ($.fn.DataTable.isDataTable('#resultadosTable')) {
-            $('#resultadosTable').DataTable().destroy();
-        }
-
-        // ✅ INICIALIZAR DataTable
-        var table = $('#resultadosTable').DataTable({
-            processing: false,
-            serverSide: false,
-            deferLoading: 0, // No cargar automáticamente
-            ajax: {
-                url: '/Inmueble/GetInmueblesDisponibles',
-                type: 'POST',
-                data: function(d) {
-                    return {
-                        // ✅ USAR nombres exactos del ViewModel (PascalCase)
-                        FechaInicio: $('#FechaInicio').val(),
-                        FechaFin: $('#FechaFin').val(),
-                        Uso: $('#Uso').val() || '',
-                        Ambientes: $('#Ambientes').val() || '',
-                        PrecioMin: $('#PrecioMin').val() || '',
-                        PrecioMax: $('#PrecioMax').val() || '',
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    };
-                },
-                dataSrc: function(json) {
-                    console.log('📊 Respuesta del servidor:', json);
-                    
-                    if (json.success === false) {
-                        console.error('❌ Error del servidor:', json.error);
-                        alert('Error: ' + json.error);
-                        return [];
-                    }
-                    
-                    return json.data || [];
-                },
-                error: function(xhr, error, thrown) {
-                    console.error('❌ Error AJAX:', xhr, error, thrown);
-                    alert('Error de conexión: ' + (xhr.responseJSON?.error || 'No se pudo conectar con el servidor'));
-                }
-            },
-            columns: [
-                { data: 'direccion', title: 'Dirección', defaultContent: '-' },
-                { data: 'tipoUso', title: 'Tipo/Uso', defaultContent: '-' },
-                { data: 'ambientes', title: 'Ambientes', defaultContent: '0' },
-                { data: 'precio', title: 'Precio', defaultContent: '$0' },
-                { data: 'disponibilidad', title: 'Disponibilidad', orderable: false, defaultContent: '-' },
-                { data: 'propietario', title: 'Propietario', defaultContent: '-' },
-                { data: 'acciones', title: 'Acciones', orderable: false, searchable: false, defaultContent: '-' }
-            ],
-            columnDefs: [
-                { targets: 0, className: 'text-start' },
-                { targets: 3, className: 'text-end' },
-                { targets: 4, className: 'text-center' },
-                { targets: 6, className: 'text-center' }
-            ],
-            language: {
-                search: "Buscar en resultados:",
-                lengthMenu: "Mostrar _MENU_ entradas",
-                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                emptyTable: "🔍 Seleccione fechas y presione 'Buscar' para ver inmuebles disponibles",
-                zeroRecords: "No se encontraron inmuebles disponibles con los criterios seleccionados",
-                paginate: {
-                    previous: "Anterior",
-                    next: "Siguiente"
-                }
-            }
-        });
-
-        // ✅ EVENTO: Buscar
-        $('#btnBuscar').on('click', function() {
-            console.log('🔍 Iniciando búsqueda...');
-            
-            const fechaInicio = $('#FechaInicio').val();
-            const fechaFin = $('#FechaFin').val();
-            
-            if (!fechaInicio || !fechaFin) {
-                alert('Por favor seleccione ambas fechas para buscar');
-                return;
-            }
-            
-            if (fechaInicio >= fechaFin) {
-                alert('La fecha de inicio debe ser anterior a la fecha de fin');
-                return;
-            }
-            
-            const $btn = $(this);
-            const textoOriginal = $btn.html();
-            $btn.html('<i class="bi bi-arrow-clockwise spin me-1"></i>Buscando...').prop('disabled', true);
-            
-            table.ajax.reload(function(json) {
-                console.log('✅ Búsqueda completada');
-                $btn.html(textoOriginal).prop('disabled', false);
-                
-                const total = json.data ? json.data.length : 0;
-                $('#contador-resultados').html(total > 0 ? `${total} inmuebles encontrados` : 'Sin resultados');
-                $('#btnExportar').prop('disabled', total === 0);
-            });
-        });
-
-        // ✅ EVENTO: Limpiar
-        $('#btnLimpiar').on('click', function() {
-            console.log('🗑️ Limpiando filtros...');
-            
-            // Reset form mantiene los valores por defecto del servidor
-            document.getElementById('formBusqueda').reset();
-            
-            // Limpiar tabla
-            table.clear().draw();
-            $('#contador-resultados').html('');
-            $('#btnExportar').prop('disabled', true);
-        });
-        
-        console.log('✅ Búsqueda de inmuebles inicializada correctamente');
+//* FUNCIÓN: Inicializar tooltips
+function inicializarTooltips() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
     });
 }
 
-// ✅ FUNCIÓN GLOBAL para crear contratos
-function crearContratoConInmueble(inmuebleId) {
-    const fechaInicio = $('#FechaInicio').val();
-    const fechaFin = $('#FechaFin').val();
-    
-    window.location.href = `/Contrato/Create?inmuebleId=${inmuebleId}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+//* FUNCIÓN: Configurar validaciones del formulario
+function configurarValidacionesFormulario() {
+    const fechaInicio = document.getElementById('FechaInicio');
+    const fechaFin = document.getElementById('FechaFin');
+    const precioMin = document.getElementById('PrecioMin');
+    const precioMax = document.getElementById('PrecioMax');
+    const btnBuscar = document.getElementById('btnBuscar');
+
+    if (!fechaInicio || !fechaFin) return;
+
+    //? VALIDACION: Fechas en tiempo real
+    function validarFechas() {
+        const inicio = new Date(fechaInicio.value);
+        const fin = new Date(fechaFin.value);
+        
+        if (fechaInicio.value && fechaFin.value) {
+            if (inicio >= fin) {
+                mostrarErrorCampo(fechaFin, 'La fecha de fin debe ser posterior a la fecha de inicio');
+                return false;
+            } else {
+                limpiarErrorCampo(fechaFin);
+                
+                //? Calcular duración y mostrar información
+                const duracion = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
+                mostrarInfoDuracion(duracion);
+                return true;
+            }
+        }
+        return true;
+    }
+
+    //* VALIDACION: Precios en tiempo real
+    function validarPrecios() {
+        if (precioMin && precioMax && precioMin.value && precioMax.value) {
+            const min = parseFloat(precioMin.value);
+            const max = parseFloat(precioMax.value);
+            
+            if (min >= max) {
+                mostrarErrorCampo(precioMax, 'El precio máximo debe ser mayor al precio mínimo');
+                return false;
+            } else {
+                limpiarErrorCampo(precioMax);
+                return true;
+            }
+        }
+        return true;
+    }
+
+    //? EVENTOS: de validación
+    fechaInicio?.addEventListener('change', validarFechas);
+    fechaFin?.addEventListener('change', validarFechas);
+    precioMin?.addEventListener('input', validarPrecios);
+    precioMax?.addEventListener('input', validarPrecios);
+
+    //* VALIDACION:  antes de enviar formulario
+    const formulario = document.querySelector('form[action*="BuscarDisponibles"]');
+    if (formulario && btnBuscar) {
+        formulario.addEventListener('submit', function(e) {
+            if (!validarFechas() || !validarPrecios()) {
+                e.preventDefault();
+                mostrarAlerta('Por favor corrija los errores en el formulario antes de continuar.', 'warning');
+            } else {
+                // Mostrar loading en el botón
+                mostrarLoadingBoton(btnBuscar);
+            }
+        });
+    }
 }
 
-// Inicializar
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inicializarBusquedaInmuebles);
-} else {
-    inicializarBusquedaInmuebles();
+
+//-  FUNCION: Mejoras de UX
+function configurarMejorasUX() {
+    //? AUTO-COMPLETAR fecha de inicio con hoy - Aunque ya venga del Controller 
+    const fechaInicio = document.getElementById('FechaInicio');
+    if (fechaInicio && !fechaInicio.value) {
+        fechaInicio.value = new Date().toISOString().split('T')[0];
+    }
+
+    //? AUTO-COMPLETAR fecha de fin con un año después
+    const fechaFin = document.getElementById('FechaFin');
+    if (fechaFin && !fechaFin.value && fechaInicio?.value) {
+        const fechaInicioDate = new Date(fechaInicio.value);
+        fechaInicioDate.setFullYear(fechaInicioDate.getFullYear() + 1);
+        fechaFin.value = fechaInicioDate.toISOString().split('T')[0];
+    }
+
+    //? FORMATO de números en campos de precio
+    const precioMin = document.getElementById('PrecioMin');
+    const precioMax = document.getElementById('PrecioMax');
+    
+    [precioMin, precioMax].forEach(campo => {
+        if (campo) {
+            campo.addEventListener('input', function() {
+                formatearPrecio(this);
+            });
+        }
+    });
+
+    // !  ANIMACIONES suaves para alertas
+    setTimeout(() => {
+        const alertas = document.querySelectorAll('.alert');
+        alertas.forEach(alerta => {
+            alerta.classList.add('fade-in');
+        });
+    }, 100);
 }
+
+
+//*  FUNCION: Mostrar error en campo
+function mostrarErrorCampo(campo, mensaje) {
+    limpiarErrorCampo(campo);
+    
+    campo.classList.add('is-invalid');
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'invalid-feedback';
+    feedback.textContent = mensaje;
+    
+    campo.parentNode.appendChild(feedback);
+}
+
+//*  FUNCION: Limpiar error de campo
+function limpiarErrorCampo(campo) {
+    campo.classList.remove('is-invalid');
+    
+    const feedback = campo.parentNode.querySelector('.invalid-feedback');
+    if (feedback) {
+        feedback.remove();
+    }
+}
+
+//*  FUNCION: Mostrar información de duración
+function mostrarInfoDuracion(dias) {
+    const info = document.getElementById('info-duracion') || crearElementoInfo();
+    
+    let mensaje = `Período: ${dias} días`;
+    if (dias >= 365) {
+        const años = Math.floor(dias / 365);
+        const mesesRestantes = Math.floor((dias % 365) / 30);
+        mensaje += ` (${años} año${años > 1 ? 's' : ''}${mesesRestantes > 0 ? ` y ${mesesRestantes} mes${mesesRestantes > 1 ? 'es' : ''}` : ''})`;
+    }
+    
+    info.innerHTML = `<i class="bi bi-info-circle me-1"></i>${mensaje}`;
+    info.className = 'small text-muted mt-1';
+}
+
+//*  FUNCION: Crear elemento de información
+function crearElementoInfo() {
+    const fechaFin = document.getElementById('FechaFin');
+    const info = document.createElement('div');
+    info.id = 'info-duracion';
+    fechaFin.parentNode.appendChild(info);
+    return info;
+}
+
+//*  FUNCION: Formatear precio con separadores de miles
+function formatearPrecio(campo) {
+    let valor = campo.value.replace(/[^\d.,]/g, '');
+    // Aquí puedes agregar lógica de formateo si quieres
+    campo.value = valor;
+}
+
+//* FUNCION: Mostrar loading en botón
+function mostrarLoadingBoton(boton) {
+    const textoOriginal = boton.innerHTML;
+    boton.innerHTML = '<i class="bi bi-arrow-clockwise spin me-1"></i>Buscando...';
+    boton.disabled = true;
+    
+    // Agregar datos para restaurar después
+    boton.dataset.textoOriginal = textoOriginal;
+}
+
+//*  FUNCION: Mostrar alerta dinámica
+function mostrarAlerta(mensaje, tipo = 'info') {
+    const contenedor = document.querySelector('.container-fluid') || document.body;
+    
+    const alerta = document.createElement('div');
+    alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alerta.innerHTML = `
+        <i class="bi bi-${tipo === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    contenedor.insertBefore(alerta, contenedor.firstChild);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (alerta.parentNode) {
+            alerta.remove();
+        }
+    }, 5000);
+}
+
+// ✅ FUNCIÓN GLOBAL: Crear contrato con inmueble (para botones en la tabla)
+function crearContratoConInmueble(inmuebleId) {
+    const fechaInicio = document.getElementById('FechaInicio')?.value;
+    const fechaFin = document.getElementById('FechaFin')?.value;
+    
+    if (!fechaInicio || !fechaFin) {
+        mostrarAlerta('No se pueden obtener las fechas seleccionadas', 'warning');
+        return;
+    }
+    
+    const url = `/Contrato/Create?inmuebleId=${inmuebleId}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+    window.location.href = url;
+}
+
+// ! FUNCION: Limpiar formulario
+function limpiarFormulario() {
+    const formulario = document.querySelector('form[action*="BuscarDisponibles"]');
+    if (formulario) {
+        formulario.reset();
+        
+        // Limpiar errores de validación
+        const camposConError = formulario.querySelectorAll('.is-invalid');
+        camposConError.forEach(campo => limpiarErrorCampo(campo));
+        
+        // Restablecer valores por defecto
+        configurarMejorasUX();
+        
+        mostrarAlerta('Filtros limpiados correctamente', 'success');
+    }
+}
+
+// ! ESTILOS: Animaciones y estilos para validaciones
+const estilos = document.createElement('style');
+estilos.textContent = `
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+`;
+document.head.appendChild(estilos);
