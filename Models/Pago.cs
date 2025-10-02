@@ -3,37 +3,48 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace inmobiliariaULP.Models
 {
+    [Table("pagos")]
     public class Pago
     {
         [Key]
         [Column("id_pago")]
-        public int PagoId { get; set; }
+        public int IdPago { get; set; }
 
         [Required]
-        [ForeignKey("Contrato")]
         [Column("id_contrato")]
-        public int ContratoId { get; set; }
-        public virtual Contrato Contrato { get; set; }
+        public int IdContrato { get; set; }
 
         [Required]
-        [ForeignKey("Usuario")]
         [Column("id_usuario")]
-        public int UsuarioId { get; set; }
-        public virtual Usuario Usuario { get; set; }
+        public int IdUsuario { get; set; }
 
         [Required]
+        [Column("fecha_pago")]
         public DateTime FechaPago { get; set; }
 
-        [Required, StringLength(45)]
+        [Required]
+        [Column("numero_pago")]
+        [StringLength(45)]
         public string NumeroPago { get; set; }
 
         [Required]
+        [Column("importe")]
         public decimal Importe { get; set; }
 
-        [Required, StringLength(100)]
+        [Required]
+        [Column("concepto")]
+        [StringLength(100)]
         public string Concepto { get; set; }
 
-        [Required, StringLength(20)]
-        public string EstadoPago { get; set; } // "aprobado", "anulado"
+        [Required]
+        [Column("estadoPago")]
+        public string EstadoPago { get; set; } = "aprobado";
+
+        // Propiedades de navegación
+        [ForeignKey("IdContrato")]
+        public virtual Contrato? Contrato { get; set; }
+
+        [ForeignKey("IdUsuario")]
+        public virtual Usuario? Usuario { get; set; }
     }
 }
