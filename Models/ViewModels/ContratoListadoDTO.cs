@@ -14,4 +14,16 @@ public class ContratoListadoDTO
     public decimal MontoMensual { get; set; }
     public string EstadoContrato { get; set; }
     public int PagosRealizados { get; set; }
+    public int DuracionEnMeses
+    {
+        get
+        {
+            if (FechaInicio == default || FechaFin == default)
+                return 0;
+                
+            // Calcular días totales y dividir por 30 (promedio de días por mes)
+            var totalDias = (FechaFin - FechaInicio).Days;
+            return (int)Math.Round(totalDias / 30.0);
+        }
+    }
 }

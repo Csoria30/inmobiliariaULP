@@ -1,4 +1,3 @@
-// wwwroot/js/contratos-datatable.js
 $(document).ready(function () {
     if (!$.fn.DataTable.isDataTable('#contratosTable')) {
         $('#contratosTable').DataTable({
@@ -9,7 +8,8 @@ $(document).ready(function () {
                 type: 'POST'
             },
             columnDefs: [
-                { targets: 0, className: 'text-center' } // Centra la primera columna (ID)
+                { targets: 0, className: 'text-center' }, // Centra la primera columna (ID)
+                { targets: 9, className: 'text-center' }  // Centra la columna de duración
             ],
             columns: [
                 { data: 'contratoId' },
@@ -21,6 +21,12 @@ $(document).ready(function () {
                 { data: 'fechaFin' },
                 { data: 'montoMensual' },
                 { data: 'estadoContrato' },
+                { 
+                    data: 'duracionEnMeses',
+                    render: function(data) {
+                        return data + ' meses';
+                    }
+                }, // Nueva columna agregada
                 { data: 'pagosRealizados' },
                 { data: 'acciones', orderable: false, searchable: false }
             ],

@@ -82,6 +82,7 @@ public class ContratoController : Controller
                         ? "<span class='badge bg-danger'>Rescindido</span>"
                         : "<span class='badge bg-secondary'>" + contrato.EstadoContrato + "</span>",
                 pagosRealizados = contrato.PagosRealizados,
+                duracionEnMeses = contrato.DuracionEnMeses,
 
                 acciones = $@"
                     <div class='btn-group' role='group'>
@@ -102,15 +103,24 @@ public class ContratoController : Controller
                             <i class='bi bi-pencil'></i>
                         </a>
                         <a 
+                            href='/Pago/Create?contratoId={contrato.ContratoId}' 
+                            class='btn btn-sm btn-outline-success'
+                            data-bs-toggle='tooltip'
+                            data-bs-placement='top'
+                            title='Realizar Pago'>
+                            <i class='bi bi-cash-coin'></i>
+                        </a>
+                        <a 
                             href='#' 
                             class='btn btn-sm btn-outline-danger'
                             data-bs-toggle='modal'
-                            data-bs-target='#modalEliminarContrato'
+                            data-bs-target='#modalRescindirContrato'
                             data-contratoid='{contrato.ContratoId}'
-                            data-contratonombre='{contrato.Direccion}'
+                            data-contratodireccion='{contrato.Direccion}'
+                            data-bs-toggle='tooltip'
                             data-bs-placement='top'
-                            title='Eliminar'>
-                            <i class='bi bi-trash3'></i>
+                            title='Rescindir Contrato'>
+                            <i class='bi bi-x-circle'></i>
                         </a>
                     </div>"
             });
