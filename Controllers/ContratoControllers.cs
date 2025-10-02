@@ -225,6 +225,7 @@ public class ContratoController : Controller
         {
             if (!ModelState.IsValid)
             {
+                var errores = ModelStateHelper.GetErrors(ModelState);
                 return View("Create", contrato);
             }
 
@@ -275,6 +276,7 @@ public class ContratoController : Controller
                 model.TipoInmueble = inmueble.TipoDescripcion;
                 model.UsoInmueble = inmueble.Uso;
                 model.NombrePropietario = inmueble.PropietarioNombre;
+                model.MontoMensual = inmueble.PrecioBase ?? 0;
 
 
                 //- PROPIETARIO
@@ -287,7 +289,7 @@ public class ContratoController : Controller
                         var personaPropietario = await _personaService.ObtenerIdAsync(propietario.PersonaId);
                         model.EmailPropietario = personaPropietario.Email;
                         model.TelefonoPropietario = personaPropietario.Telefono;
-                    }   
+                    }
                 }
                 else
                 {

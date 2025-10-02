@@ -43,6 +43,20 @@ public class ContratoDetalleDTO : IValidatableObject
         }
     }
 
+    [Display(Name = "Duración (meses)")]
+    public int DuracionEnMeses
+    {
+        get
+        {
+            if (FechaInicio == default || FechaFin == default)
+                return 0;
+                
+            // Calcular días totales y dividir por 30 (promedio de días por mes)
+            var totalDias = (FechaFin - FechaInicio).Days;
+            return (int)Math.Round(totalDias / 30.0);
+        }
+    }
+
     // Inmueble
     [Required(ErrorMessage = "Debe seleccionar un inmueble")]
     public int InmuebleId { get; set; }
