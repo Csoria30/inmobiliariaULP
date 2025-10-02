@@ -10,4 +10,11 @@ public interface IInmuebleRepository
     Task<int> UpdateAsync(Inmueble inmueble);
     Task<int> DeleteAsync(int inmuebleId, bool estado);
     Task<IEnumerable<InmueblePropietarioDTO>> ListActiveAsync(string term);
+    Task<IEnumerable<InmuebleDisponibilidadDTO>> SearchDisponiblesAsync(
+        DateTime fechaInicio, 
+        DateTime fechaFin, 
+        string? uso = null, 
+        int? ambientes = null, 
+        decimal? precioMin = null, 
+        decimal? precioMax = null);
 }

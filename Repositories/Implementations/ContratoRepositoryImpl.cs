@@ -41,10 +41,11 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         return Convert.ToInt32(result);
     }
 
-    public Task<int> DeleteAsync(int contratoId)
+    public async Task<int> DeleteAsync(int contratoId)
     {
         throw new NotImplementedException();
     }
+
 
     public async Task<(IEnumerable<ContratoListadoDTO> Contratos, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
     {
@@ -310,6 +311,32 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         {
             throw new Exception("Error al actualizar el contrato", ex);
         }
+    }
+
+    public async Task<bool> ExisteContratoVigenteAsync(int inmuebleId, DateTime fechaInicio, DateTime fechaFin)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT COUNT(*) 
+            FROM contratos 
+            WHERE id_inmueble = @InmuebleId 
+              AND estado = 'vigente'
+              AND (
+                  -- Verificar superposición de fechas
+                  fecha_inicio <= @FechaFin AND fecha_fin >= @FechaInicio
+              )
+        ";
+
+        command.Parameters.AddWithValue("@InmuebleId", inmuebleId);
+        command.Parameters.AddWithValue("@FechaInicio", fechaInicio.Date);
+        command.Parameters.AddWithValue("@FechaFin", fechaFin.Date);
+
+        var count = Convert.ToInt32(await command.ExecuteScalarAsync());
+        
+        return count > 0;
     }
 
 }

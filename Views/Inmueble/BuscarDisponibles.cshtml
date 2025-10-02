@@ -1,0 +1,259 @@
+@model inmobiliariaULP.Models.ViewModels.InmuebleDisponibilidadDTO
+
+@{
+    ViewData["Title"] = "Buscar Inmuebles Disponibles";
+}
+
+<div class="container-fluid px-4 py-5">
+    
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="h2 fw-bold text-success mb-0">
+                <i class="bi bi-search me-2"></i>Buscar Inmuebles Disponibles
+            </h1>
+            <p class="text-muted mb-0">Encuentra el inmueble perfecto para tu cliente</p>
+        </div>
+        @* <div class="col-auto">
+            <a class="btn btn-outline-primary" asp-controller="Contrato" asp-action="Create">
+                <i class="bi bi-file-plus me-2"></i>Crear Contrato
+            </a>
+        </div> *@
+    </div>
+
+    <!-- ✅ MENSAJES de notificación -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle me-2"></i>@TempData["Info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Panel de búsqueda -->
+    <div class="card border-success mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-funnel-fill me-2"></i>Criterios de Búsqueda
+            </h5>
+        </div>
+        <div class="card-body">
+            <!-- ✅ FORMULARIO que hace POST tradicional -->
+            <form asp-action="BuscarDisponibles" method="post">
+                
+                <div class="row g-3">
+                    <!-- Fecha inicio -->
+                    <div class="col-md-3">
+                        <label asp-for="FechaInicio" class="form-label">
+                            <i class="bi bi-calendar-check me-1"></i>@Html.DisplayNameFor(m => m.FechaInicio)
+                        </label>
+                        <input asp-for="FechaInicio" class="form-control" />
+                        <span asp-validation-for="FechaInicio" class="text-danger small"></span>
+                    </div>
+                    
+                    <!-- Fecha fin -->
+                    <div class="col-md-3">
+                        <label asp-for="FechaFin" class="form-label">
+                            <i class="bi bi-calendar-x me-1"></i>@Html.DisplayNameFor(m => m.FechaFin)
+                        </label>
+                        <input asp-for="FechaFin" class="form-control" />
+                        <span asp-validation-for="FechaFin" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Uso -->
+                    <div class="col-md-2">
+                        <label asp-for="Uso" class="form-label">@Html.DisplayNameFor(m => m.Uso)</label>
+                        <select asp-for="Uso" class="form-select">
+                            <option value="">Cualquier uso</option>
+                            <option value="residencial">Residencial</option>
+                            <option value="comercial">Comercial</option>
+                            <option value="industrial">Industrial</option>
+                            <option value="oficina">Oficina</option>
+                        </select>
+                        <span asp-validation-for="Uso" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Ambientes -->
+                    <div class="col-md-2">
+                        <label asp-for="Ambientes" class="form-label">Min. Ambientes</label>
+                        <select asp-for="Ambientes" class="form-select">
+                            <option value="">Cualquier cantidad</option>
+                            <option value="1">1+</option>
+                            <option value="2">2+</option>
+                            <option value="3">3+</option>
+                            <option value="4">4+</option>
+                            <option value="5">5+</option>
+                            <option value="6">6+</option>
+                        </select>
+                        <span asp-validation-for="Ambientes" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Botón buscar -->
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fila de precios -->
+                <div class="row g-3 mt-2">
+                    <!-- Precio mínimo -->
+                    <div class="col-md-3">
+                        <label asp-for="PrecioMin" class="form-label">@Html.DisplayNameFor(m => m.PrecioMin)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="PrecioMin" class="form-control" min="0" step="0.01" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="PrecioMin" class="text-danger small"></span>
+                    </div>
+                    
+                    <!-- Precio máximo -->
+                    <div class="col-md-3">
+                        <label asp-for="PrecioMax" class="form-label">@Html.DisplayNameFor(m => m.PrecioMax)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="PrecioMax" class="form-control" min="0" step="0.01" placeholder="999,999.00" />
+                        </div>
+                        <span asp-validation-for="PrecioMax" class="text-danger small"></span>
+                    </div>
+                    
+                    <!-- Botones -->
+                    <div class="col-md-6 d-flex align-items-end gap-2">
+                        <a href="@Url.Action("BuscarDisponibles")" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+                        </a>
+                        @if (Model.Resultados != null && Model.Resultados.Any())
+                        {
+                            <span class="text-muted small ms-auto align-self-center">
+                                <strong>@Model.Resultados.Count</strong> inmuebles encontrados
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- ✅ Mostrar errores de validación generales -->
+                <div asp-validation-summary="All" class="text-danger mt-3"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ✅ RESULTADOS (mostrar solo si hay resultados) -->
+    @if (Model.Resultados != null && Model.Resultados.Any())
+    {
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul me-2"></i>Resultados de Búsqueda 
+                    <span class="badge bg-primary">@Model.Resultados.Count</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="bi bi-geo-alt me-1"></i>Dirección</th>
+                                <th><i class="bi bi-house me-1"></i>Tipo/Uso</th>
+                                <th><i class="bi bi-door-open me-1"></i>Ambientes</th>
+                                <th><i class="bi bi-currency-dollar me-1"></i>Precio</th>
+                                <th><i class="bi bi-check-circle me-1"></i>Estado</th>
+                                <th><i class="bi bi-person me-1"></i>Propietario</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inmueble in Model.Resultados)
+                            {
+                                <tr>
+                                    <td>@inmueble.Direccion</td>
+                                    <td>@inmueble.TipoInmueble - @inmueble.UsoInmueble</td>
+                                    <td class="text-center">@inmueble.Ambientes</td>
+                                    <td class="text-end">@inmueble.PrecioBase.ToString("C")</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle me-1"></i>Disponible
+                                        </span>
+                                    </td>
+                                    <td>@inmueble.PropietarioNombre</td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a href="/Inmueble/Details/@inmueble.InmuebleId" 
+                                               class="btn btn-sm btn-outline-info" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="/Contrato/Create?inmuebleId=@inmueble.InmuebleId&fechaInicio=@Model.FechaInicio?.ToString("yyyy-MM-dd")&fechaFin=@Model.FechaFin?.ToString("yyyy-MM-dd")" 
+                                               class="btn btn-sm btn-success" 
+                                               data-bs-toggle="tooltip" 
+                                               title="Crear contrato">
+                                                <i class="bi bi-file-plus"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else if (ViewData.ModelState.IsValid && Model.FechaInicio != null)
+    {
+       
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-search display-1 text-muted"></i>
+                <h4 class="mt-3">No se encontraron inmuebles</h4>
+                <p class="text-muted">No hay inmuebles disponibles para los criterios seleccionados.</p>
+                @* <a href="@Url.Action("BuscarDisponibles")" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-1"></i>Nueva búsqueda
+                </a> *@
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- ✅ Estado inicial (no se ha hecho búsqueda) -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-funnel display-1 text-muted"></i>
+                <h4 class="mt-3">Filtros de búsqueda</h4>
+                <p class="text-muted">Seleccione las fechas y criterios para buscar inmuebles disponibles.</p>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <!-- Solo validación del lado cliente -->
+    <partial name="_ValidationScriptsPartial" />
+    
+    <!-- Tooltips -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+}

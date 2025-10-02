@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using inmobiliariaULP.Models;
+using inmobiliariaULP.Models.ViewModels;
 using inmobiliariaULP.Services.Interfaces;
 using inmobiliariaULP.Services.Implementations;
+using inmobiliariaULP.Helpers; // Para ModelStateHelper
 using Microsoft.AspNetCore.Authorization; // Para el atributo [Authorize]
 
 namespace inmobiliariaULP.Controllers;
@@ -291,12 +293,106 @@ public class InmuebleController : Controller
             ViewBag.eliminacion = true;
 
             return RedirectToAction(nameof(Index));
-        } 
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al eliminar el inmueble");
             TempData["Error"] = "Error al eliminar el inmueble: " + ex.Message + $" (ID: {id})";
             return View("Error");
+        }
+    }
+
+
+    //* GET: InmuebleController/BuscarDisponibles
+    [HttpGet]
+    public async Task<IActionResult> BuscarDisponibles()
+    {
+        try
+        {
+            var viewModel = new InmuebleDisponibilidadDTO
+            {
+                FechaInicio = DateTime.Today,
+                FechaFin = DateTime.Today.AddYears(1),
+
+                // Inicializar lista vacía para los resultados
+                Resultados = new List<InmuebleDisponibilidadDTO>()
+            };
+
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar la vista de búsqueda de inmuebles");
+            return View("Error");
+        }
+    }
+
+    //! POST: InmuebleController/BuscarDisponibles
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BuscarDisponibles(InmuebleDisponibilidadDTO modelo)
+    {
+        try
+        {
+            //? Validacion modelo - para debbuging
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Errores de validación en el formulario");
+                modelo.Resultados = new List<InmuebleDisponibilidadDTO>();
+                return View(modelo);
+            }
+            
+            
+            var inmueblesDisponibles = await _inmuebleService.BuscarDisponiblesAsync(
+                modelo.FechaInicio!.Value, 
+                modelo.FechaFin!.Value, 
+                modelo.Uso, 
+                modelo.Ambientes?.ToString(), 
+                modelo.PrecioMin?.ToString(), 
+                modelo.PrecioMax?.ToString()
+            );
+
+            // ASIGNAR resultados al modelo
+            modelo.Resultados = inmueblesDisponibles.ToList();
+            
+            // MENSAJE de resultado
+            if (modelo.Resultados.Count > 0)
+            {
+                TempData["Success"] = $"Se encontraron {modelo.Resultados.Count} inmuebles disponibles para las fechas seleccionadas.";
+            }
+            else
+            {
+                TempData["Info"] = "No se encontraron inmuebles disponibles para los criterios seleccionados.";
+            }
+
+            return View(modelo);
+        }
+        catch (ArgumentException ex)
+        {          
+            // Agregar el error específico al ModelState para mostrarlo en la vista
+            if (ex.Message.Contains("fecha"))
+            {
+                ModelState.AddModelError("FechaFin", ex.Message);
+            }
+            else if (ex.Message.Contains("precio"))
+            {
+                ModelState.AddModelError("PrecioMax", ex.Message);
+            }
+            else
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            
+            modelo.Resultados = new List<InmuebleDisponibilidadDTO>();
+            return View(modelo);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en búsqueda de inmuebles");
+            TempData["Error"] = "Error al buscar inmuebles: " + ex.Message;
+            
+            modelo.Resultados = new List<InmuebleDisponibilidadDTO>();
+            return View(modelo);
         }
     }
 

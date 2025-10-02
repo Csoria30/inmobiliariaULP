@@ -282,7 +282,7 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             {
                 InmuebleId = reader.GetInt32("InmuebleId"),
                 Direccion = reader.GetString("Direccion"),
-                UsoInmueble = reader.GetString("Uso"), 
+                UsoInmueble = reader.GetString("Uso"),
                 Ambientes = reader.GetInt32("Ambientes"),
                 Coordenadas = reader.GetString("Coordenadas"),
                 PrecioBase = reader.GetDecimal("PrecioBase"),
@@ -298,5 +298,112 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
         }
 
         return inmuebles;
+    }
+
+    public async Task<IEnumerable<InmuebleDisponibilidadDTO>> SearchDisponiblesAsync(DateTime fechaInicio, DateTime fechaFin, string? uso = null, int? ambientes = null, decimal? precioMin = null, decimal? precioMax = null)
+    {
+        var inmueblesDisponibles = new List<InmuebleDisponibilidadDTO>();
+
+        using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT 	
+                i.id_inmueble AS InmuebleId,
+                i.direccion AS Direccion,
+                t.descripcion AS TipoInmueble,
+                i.uso AS UsoInmueble,
+                i.ambientes AS Ambientes,
+                i.coordenadas AS Coordenadas,
+                i.precio_base AS PrecioBase,
+                'disponible' AS EstadoDisponibilidad,
+                i.id_propietario AS PropietarioId,
+                CONCAT(p.apellido, ' ', p.nombre) AS PropietarioNombre,
+                p.email AS PropietarioEmail,
+                p.telefono AS PropietarioTelefono
+
+            FROM inmuebles i
+                JOIN propietarios pr 
+                    ON pr.id_propietario = i.id_propietario
+                JOIN personas p 
+                    ON p.id_persona = pr.id_persona
+                JOIN tipos t 
+                    ON i.id_tipo = t.id_tipo
+
+            WHERE 
+                i.estado = 1 AND 
+                pr.estado = 1 AND 
+                p.estado = 1 AND
+                
+                i.id_inmueble NOT IN (
+                    SELECT DISTINCT c.id_inmueble 
+                    FROM contratos c 
+                    WHERE c.estado = 'vigente'
+                    AND (c.fecha_inicio <= @fechaFin AND c.fecha_fin >= @fechaInicio)
+                )";
+
+        
+        command.Parameters.AddWithValue("@fechaInicio", fechaInicio.ToString("yyyy-MM-dd"));
+        command.Parameters.AddWithValue("@fechaFin", fechaFin.ToString("yyyy-MM-dd"));
+
+        // FILTROS opcionales
+        var filtrosAdicionales = new List<string>();
+
+        if (!string.IsNullOrEmpty(uso))
+        {
+            filtrosAdicionales.Add("LOWER(i.uso) = LOWER(@uso)");
+            command.Parameters.AddWithValue("@uso", uso);
+        }
+
+        if (ambientes.HasValue && ambientes.Value > 0)
+        {
+            filtrosAdicionales.Add("i.ambientes >= @ambientes");
+            command.Parameters.AddWithValue("@ambientes", ambientes.Value);
+        }
+
+        if (precioMin.HasValue && precioMin.Value > 0)
+        {
+            filtrosAdicionales.Add("i.precio_base >= @precioMin");
+            command.Parameters.AddWithValue("@precioMin", precioMin.Value);
+        }
+
+        if (precioMax.HasValue && precioMax.Value > 0)
+        {
+            filtrosAdicionales.Add("i.precio_base <= @precioMax");
+            command.Parameters.AddWithValue("@precioMax", precioMax.Value);
+        }
+
+        // Agregra los filtros si existen 
+        if (filtrosAdicionales.Count > 0)
+        {
+            command.CommandText += " AND " + string.Join(" AND ", filtrosAdicionales);
+        }
+
+        // OrdeBy
+        command.CommandText += " ORDER BY i.direccion;";
+
+        using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var inmueble = new InmuebleDisponibilidadDTO
+            {
+                InmuebleId = reader.GetInt32("InmuebleId"),
+                Direccion = reader.GetString("Direccion"),
+                TipoInmueble = reader.GetString("TipoInmueble"),
+                UsoInmueble = reader.GetString("UsoInmueble"),
+                Ambientes = reader.GetInt32("Ambientes"),
+                PrecioBase = reader.GetDecimal("PrecioBase"),
+                EstadoDisponibilidad = reader.GetString("EstadoDisponibilidad"),
+                PropietarioId = reader.GetInt32("PropietarioId"),
+                PropietarioNombre = reader.GetString("PropietarioNombre"),
+                PropietarioEmail = reader.IsDBNull("PropietarioEmail") ? null : reader.GetString("PropietarioEmail"),
+                PropietarioTelefono = reader.IsDBNull("PropietarioTelefono") ? null : reader.GetString("PropietarioTelefono")
+            };
+
+            inmueblesDisponibles.Add(inmueble);
+        }
+
+        return inmueblesDisponibles;
     }
 }

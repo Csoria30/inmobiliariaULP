@@ -9,4 +9,5 @@ public interface IContratoRepository
     Task<ContratoDetalleDTO> GetByIdAsync(int contratoId);
     Task<int> DeleteAsync(int contratoId);
     Task<int> UpdateAsync(Contrato contrato);
+    Task<bool> ExisteContratoVigenteAsync(int inmuebleId, DateTime fechaInicio, DateTime fechaFin);
 }
