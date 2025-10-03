@@ -1,5 +1,5 @@
 /* ================================
-   !Botones
+   !Botones - Esquema Verde
    ================================ */
 .btn {
   font-size: 1.3rem;       /* Igual que texto base */
@@ -19,7 +19,7 @@
   border-color: var(--bs-dark-btn-hover);
 }
 
-/* Estilo de  botones del paginador de DataTables */
+/* Estilo de botones del paginador de DataTables */
 .dataTables_paginate .pagination .page-link {
   font-size: .9rem;
   padding: 0.8rem 1.6rem;
@@ -37,4 +37,24 @@
   color: #fff;
 }
 
+/* Botones verdes específicos */
+.btn-success {
+  background-color: #198754;
+  border-color: #146c43;
+}
 
+.btn-success:hover {
+  background-color: #20c997;
+  border-color: #198754;
+}
+
+.btn-outline-success {
+  color: #198754;
+  border-color: #198754;
+}
+
+.btn-outline-success:hover {
+  background-color: #198754;
+  border-color: #146c43;
+  color: #fff;
+}
