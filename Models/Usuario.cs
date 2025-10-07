@@ -14,9 +14,6 @@ namespace inmobiliariaULP.Models
         [Column("id_empleado")]
         public int EmpleadoId { get; set; }
 
-
-
-
         [StringLength(45)]
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         public string Password { get; set; }

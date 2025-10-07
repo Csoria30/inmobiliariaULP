@@ -17,21 +17,25 @@ public class PersonaRepositoryImpl(IConfiguration configuration) : BaseRepositor
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO personas (dni, apellido, nombre, telefono, email) 
-            VALUES (@Dni, @Apellido, @Nombre, @Telefono, @Email);
-            
-            SELECT LAST_INSERT_ID();
-        ";
+        command.CommandType = CommandType.StoredProcedure; //Indica que es un SP
+        command.CommandText = "sp_InsertPersona"; //  procedimiento almacenado
 
-        command.Parameters.AddWithValue("@Dni", persona.Dni);
-        command.Parameters.AddWithValue("@Apellido", persona.Apellido);
-        command.Parameters.AddWithValue("@Nombre", persona.Nombre);
-        command.Parameters.AddWithValue("@Telefono", persona.Telefono);
-        command.Parameters.AddWithValue("@Email", persona.Email);
+        command.Parameters.AddWithValue("@p_dni", persona.Dni);
+        command.Parameters.AddWithValue("@p_apellido", persona.Apellido);
+        command.Parameters.AddWithValue("@p_nombre", persona.Nombre);
+        command.Parameters.AddWithValue("@p_telefono", persona.Telefono);
+        command.Parameters.AddWithValue("@p_email", persona.Email);
 
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToInt32(result);
+        // Parámetro de salida para el ID
+        var outputParam = new MySqlParameter("@p_id", MySqlDbType.Int32)
+        {
+            Direction = ParameterDirection.Output
+        };
+        command.Parameters.Add(outputParam);
+
+        await command.ExecuteNonQueryAsync();
+        
+        return Convert.ToInt32(outputParam.Value);
     }
 
     //? "Elimina" una persona cambiando su estado (Logica delete)

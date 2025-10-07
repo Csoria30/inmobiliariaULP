@@ -76,7 +76,19 @@ public class UsuarioServiceImpl : IUsuarioService
             string hashed = PasswordHelper.HashPassword(usuario.Password, _configuration["Salt"]);
             usuario.Password = hashed;
 
-            return await _usuarioRepository.AddAsync(usuario);
+            var idUsuario = await _usuarioRepository.AddAsync(usuario);
+
+            if (idUsuario <= 0)
+                throw new Exception("No se pudo crear el usuario");
+
+            return new Usuario
+            {
+                UsuarioId = idUsuario,
+                EmpleadoId = usuario.EmpleadoId,
+                Password = usuario.Password,
+                Rol = usuario.Rol,
+                Avatar = usuario.Avatar ?? "defaultAvatar.png", 
+            };
         }
         catch (Exception ex)
         {

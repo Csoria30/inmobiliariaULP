@@ -85,43 +85,42 @@ public class ContratoController : Controller
                 duracionEnMeses = contrato.DuracionEnMeses,
 
                 acciones = $@"
-                    <div class='btn-group' role='group'>
-                        <a 
-                            href='/Contrato/Details/{contrato.ContratoId}' 
-                            class='btn btn-sm btn-outline-info' 
-                            data-bs-toggle='tooltip' 
-                            data-bs-placement='top' 
-                            title='Más información'>
-                            <i class='bi bi-eye'></i>
-                        </a>
-                        <a 
-                            href='/Contrato/Edit/{contrato.ContratoId}' 
-                            class='btn btn-sm btn-outline-warning' 
-                            data-bs-toggle='tooltip' 
-                            data-bs-placement='top' 
-                            title='Editar Contrato'>
-                            <i class='bi bi-pencil'></i>
-                        </a>
-                        <a 
-                            href='/Pago/Create?contratoId={contrato.ContratoId}' 
-                            class='btn btn-sm btn-outline-success'
-                            data-bs-toggle='tooltip'
-                            data-bs-placement='top'
-                            title='Realizar Pago'>
-                            <i class='bi bi-cash-coin'></i>
-                        </a>
-                        <a 
-                            href='#' 
-                            class='btn btn-sm btn-outline-danger'
-                            data-bs-toggle='modal'
-                            data-bs-target='#modalRescindirContrato'
-                            data-contratoid='{contrato.ContratoId}'
-                            data-contratodireccion='{contrato.Direccion}'
-                            data-bs-toggle='tooltip'
-                            data-bs-placement='top'
-                            title='Rescindir Contrato'>
-                            <i class='bi bi-x-circle'></i>
-                        </a>
+                    <div class='dropdown text-end'>
+                        <button class='btn btn-sm btn-outline-secondary dropdown-toggle' type='button' data-bs-toggle='dropdown' aria-expanded='false'>
+                            Acciones
+                        </button>
+                        <ul class='dropdown-menu'>
+                            <li>
+                                <a class='dropdown-item' href='/Contrato/Details/{contrato.ContratoId}'>
+                                    <i class='bi bi-eye me-2'></i>Ver Detalles
+                                </a>
+                            </li>
+                            <li>
+                                <a class='dropdown-item' href='/Contrato/Edit/{contrato.ContratoId}'>
+                                    <i class='bi bi-pencil me-2'></i>Editar Contrato
+                                </a>
+                            </li>
+                            <li>
+                                <a class='dropdown-item' href='/Pago/Create?contratoId={contrato.ContratoId}'>
+                                    <i class='bi bi-cash-coin me-2'></i>Realizar Pago
+                                </a>
+                            </li>
+                            <li>
+                                <a class='dropdown-item' href='/Contrato/Historial/{contrato.ContratoId}'>
+                                    <i class='bi bi-clock-history me-2'></i>Ver Historial
+                                </a>
+                            </li>
+                            <li><hr class='dropdown-divider'></li>
+                            <li>
+                                <a class='dropdown-item text-danger' href='#' 
+                                data-bs-toggle='modal'
+                                data-bs-target='#modalRescindirContrato'
+                                data-contratoid='{contrato.ContratoId}'
+                                data-contratodireccion='{contrato.Direccion}'>
+                                    <i class='bi bi-x-circle me-2'></i>Rescindir Contrato
+                                </a>
+                            </li>
+                        </ul>
                     </div>"
             });
 

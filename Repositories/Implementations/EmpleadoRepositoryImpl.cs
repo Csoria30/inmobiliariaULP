@@ -13,14 +13,19 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO empleados (id_persona) VALUES (@PersonaId);
-            SELECT LAST_INSERT_ID();
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_InsertEmpleado";
 
         command.Parameters.AddWithValue("@PersonaId", personaId);
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToInt32(result);
+        
+        var outputParam = new MySqlParameter("@p_empleado_id", MySqlDbType.Int32)
+        {
+            Direction = ParameterDirection.Output
+        };
+        command.Parameters.Add(outputParam);
+
+        await command.ExecuteNonQueryAsync();
+        return Convert.ToInt32(outputParam.Value);
     }
 
     public async Task<int> DeleteAsync(int empleadoId)
@@ -29,13 +34,13 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            DELETE FROM empleados
-            WHERE id_empleado = @empleadoId
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_DeleteEmpleado";
 
         command.Parameters.AddWithValue("@empleadoId", empleadoId);
-        return await command.ExecuteNonQueryAsync();
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public async Task<(IEnumerable<Empleado> Empleados, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
@@ -127,17 +132,10 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 
-                id_empleado,
-                id_persona, 
-                estado 
-            
-            FROM empleados
-            WHERE id_persona = @EmpleadoId;
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_GetEmpleadoById";
 
-        command.Parameters.AddWithValue("@EmpleadoId", empleadoId);
+        command.Parameters.AddWithValue("@p_empleado_id", empleadoId);
 
         using var reader = await command.ExecuteReaderAsync();
         if (await reader.ReadAsync())
@@ -159,15 +157,11 @@ public class EmpleadoRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            UPDATE empleados 
-            SET estado = @Estado 
-            WHERE id_empleado = @EmpleadoId
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_UpdateEmpleadoEstado";
 
-        // Asignamos los parámetros
-        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
-        command.Parameters.AddWithValue("@EmpleadoId", empleadoId);
+        command.Parameters.AddWithValue("@p_empleado_id", empleadoId);
+        command.Parameters.AddWithValue("@p_estado", estado ? 1 : 0);
 
         return await command.ExecuteNonQueryAsync();
     }

@@ -8,29 +8,32 @@ namespace inmobiliariaULP.Repositories.Implementations;
 
 public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseRepository(configuration), IInmuebleRepository
 {
-    public async Task<Inmueble> AddAsync(Inmueble inmueble)
+    public async Task<int> AddAsync(Inmueble inmueble)
     {
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO inmuebles
-            (direccion, uso, ambientes, coordenadas, precio_base,  id_propietario, id_tipo)
-            VALUES
-            (@Direccion, @Uso, @Ambientes, @Coordenadas, @PrecioBase,  @IdPropietario, @IdTipo);
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_InsertInmueble";
 
-        command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
-        command.Parameters.AddWithValue("@Uso", inmueble.Uso);
-        command.Parameters.AddWithValue("@Ambientes", inmueble.Ambientes);
-        command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
-        command.Parameters.AddWithValue("@PrecioBase", inmueble.PrecioBase);
-        command.Parameters.AddWithValue("@IdPropietario", inmueble.PropietarioId);
-        command.Parameters.AddWithValue("@IdTipo", inmueble.TipoId);
+        // Parámetros de entrada
+        command.Parameters.AddWithValue("@p_direccion", inmueble.Direccion);
+        command.Parameters.AddWithValue("@p_uso", inmueble.Uso);
+        command.Parameters.AddWithValue("@p_ambientes", inmueble.Ambientes);
+        command.Parameters.AddWithValue("@p_coordenadas", inmueble.Coordenadas);
+        command.Parameters.AddWithValue("@p_precio_base", inmueble.PrecioBase);
+        command.Parameters.AddWithValue("@p_id_propietario", inmueble.PropietarioId);
+        command.Parameters.AddWithValue("@p_id_tipo", inmueble.TipoId);
 
-        var result = await command.ExecuteScalarAsync();
-        return inmueble;
+        var outputParam = new MySqlParameter("@p_inmueble_id", MySqlDbType.Int32)
+        {
+            Direction = ParameterDirection.Output
+        };
+        command.Parameters.Add(outputParam);
+
+        await command.ExecuteNonQueryAsync();
+        return Convert.ToInt32(outputParam.Value);
     }
 
     public async Task<(IEnumerable<Inmueble> Inmuebles, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
@@ -129,33 +132,10 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             await connection.OpenAsync();
 
             var command = connection.CreateCommand();
-            command.CommandText = @"
-                SELECT 	
-                    i.id_inmueble, 
-                    i.direccion, 
-                    i.uso, 
-                    i.ambientes, 
-                    i.coordenadas, 
-                    i.precio_base, 
-                    i.estado, 
-                    i.id_propietario,
-                     p.nombre,p.apellido,
-                    i.id_tipo, 
-                    t.descripcion
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "sp_GetInmuebleById";
 
-                FROM inmuebles i
-
-                JOIN propietarios pr
-                	ON pr.id_propietario = i.id_propietario
-                JOIN personas p
-                	ON p.id_persona = pr.id_persona
-                JOIN tipos t
-                	ON i.id_tipo = t.id_tipo
-
-                WHERE i.id_inmueble = @InmuebleId;
-            ";
-
-            command.Parameters.AddWithValue("@InmuebleId", inmuebleId);
+            command.Parameters.AddWithValue("@p_inmueble_id", inmuebleId);
 
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
@@ -194,29 +174,21 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
             await connection.OpenAsync();
 
             var command = connection.CreateCommand();
-            command.CommandText = @"
-                UPDATE inmuebles
-                SET 
-                    direccion = @Direccion,
-                    uso = @Uso,
-                    ambientes = @Ambientes,
-                    coordenadas = @Coordenadas,
-                    precio_base = @PrecioBase,
-                    id_propietario = @IdPropietario,
-                    id_tipo = @IdTipo
-                WHERE id_inmueble = @InmuebleId;
-            ";
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "sp_UpdateInmueble";
 
-            command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
-            command.Parameters.AddWithValue("@Uso", inmueble.Uso);
-            command.Parameters.AddWithValue("@Ambientes", inmueble.Ambientes);
-            command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
-            command.Parameters.AddWithValue("@PrecioBase", inmueble.PrecioBase);
-            command.Parameters.AddWithValue("@IdPropietario", inmueble.PropietarioId);
-            command.Parameters.AddWithValue("@IdTipo", inmueble.TipoId);
-            command.Parameters.AddWithValue("@InmuebleId", inmueble.InmuebleId);
+            // Parámetros del procedimiento
+            command.Parameters.AddWithValue("@p_id_inmueble", inmueble.InmuebleId);
+            command.Parameters.AddWithValue("@p_direccion", inmueble.Direccion);
+            command.Parameters.AddWithValue("@p_uso", inmueble.Uso);
+            command.Parameters.AddWithValue("@p_ambientes", inmueble.Ambientes);
+            command.Parameters.AddWithValue("@p_coordenadas", inmueble.Coordenadas);
+            command.Parameters.AddWithValue("@p_precio_base", inmueble.PrecioBase);
+            command.Parameters.AddWithValue("@p_id_propietario", inmueble.PropietarioId);
+            command.Parameters.AddWithValue("@p_id_tipo", inmueble.TipoId);
 
-            return await command.ExecuteNonQueryAsync();
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
         catch (Exception ex)
         {
@@ -230,15 +202,14 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            UPDATE inmuebles
-            SET estado = @Estado
-            WHERE id_inmueble = @InmuebleId;";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_UpdateInmuebleEstado";
 
-        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
-        command.Parameters.AddWithValue("@InmuebleId", inmuebleId);
+        command.Parameters.AddWithValue("@p_inmueble_id", inmuebleId);
+        command.Parameters.AddWithValue("@p_estado", estado ? 1 : 0);
 
-        return await command.ExecuteNonQueryAsync();
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public async Task<IEnumerable<InmueblePropietarioDTO>> ListActiveAsync(string term)
@@ -249,38 +220,10 @@ public class InmuebleRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 	
-                i.id_inmueble AS InmuebleId, 
-                i.direccion AS Direccion, 
-                i.uso AS Uso, 
-                i.ambientes AS Ambientes, 
-                i.coordenadas AS Coordenadas, 
-                i.precio_base PrecioBase, 
-                i.estado AS EstadoInmueble, 
-                i.id_propietario AS PropietarioId, 
-                CONCAT(p.apellido, ' ', p.nombre ) AS NombrePropietario,
-                i.id_tipo AS Tipo, 
-                t.descripcion AS Descripcion,
-                p.email AS Email,
-                p.telefono AS Telefono
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_ListInmueblesActivos";
 
-            FROM inmuebles i
-                JOIN propietarios pr
-                    ON pr.id_propietario = i.id_propietario
-                JOIN personas p
-                    ON p.id_persona = pr.id_persona
-                JOIN tipos t
-                    ON i.id_tipo = t.id_tipo
-
-            WHERE 
-                (LOWER(i.direccion) LIKE LOWER(@term) OR 
-                LOWER(i.uso) LIKE LOWER(@term)) AND 
-                i.estado = 1
-            LIMIT 10;
-        ";
-
-        command.Parameters.AddWithValue("@term", $"%{term}%");
+        command.Parameters.AddWithValue("@p_term", term ?? string.Empty);
 
         using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())

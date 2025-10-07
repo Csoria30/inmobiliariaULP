@@ -12,7 +12,7 @@ $(document).ready(function () {
                 { targets: 9, className: 'text-center' }  // Centra la columna de duración
             ],
             columns: [
-                { data: 'contratoId' },
+                /* { data: 'contratoId' }, */
                 { data: 'direccion' },
                 { data: 'tipoInmueble' },
                 { data: 'nombrePropietario' },

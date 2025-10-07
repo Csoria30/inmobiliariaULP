@@ -14,20 +14,8 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO contratos(
-                id_inmueble, id_inquilino, id_usuario, 
-                fecha_inicio,  fecha_fin, monto_mensual, 
-                estado
-
-            )VALUES(
-                @IdInmueble, @IdInquilino, @IdUsuario, 
-                @FechaInicio, @FechaFin, @MontoMensual, 
-                @EstadoContrato
-            );
-
-            SELECT LAST_INSERT_ID();
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_InsertContrato";
 
         command.Parameters.AddWithValue("@IdInmueble", contrato.InmuebleId);
         command.Parameters.AddWithValue("@IdInquilino", contrato.InquilinoId);
@@ -37,8 +25,16 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         command.Parameters.AddWithValue("@MontoMensual", contrato.MontoMensual);
         command.Parameters.AddWithValue("@EstadoContrato", contrato.Estado);
 
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToInt32(result);
+        // Var para obtener el ID insertado
+        var outputParam = new MySqlParameter("@p_contrato_id", MySqlDbType.Int32)
+        {
+            Direction = ParameterDirection.Output
+        };
+        command.Parameters.Add(outputParam);
+
+        await command.ExecuteNonQueryAsync();
+        
+        return Convert.ToInt32(outputParam.Value);
     }
 
     public async Task<int> DeleteAsync(int contratoId)
@@ -153,69 +149,9 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
             await connection.OpenAsync();
 
             var command = connection.CreateCommand();
-            command.CommandText = @"
-                SELECT 
-                    c.id_contrato AS ContratoId,
-                    -- Inmueble
-                    c.id_inmueble AS InmuebleId,
-                    i.direccion AS Direccion,
-                    t.descripcion AS TipoInmueble,
-                    i.uso AS UsoInmueble,
-                    i.ambientes AS Ambientes,
-                    i.coordenadas AS Coordenadas,
-                    i.estado AS EstadoInmueble,
-                    
-                    -- Propietario
-                    pro.id_propietario AS PropietarioId,
-                    pro.id_persona AS PropietarioIdPersona,
-                    CONCAT(p.apellido, ' ', p.nombre ) AS NombrePropietario,
-                    p.email AS EmailPropietario,
-                    p.telefono AS TelefonoPropietario,
-                    
-                    -- Inquilino
-                    c.id_inquilino AS InquilinoId,
-                    pi.id_persona AS InquilinoIdPersona,
-                    CONCAT(pi.apellido, ' ', pi.nombre) AS NombreInquilino,
-                    pi.email AS EmailInquilino,
-                    pi.telefono AS TelefonoInquilino,
-                    
-                    -- Usuario Inicio
-                    c.id_usuario AS UsuarioId,
-                    CONCAT(pu.apellido, ' ', pu.nombre) AS NombreEmpleado,
-                    pu.email AS EmailUsuario,
-                    u.rol AS RolUsuario,
-                    -- Usuario Fin
-                    c.id_usuario_finaliza AS UsuarioIdFin,
-                    CONCAT(puf.apellido, ' ', puf.nombre) AS NombreEmpleadoFin,
-                    puf.email AS EmailUsuarioFin,
-                    uf.rol AS RolUsuarioFin,
-                    
-                    -- Contrato
-                    c.fecha_inicio AS FechaInicio,
-                    c.fecha_fin AS FechaFin,
-                    c.monto_mensual AS MontoMensual,
-                    c.fecha_finalizacion_anticipada AS FechaAnticipada,
-                    c.multa AS Multa,
-                    c.estado AS EstadoContrato,
-                    -- Pagos
-                    (SELECT COUNT(*) FROM pagos pg WHERE pg.id_contrato = c.id_contrato AND pg.estadoPago = 'aprobado') AS PagosRealizados
-
-                FROM contratos c
-                    JOIN inmuebles i ON i.id_inmueble = c.id_inmueble
-                    JOIN tipos t ON i.id_tipo = t.id_tipo
-                    JOIN propietarios pro ON i.id_propietario = pro.id_propietario
-                    JOIN personas p ON pro.id_persona = p.id_persona
-                    JOIN inquilinos inq ON inq.id_inquilino = c.id_inquilino
-                    JOIN personas pi ON inq.id_persona = pi.id_persona
-                    JOIN usuarios u ON c.id_usuario = u.id_usuario
-                    JOIN empleados e ON u.id_empleado = e.id_empleado
-                    JOIN personas pu ON e.id_persona = pu.id_persona
-                    LEFT JOIN usuarios uf ON c.id_usuario_finaliza = uf.id_usuario
-                    LEFT JOIN empleados ef ON uf.id_empleado = ef.id_empleado
-                    LEFT JOIN personas puf ON ef.id_persona = puf.id_persona
-                WHERE c.id_contrato = @contratoId
-            ";
-            command.Parameters.AddWithValue("@contratoId", contratoId);
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "sp_GetContratoDetalle";
+            command.Parameters.AddWithValue("@p_contrato_id", contratoId);
 
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
@@ -279,33 +215,24 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
             await connection.OpenAsync();
 
             var command = connection.CreateCommand();
-            command.CommandText = @"
-                UPDATE contratos
-                SET 
-                    id_inmueble = @IdInmueble,
-                    id_inquilino = @IdInquilino,
-                    id_usuario = @IdUsuario,
-                    fecha_inicio = @FechaInicio,
-                    fecha_fin = @FechaFin,
-                    monto_mensual = @MontoMensual,
-                    fecha_finalizacion_anticipada = @FechaFinalizacionAnticipada,
-                    multa = @Multa,
-                    estado = @EstadoContrato
-                WHERE id_contrato = @ContratoId;
-            ";
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "sp_UpdateContrato";
 
-            command.Parameters.AddWithValue("@IdInmueble", contrato.InmuebleId);
-            command.Parameters.AddWithValue("@IdInquilino", contrato.InquilinoId);
-            command.Parameters.AddWithValue("@IdUsuario", contrato.UsuarioId);
-            command.Parameters.AddWithValue("@FechaInicio", contrato.FechaInicio);
-            command.Parameters.AddWithValue("@FechaFin", contrato.FechaFin);
-            command.Parameters.AddWithValue("@MontoMensual", contrato.MontoMensual);
-            command.Parameters.AddWithValue("@FechaFinalizacionAnticipada", contrato.FechaFinalizacionAnticipada);
-            command.Parameters.AddWithValue("@Multa", (object?)contrato.Multa ?? DBNull.Value);
-            command.Parameters.AddWithValue("@EstadoContrato", contrato.Estado);
-            command.Parameters.AddWithValue("@ContratoId", contrato.ContratoId);
+            // Parámetros del procedimiento
+            command.Parameters.AddWithValue("@p_id_contrato", contrato.ContratoId);
+            command.Parameters.AddWithValue("@p_id_inmueble", contrato.InmuebleId);
+            command.Parameters.AddWithValue("@p_id_inquilino", contrato.InquilinoId);
+            command.Parameters.AddWithValue("@p_id_usuario", contrato.UsuarioId);
+            command.Parameters.AddWithValue("@p_fecha_inicio", contrato.FechaInicio);
+            command.Parameters.AddWithValue("@p_fecha_fin", contrato.FechaFin);
+            command.Parameters.AddWithValue("@p_monto_mensual", contrato.MontoMensual);
+            command.Parameters.AddWithValue("@p_fecha_finalizacion_anticipada", contrato.FechaFinalizacionAnticipada);
+            command.Parameters.AddWithValue("@p_multa", (object?)contrato.Multa ?? DBNull.Value);
+            command.Parameters.AddWithValue("@p_estado", contrato.Estado);
 
-            return await command.ExecuteNonQueryAsync();
+            // ExecuteScalar para saber num de filas 
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
         catch (Exception ex)
         {
@@ -322,7 +249,7 @@ public class ContratoRepositoryImpl(IConfiguration configuration) : BaseReposito
         command.CommandText = @"
             SELECT COUNT(*) 
             FROM contratos 
-            WHERE id_inmueble = @InmuebleId 
+            WHERE id_inmueble = @InmuebleId
               AND estado = 'vigente'
               AND (
                   -- Verificar superposición de fechas

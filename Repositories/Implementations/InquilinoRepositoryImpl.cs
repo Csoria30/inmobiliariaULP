@@ -13,14 +13,19 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO inquilinos (id_persona) VALUES (@PersonaId);
-            SELECT LAST_INSERT_ID();
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_InsertInquilino";
 
-        command.Parameters.AddWithValue("@PersonaId", personaId);
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToInt32(result);
+        command.Parameters.AddWithValue("@p_id_persona", personaId);
+
+        var outputParam = new MySqlParameter("@p_inquilino_id", MySqlDbType.Int32)
+        {
+            Direction = ParameterDirection.Output
+        };
+        command.Parameters.Add(outputParam);
+
+        await command.ExecuteNonQueryAsync();
+        return Convert.ToInt32(outputParam.Value);
     }
 
     public async Task<int> DeleteAsync(int inquilinoId)
@@ -29,13 +34,13 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            DELETE FROM inquilinos 
-            WHERE id_propietario = @inquilinoId
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_DeleteInquilino";
 
-        command.Parameters.AddWithValue("@inquilinoId", inquilinoId);
-        return await command.ExecuteNonQueryAsync();
+        command.Parameters.AddWithValue("@p_inquilino_id", inquilinoId);
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public async Task<(IEnumerable<Inquilino> Personas, int Total)> GetAllAsync(int page, int pageSize, string? search = null)
@@ -116,17 +121,11 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 
-                id_inquilino,
-                id_persona, 
-                estado 
-            
-            FROM inquilinos
-            WHERE id_persona = @InquilinoId;
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_GetInquilinoById";
 
-        command.Parameters.AddWithValue("@InquilinoId", inquilinoId);
+        command.Parameters.AddWithValue("@p_persona_id", inquilinoId);
+
         using var reader = await command.ExecuteReaderAsync();
         if (await reader.ReadAsync())
         {
@@ -147,17 +146,14 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            UPDATE inquilinos 
-            SET estado = @Estado 
-            WHERE id_inquilino = @InquilinoId
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_UpdateInquilinoEstado";
 
-        // Asignamos los parámetros
-        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
-        command.Parameters.AddWithValue("@InquilinoId", inquilinoId);
+        command.Parameters.AddWithValue("@p_inquilino_id", inquilinoId);
+        command.Parameters.AddWithValue("@p_estado", estado ? 1 : 0);
 
-        return await command.ExecuteNonQueryAsync();
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public async Task<IEnumerable<InquilinoContratoDTO>> ListActiveAsync(string term)
@@ -166,27 +162,12 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
 
         using var connection = new MySqlConnection(connectionString);
         await connection.OpenAsync();
+
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 
-                i.id_inquilino AS InquilinoId,
-                p.dni AS Dni,
-                CONCAT(p.apellido, ' ', p.nombre) AS NombreInquilino,
-                p.email AS Email,
-                p.telefono AS Telefono
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_ListInquilinosActivos";
 
-            FROM inquilinos i
-	            JOIN personas p 
-		            ON i.id_persona = p.id_persona
-
-            WHERE i.estado = 1
-              AND (p.apellido LIKE @Term OR p.nombre LIKE @Term OR p.dni LIKE @Term)
-            
-            ORDER BY p.apellido, p.nombre
-            LIMIT 10;
-        ";
-
-        command.Parameters.AddWithValue("@term", $"%{term}%");
+        command.Parameters.AddWithValue("@p_term", term ?? string.Empty);
 
         using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())
@@ -202,6 +183,7 @@ public class InquilinoRepositoryImpl(IConfiguration configuration) : BaseReposit
 
             inquilinos.Add(inquilino);
         }
+        
         return inquilinos;
     }
 

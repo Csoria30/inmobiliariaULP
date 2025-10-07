@@ -12,14 +12,19 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO propietarios (id_persona) VALUES (@PersonaId);
-            SELECT LAST_INSERT_ID();
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_InsertPropietario";
 
-        command.Parameters.AddWithValue("@PersonaId", personaId);
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToInt32(result);
+        command.Parameters.AddWithValue("@p_id_persona", personaId);
+
+        var outputParam = new MySqlParameter("@p_propietario_id", MySqlDbType.Int32)
+        {
+            Direction = ParameterDirection.Output
+        };
+        command.Parameters.Add(outputParam);
+
+        await command.ExecuteNonQueryAsync();
+        return Convert.ToInt32(outputParam.Value);
     }
 
     public async Task<int> DeleteAsync(int propietarioId)
@@ -28,13 +33,13 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            DELETE FROM propietarios 
-            WHERE id_propietario = @PropietarioId
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_DeletePropietario";
 
-        command.Parameters.AddWithValue("@PropietarioId", propietarioId);
-        return await command.ExecuteNonQueryAsync();
+        command.Parameters.AddWithValue("@p_propietario_id", propietarioId);
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
 
     }
 
@@ -117,17 +122,11 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT 
-	            id_propietario, 
-	            id_persona, 
-	            estado 
-	
-	        FROM propietarios 
-	        WHERE id_propietario = @PropietarioId;
-        ";
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_GetPropietarioById";
 
-        command.Parameters.AddWithValue("@PropietarioId", propietarioId);
+        command.Parameters.AddWithValue("@p_propietario_id", propietarioId);
+
         using var reader = await command.ExecuteReaderAsync();
         if (await reader.ReadAsync())
         {
@@ -148,16 +147,14 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            UPDATE propietarios 
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_UpdatePropietarioEstado";
 
-            SET estado = @Estado 
-            WHERE id_propietario = @PropietarioId
-        ";
+        command.Parameters.AddWithValue("@p_propietario_id", propietarioId);
+        command.Parameters.AddWithValue("@p_estado", estado ? 1 : 0);
 
-        command.Parameters.AddWithValue("@Estado", estado ? 1 : 0);
-        command.Parameters.AddWithValue("@PropietarioId", propietarioId);
-        return await command.ExecuteNonQueryAsync();
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public async Task<IEnumerable<Propietario>> ListActiveAsync(string term)
@@ -168,22 +165,10 @@ public class PropietarioRepositoryImpl(IConfiguration configuration) : BaseRepos
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            SELECT
-                pr.id_propietario, 
-                p.id_persona, 
-                p.apellido, 
-                p.nombre
-            FROM personas p
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "sp_ListPropietariosActivos";
 
-            INNER JOIN propietarios pr 
-                ON p.id_persona = pr.id_persona
-
-            WHERE pr.estado = 1 AND (p.apellido LIKE @Term OR p.nombre LIKE @Term)
-            LIMIT 10;
-        ";
-
-        command.Parameters.AddWithValue("@Term", $"%{term}%");
+        command.Parameters.AddWithValue("@p_term", term ?? string.Empty);
 
         using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())
