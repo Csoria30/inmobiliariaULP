@@ -12,10 +12,10 @@ public class Propietario : Persona
     [Required]
     [ForeignKey("Persona")]
     [Column("id_persona")]
-    public int PersonaId { get; set; }
+    public new int PersonaId { get; set; }
 
     [Required]
-    public bool Estado { get; set; }
+    public new bool Estado { get; set; }
 
 
     // Constructor por defecto

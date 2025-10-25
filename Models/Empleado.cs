@@ -15,7 +15,7 @@ namespace inmobiliariaULP.Models
         public int PersonaId { get; set; }
 
         [Required]
-        public bool Estado { get; set; }
+        public new bool Estado { get; set; }
 
         public Empleado() : base() { }
     }
